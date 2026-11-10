@@ -22,6 +22,7 @@ create table if not exists public.luoghi (
   lon         double precision not null,
   quartiere   text,                          -- solo per Roma
   citta       text,
+  tipo        text,                          -- trattoria, pizza, vino… (per la missione "Giro completo")
   aggiornato  timestamptz not null default now()
 );
 
@@ -50,7 +51,11 @@ create table if not exists public.recensioni (
   utente      uuid not null references public.profili (id) on delete cascade,
   luogo       text not null references public.luoghi (id) on delete cascade,
   voto        smallint not null check (voto between 1 and 5),
-  testo       text not null default '' check (char_length(testo) <= 600),
+  carattere   text not null default '' check (char_length(carattere) <= 120),   -- "com'è", in poche parole
+  dritta      text not null default '' check (char_length(dritta) <= 400),      -- il consiglio pratico
+  etichette   text[] not null default '{}' check (cardinality(etichette) <= 3 and etichette <@ array[
+                'aperitivo', 'in piedi', 'da prenotare', 'niente prenotazioni', 'pausa pranzo', 'dopocena',
+                'compleanni', 'all''aperto', 'per gruppi', 'economico', 'caro', 'smart working']::text[]),
   stato       text not null default 'pubblicata' check (stato in ('pubblicata', 'nascosta')),
   creata      timestamptz not null default now(),
   modificata  timestamptz,
@@ -113,7 +118,7 @@ create policy "segnalazioni: invio" on public.segnalazioni for insert to authent
 -- ---------- Viste pubbliche (solo ciò che è pensato per essere pubblico) ----------
 
 create or replace view public.recensioni_pubbliche as
-  select r.id, r.luogo, r.voto, r.testo, r.creata, p.nickname
+  select r.id, r.luogo, r.voto, r.carattere, r.dritta, r.etichette, r.creata, p.nickname
   from public.recensioni r join public.profili p on p.id = r.utente
   where r.stato = 'pubblicata';
 
@@ -124,10 +129,25 @@ create or replace view public.valutazioni as
 revoke all on public.recensioni_pubbliche, public.valutazioni from anon, authenticated;
 grant select on public.recensioni_pubbliche, public.valutazioni to anon, authenticated;
 
--- ---------- Punti: calcolati solo qui ----------
+-- ---------- Punti e missioni: calcolati solo qui ----------
 -- +10 primo check-in in un posto · +2 check-in ripetuto (altro giorno, max 5 per posto)
--- +20 primo posto in un nuovo quartiere (o località) · +5 recensione · +10 se il testo ha almeno 80 caratteri
--- Livello: uno ogni 100 punti.
+-- +20 primo posto in un nuovo quartiere (o località) · +5 recensione · +10 se com'è + dritta fanno almeno 80 caratteri
+-- + bonus delle missioni completate. Livello: uno ogni 100 punti.
+
+create or replace function public.missioni(u uuid)
+returns table (codice text, fatta boolean, bonus int) language sql stable security definer set search_path = public as $$
+  with v as (select v.luogo, v.giorno, l.quartiere, l.citta, l.tipo from public.visite v join public.luoghi l on l.id = v.luogo where v.utente = u),
+       r as (select * from public.recensioni where utente = u and stato = 'pubblicata')
+  select * from (values
+    ('primo_passo',   (select count(*) >= 1 from v), 15),
+    ('dimmi_come',    (select count(*) >= 1 from r), 15),
+    ('esploratore',   (select count(distinct coalesce(quartiere, citta)) >= 3 from v), 30),
+    ('habitue',       (select coalesce(max(n), 0) >= 3 from (select count(*) n from v group by luogo) x), 30),
+    ('critico',       (select count(*) >= 5 from r where char_length(carattere) + char_length(dritta) >= 80), 50),
+    ('giro_completo', (select count(distinct tipo) >= 5 from v where tipo is not null and tipo <> 'altro'), 50),
+    ('re_di_roma',    (select count(distinct quartiere) >= 10 from v where citta = 'Roma' and quartiere <> 'Periferia'), 100)
+  ) as m (codice, fatta, bonus)
+$$;
 
 create or replace function public.calcola_punti(u uuid)
 returns integer language sql stable security definer set search_path = public as $$
@@ -136,8 +156,9 @@ returns integer language sql stable security definer set search_path = public as
       select count(*) as n from public.visite where utente = u group by luogo) v), 0)
   + coalesce((select 20 * count(distinct coalesce(l.quartiere, l.citta))
       from public.visite v join public.luoghi l on l.id = v.luogo where v.utente = u), 0)
-  + coalesce((select sum(5 + case when char_length(testo) >= 80 then 10 else 0 end)
+  + coalesce((select sum(5 + case when char_length(carattere) + char_length(dritta) >= 80 then 10 else 0 end)
       from public.recensioni where utente = u and stato = 'pubblicata'), 0)
+  + coalesce((select sum(bonus) from public.missioni(u) where fatta), 0)
   )::int
 $$;
 
@@ -152,7 +173,9 @@ begin
     'livello', 1 + p / 100,
     'visite', coalesce((select json_agg(json_build_object('luogo', luogo, 'giorno', giorno) order by giorno desc)
                         from public.visite where utente = u), '[]'::json),
-    'recensioni', coalesce((select json_agg(luogo) from public.recensioni where utente = u), '[]'::json)
+    'recensioni', coalesce((select json_agg(json_build_object('luogo', luogo, 'lunga', char_length(carattere) + char_length(dritta) >= 80))
+                            from public.recensioni where utente = u), '[]'::json),
+    'missioni', (select json_agg(json_build_object('codice', codice, 'fatta', fatta, 'bonus', bonus)) from public.missioni(u))
   );
 end $$;
 
@@ -196,22 +219,26 @@ begin
   return json_build_object('ok', true, 'nuovo', nuovo, 'punti', public.calcola_punti(u));
 end $$;
 
--- Recensione: solo dopo almeno un check-in nel posto (recensioni verificate).
-create or replace function public.scrivi_recensione(p_luogo text, p_voto int, p_testo text)
+-- Recensione "stile nota": voto, com'è, la dritta, fino a 3 etichette. Solo dopo un check-in nel posto.
+drop function if exists public.scrivi_recensione(text, int, text);
+create or replace function public.scrivi_recensione(p_luogo text, p_voto int, p_carattere text, p_dritta text, p_etichette text[])
 returns json language plpgsql volatile security definer set search_path = public as $$
-declare u uuid := auth.uid(); t text := btrim(coalesce(p_testo, ''));
+declare u uuid := auth.uid(); c text := btrim(coalesce(p_carattere, '')); d text := btrim(coalesce(p_dritta, ''));
 begin
   if u is null then raise exception 'Accesso richiesto'; end if;
   if not exists (select 1 from public.visite where utente = u and luogo = p_luogo) then
     raise exception 'Prima fai check-in in questo posto';
   end if;
   if p_voto is null or p_voto not between 1 and 5 then raise exception 'Il voto va da 1 a 5'; end if;
-  if char_length(t) > 600 then raise exception 'Massimo 600 caratteri'; end if;
+  if char_length(c) > 120 then raise exception 'Com''è: massimo 120 caratteri'; end if;
+  if char_length(d) > 400 then raise exception 'La dritta: massimo 400 caratteri'; end if;
   if (select count(*) from public.recensioni where utente = u and creata > now() - interval '1 day') >= 10 then
     raise exception 'Massimo 10 recensioni al giorno';
   end if;
-  insert into public.recensioni (utente, luogo, voto, testo) values (u, p_luogo, p_voto, t)
-  on conflict (utente, luogo) do update set voto = excluded.voto, testo = excluded.testo, modificata = now();
+  insert into public.recensioni (utente, luogo, voto, carattere, dritta, etichette)
+    values (u, p_luogo, p_voto, c, d, coalesce(p_etichette, '{}'))
+  on conflict (utente, luogo) do update set voto = excluded.voto, carattere = excluded.carattere,
+    dritta = excluded.dritta, etichette = excluded.etichette, modificata = now();
   return json_build_object('ok', true, 'punti', public.calcola_punti(u));
 end $$;
 
@@ -230,7 +257,8 @@ begin
     'profilo', (select row_to_json(p) from public.profili p where p.id = u),
     'visite', coalesce((select json_agg(json_build_object('luogo', v.luogo, 'nome', l.nome, 'giorno', v.giorno) order by v.giorno)
                         from public.visite v join public.luoghi l on l.id = v.luogo where v.utente = u), '[]'::json),
-    'recensioni', coalesce((select json_agg(json_build_object('luogo', r.luogo, 'voto', r.voto, 'testo', r.testo,
+    'recensioni', coalesce((select json_agg(json_build_object('luogo', r.luogo, 'voto', r.voto, 'carattere', r.carattere,
+                        'dritta', r.dritta, 'etichette', r.etichette,
                         'stato', r.stato, 'creata', r.creata, 'modificata', r.modificata))
                         from public.recensioni r where r.utente = u), '[]'::json),
     'segnalazioni_inviate', coalesce((select json_agg(json_build_object('recensione', s.recensione, 'motivo', s.motivo,
@@ -249,12 +277,12 @@ begin
 end $$;
 
 -- Le funzioni non sono eseguibili da chiunque per default: si apre solo il necessario.
-revoke execute on function public.calcola_punti(uuid) from public, anon, authenticated;
+revoke execute on function public.calcola_punti(uuid), public.missioni(uuid) from public, anon, authenticated;
 revoke execute on function public.mio_punteggio(), public.fai_checkin(text, double precision, double precision),
-  public.scrivi_recensione(text, int, text), public.esporta_dati(), public.elimina_account(), public.classifica()
+  public.scrivi_recensione(text, int, text, text, text[]), public.esporta_dati(), public.elimina_account(), public.classifica()
   from public, anon;
 grant execute on function public.mio_punteggio(), public.fai_checkin(text, double precision, double precision),
-  public.scrivi_recensione(text, int, text), public.esporta_dati(), public.elimina_account() to authenticated;
+  public.scrivi_recensione(text, int, text, text, text[]), public.esporta_dati(), public.elimina_account() to authenticated;
 grant execute on function public.classifica() to anon, authenticated;
 
 -- ---------- Conservazione (attiva pg_cron in Database → Extensions, poi togli i commenti) ----------

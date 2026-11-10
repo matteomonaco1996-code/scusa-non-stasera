@@ -39,9 +39,9 @@
 
 ## 2. Da fare prima di andare online (obbligatorio)
 
-1. **Compila i dati del titolare** in `privacy.html`, `termini.html` e `.well-known/security.txt`:
-   cerca `[NOME E COGNOME]`, `[EMAIL DI CONTATTO]`, `[CITTÀ]`, `[DATA DI PUBBLICAZIONE]`,
-   `[FORNITORE EMAIL]`, `[EMAIL-DI-CONTATTO]`. Usa un’email dedicata al progetto.
+1. **Completa i dati** in `privacy.html` e `termini.html`: nome ed email del titolare sono già
+   inseriti (Matteo Monaco, Matteo-m96@hotmail.it); restano `[CITTÀ]`, `[DATA DI PUBBLICAZIONE]`
+   e `[FORNITORE EMAIL]`. Valuta un’email dedicata al progetto: questa sarà pubblica.
 2. **Crea il progetto Supabase** (supabase.com) scegliendo la regione **Central EU (Frankfurt)**.
 3. **Firma il DPA** di Supabase (Data Processing Addendum): lo trovi nella dashboard tra i documenti legali dell’organizzazione o partendo da supabase.com/legal/dpa.
 4. **Database**: SQL Editor → incolla `supabase/schema.sql` → Run; poi `supabase/luoghi.sql` → Run.

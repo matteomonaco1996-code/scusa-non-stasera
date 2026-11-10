@@ -31,7 +31,7 @@
     </div>
     <div>
       <div class="dialog px" aria-live="polite">
-        <div class="riga"><span class="chi">GIULIA</span><span class="cosa" id="domanda">Usciamo stasera?</span></div>
+        <div class="riga"><span class="chi">GAIA</span><span class="cosa" id="domanda">Usciamo stasera?</span></div>
         <div class="riga"><span class="chi tu">TU</span><span class="cosa barrato">Scusa, non stasera…</span></div>
         <div class="riga"><span class="chi tu">TU</span><button type="button" class="cosa" id="bolla">Anzi sì! Premi start e dimmi dove sono.</button></div>
         <span class="next" aria-hidden="true">▼</span>
@@ -51,6 +51,10 @@
   <div class="wrap">
     <div class="zona-head"><h2 id="t-mondi">SELEZIONA IL MONDO</h2><p id="sott-mondi">Roma è divisa in quartieri: ogni quartiere è un livello.</p></div>
     <div class="tabs" id="mondi" role="group" aria-label="Mondi"></div>
+    <figure class="overworld px" id="overworld" hidden>
+      <div id="ow-svg"></div>
+      <figcaption id="ow-info">Tocca un quartiere per giocare quel livello. Mappa disegnata a mano, non in scala.</figcaption>
+    </figure>
     <div id="livelli"></div>
   </div>
 </section>
@@ -103,7 +107,7 @@
       <button class="link" type="button" id="spegni-mappa" hidden>Spegni lo sfondo della mappa</button>
     </nav>
     <p>I posti vengono dalla lista Google Maps <a id="fonte" href="#" target="_blank" rel="noopener noreferrer">“RistoMat”</a> di Matteo, aggiornata il <span id="agg"></span>. Le note firmate MATTEO sono sue; le recensioni sono degli utenti che hanno fatto check-in nel posto.</p>
-    <p>Quartieri e minuti a piedi sono stime dalla posizione. Il tipo di locale viene dal nome o, in parte, da © OpenStreetMap. Mappa © OpenStreetMap © CARTO, solo se attivi lo sfondo. Punti, livelli e badge sono solo un gioco: non danno premi.</p>
+    <p>Quartieri e minuti a piedi sono stime dalla posizione. Il tipo di locale viene dal nome o, in parte, da © OpenStreetMap. Mappa: dati © OpenStreetMap (ODbL) ospitati sul sito; nomi delle vie © CARTO solo se li accendi. Punti, livelli e badge sono solo un gioco: non danno premi.</p>
   </div>
 </footer>
 
@@ -117,6 +121,10 @@
 <dialog class="finestra" id="dlg-recensione" aria-labelledby="rec-t">
   <div class="testa"><h2 id="rec-t">LA TUA RECENSIONE</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
   <div class="corpo" id="rec-corpo"></div>
+</dialog>
+
+<dialog class="finestra premio" id="dlg-premio" aria-labelledby="premio-t">
+  <div class="corpo" id="premio-corpo"></div>
 </dialog>
 
 <dialog class="finestra" id="dlg-segnala" aria-labelledby="seg-t">

@@ -141,20 +141,20 @@ def g(a, i):
 
 def righe_luoghi(locali):
     return [{"id": x["id"], "nome": x["n"], "lat": x["la"], "lon": x["lo"],
-             "quartiere": x.get("q"), "citta": x["c"]} for x in locali]
+             "quartiere": x.get("q"), "citta": x["c"], "tipo": x["t"]} for x in locali]
 
 
 def scrivi_sql(locali):
     """supabase/luoghi.sql: da incollare nel SQL Editor di Supabase dopo schema.sql."""
     q = lambda v: "null" if v is None else "'" + str(v).replace("'", "''") + "'"
-    valori = ",\n".join(f"({q(r['id'])}, {q(r['nome'])}, {r['lat']}, {r['lon']}, {q(r['quartiere'])}, {q(r['citta'])})"
+    valori = ",\n".join(f"({q(r['id'])}, {q(r['nome'])}, {r['lat']}, {r['lon']}, {q(r['quartiere'])}, {q(r['citta'])}, {q(r['tipo'])})"
                          for r in righe_luoghi(locali))
     SQL_LUOGHI.parent.mkdir(exist_ok=True)
     SQL_LUOGHI.write_text(
         "-- Generato da strumenti/aggiorna_lista.py: posti della lista, per verificare i check-in.\n"
-        "insert into public.luoghi (id, nome, lat, lon, quartiere, citta) values\n" + valori + "\n"
+        "insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values\n" + valori + "\n"
         "on conflict (id) do update set nome = excluded.nome, lat = excluded.lat, lon = excluded.lon,\n"
-        "  quartiere = excluded.quartiere, citta = excluded.citta, aggiornato = now();\n", "utf-8")
+        "  quartiere = excluded.quartiere, citta = excluded.citta, tipo = excluded.tipo, aggiornato = now();\n", "utf-8")
 
 
 def sincronizza_supabase(locali):

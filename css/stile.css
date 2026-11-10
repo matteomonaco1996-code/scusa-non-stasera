@@ -332,3 +332,86 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .finestra summary { cursor: pointer; font: 400 21px/1.3 var(--f-title); color: var(--ocra); }
 .finestra details[open] summary { margin-bottom: 10px; }
 .finestra details .spunta { margin-top: 10px; }
+
+/* ---------- Mappa del mondo ---------- */
+.overworld { background: var(--panel); padding: 12px; margin-top: 14px; margin-bottom: 4px; }
+.overworld svg { display: block; width: 100%; height: auto; max-height: 76vh; }
+.overworld figcaption { margin-top: 8px; font-size: 15px; color: var(--dim); }
+.ow-fiume { fill: #3E6A8C; }
+.ow-nome { fill: var(--dim); font: 400 14px var(--f-title) !important; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+.ow-nodo.on .ow-nome { fill: var(--ocra) !important; }
+.ow-nodo:hover .ow-nome, .ow-nodo:focus-visible .ow-nome { fill: var(--ink); }
+.ow-nodo { cursor: pointer; }
+.ow-nodo rect { fill: var(--panel-2); stroke: var(--edge); stroke-width: 3; }
+.ow-nodo text { fill: var(--ink); font: 400 15px var(--f-title); pointer-events: none; }
+.ow-nodo rect.ow-hit { fill: transparent; stroke: none; }
+.ow-nodo:hover rect:not(.ow-hit), .ow-nodo:focus-visible rect:not(.ow-hit) { fill: var(--edge); stroke: var(--ocra); }
+.ow-nodo:focus-visible { outline: none; }
+.ow-nodo.fatto rect:not(.ow-hit) { fill: var(--pino); stroke: var(--pino-txt); }
+.ow-nodo.on rect:not(.ow-hit) { fill: var(--ocra); stroke: var(--ink); }
+.ow-nodo.on text { fill: var(--bg); }
+.ow-io rect { fill: var(--pompei-txt); stroke: var(--bg); stroke-width: 2; animation: lampeggia 1s steps(2) infinite; }
+.base-fiume { stroke: #3E6A8C; stroke-width: 7; fill: none; opacity: .9; }
+.base-quartiere { display: inline-block; transform: translate(-50%, -50%); white-space: nowrap; font: 400 15px/1 var(--f-title); color: var(--dim); opacity: .7; letter-spacing: .04em; pointer-events: none; }
+.map-gate { top: 12px; right: 12px; bottom: auto; left: auto; padding: 0; background: none; box-shadow: none; display: block; }
+.map-gate .btn { font-size: 13px; padding: 6px 10px; box-shadow: 0 0 0 3px var(--edge), inset -3px -3px 0 0 rgb(0 0 0 / .25); }
+.map-gate b { font-size: 15px; }
+.overworld { max-width: 860px; }
+
+/* ---------- Percorso di gioco: premi, missioni, recensione stile nota ---------- */
+dialog.premio { width: min(460px, calc(100vw - 32px)); text-align: center; }
+.premio .corpo { gap: 12px; padding: 22px 20px 20px; }
+.premio-titolo { font: 400 clamp(48px, 12vw, 64px)/1 var(--f-title); color: var(--ocra); text-shadow: .05em .05em 0 var(--pompei); }
+.premio-sotto { color: var(--dim); font-size: 16px; }
+.premio-righe { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; text-align: left; }
+.premio-righe li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; align-items: baseline; background: var(--bg); padding: 8px 10px; }
+.premio-righe b { font: 400 24px/1 var(--f-title); color: var(--pino-txt); }
+.premio-righe li.missione { box-shadow: inset 4px 0 0 var(--ocra); }
+.premio-righe li.missione b { color: var(--ocra); }
+.premio-totale { display: flex; justify-content: center; align-items: baseline; gap: 12px; font-size: 15px; color: var(--dim); }
+.premio-totale b { font: 400 34px/1 var(--f-title); color: var(--ocra); }
+.level-up { display: grid; gap: 2px; background: var(--pompei); padding: 10px; animation: lampeggia .5s steps(2) 6; }
+.level-up b { font: 400 34px/1 var(--f-title); color: var(--ocra); }
+.premio-next { background: var(--bg); padding: 10px 12px; font-size: 15px; text-align: left; }
+.premio-next span:first-child { display: block; font: 400 15px/1.2 var(--f-title); color: var(--pompei-txt); letter-spacing: .03em; }
+.premio-next b { font: 400 20px/1.2 var(--f-title); color: var(--ink); }
+.premio .conto-acts { justify-content: center; }
+.titolo-liv { display: grid; gap: 0; }
+.titolo-liv span { font: 400 16px/1.2 var(--f-title); color: var(--pompei-txt); letter-spacing: .03em; }
+.titolo-liv b { font: 400 34px/1.05 var(--f-title); color: var(--ocra); }
+.missione-next { background: var(--bg); padding: 10px 12px; display: grid; gap: 4px; box-shadow: inset 4px 0 0 var(--ocra); }
+.missione-next span { font: 400 15px/1.2 var(--f-title); color: var(--pompei-txt); }
+.missione-next b { font: 400 22px/1.1 var(--f-title); }
+.missione-next .btn { justify-self: start; margin-top: 4px; }
+.missioni { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.missioni li { display: grid; gap: 4px; }
+.missioni li > div:first-child { display: flex; justify-content: space-between; gap: 10px; }
+.missioni li b { font: 400 19px/1.2 var(--f-title); color: var(--dim); }
+.missioni li.ok b { color: var(--ocra); }
+.missioni .num { color: var(--pino-txt); font-size: 14px; }
+.barra-mis { height: 8px; background: var(--panel); box-shadow: 0 0 0 2px var(--edge); }
+.barra-mis i { display: block; height: 100%; width: 0; background: var(--pino); }
+.missioni li.ok .barra-mis i { background: var(--ocra); }
+.esempio { background: var(--bg); padding: 10px 12px; font-size: 15px; font-style: italic; color: var(--ink); }
+.esempio span { display: block; font: 400 15px/1.3 var(--f-title); font-style: normal; color: var(--pompei-txt); letter-spacing: .03em; margin-bottom: 2px; }
+.voto-stelle { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.voto-stelle legend { width: 100%; }
+.voto-stelle label { cursor: pointer; font-size: 30px; line-height: 1; color: var(--edge); }
+.voto-stelle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.voto-stelle label:has(input:checked), .voto-stelle label:has(~ label input:checked) { color: var(--ocra); }
+.voto-stelle label:has(input:focus-visible) { outline: 3px solid var(--ocra); outline-offset: 2px; }
+.chips-et { display: flex; flex-wrap: wrap; gap: 6px; }
+.et { cursor: pointer; }
+.et input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.et span { display: inline-block; padding: 5px 9px; background: var(--bg); font-size: 14px; box-shadow: 0 0 0 2px var(--edge); }
+.et input:checked + span { background: var(--ocra); color: var(--bg); box-shadow: 0 0 0 2px var(--ocra); }
+.et input:disabled + span { opacity: .4; }
+.et input:focus-visible + span { outline: 3px solid var(--ocra); outline-offset: 2px; }
+.rec.say { display: grid; gap: 4px; }
+.rec .dritta { font: 400 14px/1 var(--f-title); color: var(--pompei-txt); letter-spacing: .03em; margin-right: 4px; }
+.etichette { display: flex; flex-wrap: wrap; gap: 4px; }
+.etichette span { font-size: 12px; padding: 2px 6px; background: var(--panel-2); color: var(--dim); }
+
+.zoom-lontano .base-quartiere { display: none; }
+.zoom-lontano .pin { width: 7px; height: 7px; margin: 2px; }
+.zoom-lontano .pin.nota, .zoom-lontano .pin.visto { width: 9px; height: 9px; margin: 1px; }

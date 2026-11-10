@@ -21,9 +21,17 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   Dolce & caffè · Giro del mondo · Al volo · Sapore di mare · Brace & carne ·
   Spesa golosa · Da scoprire. In più c'è il filtro *Solo i consigli di Matteo*.
 - **GETTONE**: pesca un posto a caso tra quelli vicini o del livello.
+- **MAPPA DEL MONDO**: Roma disegnata come la mappa dei livelli di un videogioco (Tevere a pixel,
+  quartieri come caselle cliccabili, verdi quelli già visitati), senza servizi esterni.
+- **MAPPA DEI RISULTATI**: strade, Tevere e Aniene di Roma con dati OpenStreetMap ospitati sul sito
+  (`mappa/roma.js`, generato da `strumenti/mappa_osm.py`): si vede sempre, senza chiamare server esterni.
+  I nomi delle vie (CARTO) sono un’aggiunta facoltativa.
 - **PLAYER 1** (con account): accesso con codice via email, check-in entro 150 m dal posto,
-  recensioni (solo dopo un check-in), punti, livelli, badge, classifica facoltativa,
-  esportazione e cancellazione dei propri dati.
+  missioni, livelli con titolo, classifica facoltativa, esportazione e cancellazione dei dati.
+- **Il percorso**: check-in → schermata premio con il dettaglio dei punti, missioni compiute e
+  “LEVEL UP!” → ogni tanto (al primo check-in, poi ogni 3 posti nuovi) l’invito a recensire.
+- **Recensioni stile nota**, come quella di Matteo sul Goccetto: voto, *com’è* in poche parole,
+  *la dritta* pratica e fino a 3 etichette (aperitivo, in piedi, da prenotare…).
 
 ## Punti
 
@@ -32,9 +40,12 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
 | Primo check-in in un posto | +10 |
 | Check-in ripetuto in un altro giorno (max 5 per posto) | +2 |
 | Primo posto in un quartiere o località nuovi | +20 |
-| Recensione | +5, +10 se il testo ha almeno 80 caratteri |
+| Recensione | +5, +10 se com’è + dritta arrivano a 80 caratteri |
+| Missioni: Primo passo, Dimmi com’è (+15) · Esploratore, Habitué (+30) · Critico, Giro completo (+50) · Re di Roma (+100) | bonus una tantum |
 
-Un livello ogni 100 punti. I punti sono calcolati solo dal database, non dal browser, e non danno premi.
+Un livello ogni 100 punti, con un titolo (Turista per caso, Passante, Buongustaio, Habitué,
+Oste ad honorem, Guida del quartiere, Leggenda di Roma). I punti sono calcolati solo dal
+database, non dal browser, e non danno premi. Test del database: `strumenti/test_database.mjs`.
 
 ## File
 
@@ -47,6 +58,7 @@ Un livello ogni 100 punti. I punti sono calcolati solo dal database, non dal bro
 | `supabase/schema.sql` | Tabelle, regole di sicurezza e funzioni del database |
 | `supabase/luoghi.sql` | Posti da caricare nel database (generato) |
 | `vendor/`, `fonts/` | Leaflet, supabase-js e caratteri ospitati sul sito, con licenze |
+| `mappa/roma.js` | Strade e fiumi di Roma (© OpenStreetMap, ODbL), generati da `strumenti/mappa_osm.py` |
 | `locali.js` | Dati **generati**: non modificarli a mano |
 | `tipi.json` | Tipo di locale per i posti il cui nome non lo dice |
 | `correzioni.json` | Correzioni manuali (tipo `t`, quartiere `q`, città `c`, nota `nt`): vincono su tutto |
