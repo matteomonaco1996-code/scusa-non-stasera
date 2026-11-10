@@ -1,0 +1,222 @@
+#!/usr/bin/env python3
+"""Rigenera ristomat/locali.js a partire dalla lista Google Maps "RistoMat".
+
+Uso (dalla cartella del sito):
+    python3 strumenti/aggiorna_lista.py              # scarica la lista da Google Maps
+    python3 strumenti/aggiorna_lista.py --file x.json # usa una risposta già scaricata
+
+La lista deve essere condivisa pubblicamente (link "Chiunque abbia il link").
+Il tipo di locale è dedotto dal nome (e dall'eventuale nota): per correggerlo,
+o per cambiare città/zona/nota, aggiungi una voce in correzioni.json.
+Il tipo dei posti con nomi poco chiari sta in tipi.json; i quartieri di Roma in strumenti/quartieri.py.
+Solo libreria standard: nessuna dipendenza da installare.
+"""
+import argparse
+import json
+import math
+import re
+import sys
+import urllib.request
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
+
+LIST_ID = "fLsXKx9eQFufjLbZv0j0SQ"
+LIST_URL = f"https://www.google.com/maps/placelists/list/{LIST_ID}"
+API = ("https://www.google.com/maps/preview/entitylist/getlist?authuser=0&hl=it&gl=it"
+       "&pb=!1m4!1s{id}!2e1!3m1!1e1!2e2!3e2!4i{n}!16b1")
+
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "locali.js"
+CORREZIONI = ROOT / "correzioni.json"
+TIPI_EXTRA = ROOT / "tipi.json"
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from quartieri import AREE, QUARTIERI, quartiere  # noqa: E402
+
+# --------------------------------------------------------------------------
+# Province -> regione
+REGIONI = {
+    "Lazio": "RM LT VT RI FR",
+    "Toscana": "FI GR SI PI LU LI AR PT PO MS",
+    "Veneto": "VE VR VI PD TV BL RO",
+    "Lombardia": "MI MB BG BS CO CR LC LO MN PV SO VA",
+    "Emilia-Romagna": "BO MO PR RE FE RA FC RN PC",
+    "Umbria": "PG TR",
+    "Campania": "NA SA AV BN CE",
+    "Calabria": "CS CZ KR RC VV",
+    "Sicilia": "PA TP AG CL CT EN ME RG SR",
+    "Puglia": "BA BT BR FG LE TA",
+    "Liguria": "GE IM SP SV",
+    "Piemonte": "TO AL AT BI CN NO VB VC",
+    "Marche": "AN AP FM MC PU",
+    "Abruzzo": "AQ CH PE TE",
+    "Sardegna": "CA NU OR SS SU",
+    "Trentino-Alto Adige": "TN BZ",
+    "Friuli-Venezia Giulia": "TS UD PN GO",
+}
+PROV2REG = {p: r for r, ps in REGIONI.items() for p in ps.split()}
+
+# Tipi di locale: la prima regola che corrisponde vince (l'ordine conta).
+TIPI = [
+    ("mondo", r"sushi|ramen|noodle|dumpling|damplings|ravioleria|cines|chinese|sichuan|coreano|korea|galbi|"
+              r"thai|giappones|sakaba|izakaya|\bbao\b|hotpot|greco\b|greca\b|ippokrates|akropolis|persian|curd|"
+              r"bangla|indian|messican|taqueria|tacos?\b|comida|cocina\b|kebab|shawarma|falafel|libanes|"
+              r"churrascaria|gaucho|\bwu\b|mifang|jiamo|shiroya|waraku|yasu|kisaki|chopstick|wu xin|yezi|fan wu|"
+              r"[\u4e00-\u9fff]"),
+    ("pizza", r"pizz(?!icheria)|\bteglia\b|tiella|180grammi|50 kal[oò]"),
+    ("pesce", r"pesce|pesc[ah]|pescatore|\bmare\b|marè|maré|da'mare|comeilmare|crudi|scialuppa|lampara|"
+              r"molo\d*|frutti di mare|cavalluccio"),
+    ("carne", r"macell|bistecc|brace\b|braceria|griglieria|girarrosto|steak|black angus|carnivori|"
+              r"arrosticini|scottadito"),
+    ("street", r"burger|panin|suppl[iì]|friggitoria|trapizzino|chiosco|kiosco|street|pastrami|panizz|"
+               r"smash|\beggs\b|ciriola"),
+    ("ristorante", r"^ristorante\b"),
+    ("trattoria", r"trattoria|osteria|hosteria|hostaria|locanda|taverna|fraschetta|vinaino|bettola|"
+                  r"ristoro|\boste\b"),
+    ("vino", r"enoteca|\bvin[oi]\b|vineria|wine|mescita|cantin|bacaro|cicchetti|bollicine|bar à vin|"
+             r"sorsi|stappo|spiriti|semi di vino|enofficina|enosake|vinificio|fiaschi"),
+    ("dolce", r"forno|panific|\bpane\b|pasticceria|bakery|homebaked|caff[eèé]|caf[eè]\b|coffee|torrefazione|"
+              r"maritozz|donut|gelat|brunch|dolce|vivoli|frumentario|farine"),
+    ("bar", r"cocktail|mixology|lounge|\bpub\b|ludopub|birr|brewing|taproom|luppolo|hopificio|hopside|"
+            r"\bbar\b|spritz|bitterino|blind pig|jungle juice|clubbino"),
+    ("ristorante", r"ristorante|restaurant|cucina|bistrot"),
+    ("bottega", r"mercato|bottega|salumeria|alimentari|formaggi|dispensa|provviste|azienda agricola|"
+                r"ecofattorie|pastificio|enogastronomica|pizzicheria|salsamenteria|spaccio"),
+    ("ristorante", r"^da\s"),
+]
+TIPI_RE = [(k, re.compile(rx, re.I)) for k, rx in TIPI]
+
+
+def tipo_da_nome(nome, nota):
+    """Prima prova con il nome, poi (se il nome non dice nulla) con la nota."""
+    for testo in (nome, nota):
+        for chiave, rx in TIPI_RE:
+            if testo and rx.search(testo):
+                return chiave
+    return "altro"
+
+
+def km(a, b):
+    la1, lo1, la2, lo2 = map(math.radians, (a["la"], a["lo"], b["la"], b["lo"]))
+    h = math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin((lo2 - lo1) / 2) ** 2
+    return 6371 * 2 * math.asin(math.sqrt(h))
+
+
+def analizza_indirizzo(ind):
+    """'Via X, 12, 00192 Roma RM' -> (cap, città, provincia)."""
+    parti = [p.strip() for p in ind.split(",") if p.strip()]
+    cap = citta = prov = None
+    if parti:
+        m = re.search(r"\b([A-Z]{2})$", parti[-1])
+        if m:
+            prov = m.group(1)
+    for p in reversed(parti):
+        m = re.match(r"^(\d{5})\s*(.*)$", p)
+        if m:
+            cap = m.group(1)
+            citta = re.sub(r"\s+[A-Z]{2}$", "", m.group(2)).strip() or None
+            break
+    if citta in (None, prov):
+        citta = None
+    return cap, citta, prov
+
+
+def scarica(n=2000):
+    req = urllib.request.Request(API.format(id=LIST_ID, n=n), headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.read().decode("utf-8")
+
+
+def pulisci(s):
+    return re.sub(r"\s+", " ", s or "").strip()
+
+
+def g(a, i):
+    return a[i] if isinstance(a, list) and len(a) > i else None
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--file", help="risposta getlist già scaricata (altrimenti scarica)")
+    args = ap.parse_args()
+
+    raw = Path(args.file).read_text("utf-8") if args.file else scarica()
+    raw = raw[raw.index("\n") + 1:] if raw.startswith(")]}'") else raw
+    lista = json.loads(raw)[0]
+    titolo, attesi, voci = lista[4], lista[12], lista[8] or []
+    if not voci:
+        sys.exit("Errore: la lista è arrivata vuota. locali.js non è stato toccato.")
+    if attesi and len(voci) < attesi:
+        print(f"Attenzione: ricevuti {len(voci)} locali su {attesi}", file=sys.stderr)
+
+    correzioni = json.loads(CORREZIONI.read_text("utf-8")) if CORREZIONI.exists() else {}
+    correzioni = {k: v for k, v in correzioni.items() if not k.startswith("_")}
+    tipi_extra = json.loads(TIPI_EXTRA.read_text("utf-8")) if TIPI_EXTRA.exists() else {}
+
+    locali = []
+    for it in voci:
+        p = it[1] or []
+        coord = g(p, 5) or []
+        nome, nota = pulisci(it[2]), pulisci(it[3])
+        ind = pulisci(g(p, 4))
+        cap, citta, prov = analizza_indirizzo(ind)
+        locali.append({
+            "n": nome, "a": ind, "nt": nota,
+            "la": round(coord[2], 6), "lo": round(coord[3], 6),
+            "cap": cap, "c": citta, "p": prov,
+            "t": tipo_da_nome(nome, nota),
+            "d": it[9][0] if g(it, 9) else None,
+        })
+
+    # Indirizzi incompleti: eredita città/provincia/CAP dal locale più vicino.
+    noti = [x for x in locali if x["c"] and x["p"]]
+    for x in locali:
+        if x["c"] and x["p"]:
+            continue
+        vicino = min(noti, key=lambda y: km(x, y))
+        d = km(x, vicino)
+        if not x["p"] and d < 60:
+            x["p"] = vicino["p"]
+        if not x["c"] and d < 3:
+            x["c"], x["cap"] = vicino["c"], x["cap"] or vicino["cap"]
+
+    for x in locali:
+        x["r"] = PROV2REG.get(x["p"], "Altro")
+        x["c"] = x["c"] or "Altre località"
+        if x["t"] == "altro":  # il nome non dice che locale è
+            x["t"] = tipi_extra.get(x["n"], "altro")
+        if x["c"] == "Roma":
+            x["q"] = quartiere(x["la"], x["lo"])
+        fix = correzioni.get(x["n"])
+        if fix:
+            x.update({k: v for k, v in fix.items() if k in ("t", "c", "q", "nt", "r")})
+        del x["cap"]
+
+    locali.sort(key=lambda x: -(x["d"] or 0))  # più recenti prima
+    righe = ",\n".join(json.dumps(x, ensure_ascii=False, separators=(",", ":")) for x in locali)
+    if OUT.exists() and righe in OUT.read_text("utf-8"):
+        print(f"Nessuna novità: {len(locali)} locali, {OUT.name} invariato")
+        return
+    meta = {
+        "titolo": titolo,
+        "fonte": LIST_URL,
+        "aggiornato": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "totale": len(locali),
+        "aree": AREE,
+        "quartieri": [{"n": n, "a": a, "la": la, "lo": lo} for n, a, la, lo, _ in QUARTIERI
+                      if any(x.get("q") == n for x in locali)],
+    }
+    js = ("// Generato da strumenti/aggiorna_lista.py: non modificare a mano (usa correzioni.json).\n"
+          f"window.RISTOMAT_META = {json.dumps(meta, ensure_ascii=False)};\n"
+          "window.RISTOMAT = [\n" + righe + "\n];\n")
+    OUT.write_text(js, "utf-8")
+
+    print(f"{len(locali)} locali scritti in {OUT.name}")
+    print("Tipi:", dict(Counter(x["t"] for x in locali).most_common()))
+    print("Città:", dict(Counter(x["c"] for x in locali).most_common(8)))
+    print("Quartieri di Roma:", dict(Counter(x.get("q") for x in locali if x.get("q")).most_common()))
+
+
+if __name__ == "__main__":
+    main()

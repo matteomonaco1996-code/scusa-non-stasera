@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scusa, non stasera</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Il gioco per uscire senza programmare: scegli il quartiere o premi start, e scopri i posti della lista di Matteo a pochi minuti a piedi.">
+<meta name="theme-color" content="#0E1433">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap">
+<style id="leaflet-css">
+/* Leaflet 1.9.4 — https://leafletjs.com — BSD-2-Clause */
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+.leaflet-tile::selection {
+	background: transparent;
+}
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+.leaflet-container img.leaflet-tile {
+	mix-blend-mode: plus-lighter;
+}
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+.leaflet-pane         { z-index: 400; }
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; 
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; 
+	pointer-events: auto;
+	}
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+.leaflet-default-icon-path { 
+	background-image: url(images/marker-icon.png);
+	}
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+	margin: -10px auto 0;
+	pointer-events: auto;
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+@media print {
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+</style>
+<style>
+/* Layout: schermo da sala giochi. HUD in alto, schermata del titolo con dialogo e menu;
+   poi Seleziona mondo → livelli (quartieri) → power-up; risultati con HUD adesivo e mappa a lato (su telefono: Lista/Mappa). */
+:root {
+  color-scheme: dark;
+  --night: #0E1433;
+  --panel: #1D2B53;
+  --panel-2: #27386C;
+  --edge: #4C62A8;
+  --ink: #FFF1E8;
+  --dim: #AFB7DA;
+  --yellow: #FFEC27;
+  --orange: #FFA300;
+  --red: #FF004D;
+  --green: #00E436;
+  --blue: #29ADFF;
+  --pink: #FF77A8;
+
+  --f-title: "Press Start 2P", "Courier New", monospace;
+  --f-ui: "Pixelify Sans", "Trebuchet MS", system-ui, sans-serif;
+  --f-text: "VT323", "Courier New", ui-monospace, monospace;
+  --px: 4px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--night); color: var(--ink);
+  font: 400 21px/1.2 var(--f-text);
+  -webkit-font-smoothing: none;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 40; background: var(--night); }
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1000;
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .14) 0 1px, transparent 1px 3px);
+}
+a { color: inherit; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+.wrap { max-width: 1440px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pxi { width: 1em; height: 1em; flex: none; shape-rendering: crispEdges; }
+
+/* Bordo a pixel: angoli scalinati */
+.px {
+  margin: var(--px);
+  box-shadow:
+    0 calc(-1 * var(--px)) 0 0 var(--edge), 0 var(--px) 0 0 var(--edge),
+    calc(-1 * var(--px)) 0 0 0 var(--edge), var(--px) 0 0 0 var(--edge);
+}
+
+/* ---------- HUD ---------- */
+.hud { padding-block: 14px 0; font: 400 11px/1.6 var(--f-title); color: var(--dim); }
+.hud .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; }
+.hud b { color: var(--ink); font-weight: 400; }
+.hud .g { color: var(--green); }
+
+/* ---------- Titolo ---------- */
+.title { padding-block: 34px 34px; }
+.title .wrap { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 34px 48px; align-items: start; }
+h1 { margin: 0; font: 400 clamp(26px, 5.4vw, 66px)/1.25 var(--f-title); letter-spacing: -.02em; }
+h1 .scusa {
+  color: var(--dim);
+  background: linear-gradient(var(--red), var(--red)) no-repeat 0 55% / 100% .16em;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  animation: barra .6s .4s steps(8) both;
+}
+@keyframes barra { from { background-size: 0% .16em; } }
+h1 .anzi {
+  display: block; margin-top: .45em; color: var(--yellow);
+  font-size: 1.35em; text-shadow: .09em .09em 0 var(--red);
+  animation: salta 1.2s 1.1s steps(2) infinite;
+}
+@keyframes salta { 50% { transform: translateY(-.08em); } }
+.lede { margin: 26px 0 0; max-width: 32em; font-size: 24px; line-height: 1.15; color: var(--ink); }
+
+.dialog { background: var(--panel); padding: 18px 18px 14px; position: relative; display: grid; gap: 12px; }
+.dialog .riga { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: baseline; }
+.dialog .chi { font: 400 11px/1.6 var(--f-title); color: var(--pink); white-space: nowrap; }
+.dialog .chi.tu { color: var(--blue); }
+.dialog .cosa { font-size: 25px; line-height: 1.05; overflow-wrap: anywhere; }
+.dialog .barrato { color: var(--dim); text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 3px; }
+.dialog button.cosa { all: unset; cursor: pointer; font-size: 25px; line-height: 1.05; color: var(--yellow); overflow-wrap: anywhere; }
+.dialog button.cosa:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+.dialog .cosa b { color: var(--ink); font-weight: 400; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.dialog .next { position: absolute; right: 14px; bottom: 8px; color: var(--yellow); font-size: 18px; animation: lampeggia 1s steps(2) infinite; }
+@keyframes lampeggia { 50% { opacity: 0; } }
+
+.menu { margin-top: 20px; display: grid; gap: 6px; max-width: 30em; }
+.menu button {
+  all: unset; cursor: pointer; display: flex; align-items: center; gap: 14px;
+  padding: 10px 12px; font: 400 clamp(13px, 1.6vw, 16px)/1.4 var(--f-title); color: var(--ink);
+}
+.menu button::before { content: "▶"; color: var(--yellow); visibility: hidden; font-size: .9em; }
+.menu button:hover::before, .menu button:focus-visible::before, .menu button.primo::before { visibility: visible; }
+.menu button:hover, .menu button:focus-visible { background: var(--panel); }
+.menu button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 0; }
+.menu small { display: block; font: 400 19px/1 var(--f-text); color: var(--dim); margin-top: 4px; }
+.privacy { margin: 10px 12px 0; font-size: 18px; color: var(--dim); }
+.press { color: var(--yellow); animation: lampeggia 1.2s steps(2) infinite; }
+
+/* ---------- Sezioni di gioco ---------- */
+.zona { padding-block: 26px 22px; border-top: var(--px) solid var(--panel-2); }
+.zona-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 16px; }
+h2 { margin: 0; font: 400 clamp(14px, 1.8vw, 18px)/1.4 var(--f-title); color: var(--yellow); }
+.zona-head p { margin: 0; color: var(--dim); font-size: 19px; }
+
+.tabs { display: flex; gap: 10px; overflow-x: auto; padding: 6px 6px 10px; position: relative; scrollbar-width: none; }
+.tab {
+  flex: none; cursor: pointer; border: 0; background: var(--panel); padding: 10px 14px;
+  display: grid; gap: 4px; text-align: left; min-width: 128px;
+}
+.tab .w { font: 400 10px/1 var(--f-title); color: var(--pink); }
+.tab .nm { font: 600 19px/1.1 var(--f-ui); }
+.tab .ct { font: 400 18px/1 var(--f-text); color: var(--green); }
+.tab[aria-pressed="true"] { background: var(--yellow); color: var(--night); }
+.tab[aria-pressed="true"] .w, .tab[aria-pressed="true"] .ct { color: var(--night); }
+
+.area { margin-top: 18px; }
+.area h3 { margin: 0 0 10px; font: 400 11px/1.4 var(--f-title); color: var(--dim); letter-spacing: .04em; }
+.levels { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 12px; padding: 4px; }
+.level {
+  cursor: pointer; display: grid; gap: 4px; padding: 10px 12px; background: var(--panel); min-width: 0; position: relative;
+  border: 0; color: var(--ink); text-align: left; font: inherit;
+}
+.level .cod { font: 400 10px/1 var(--f-title); color: var(--pink); }
+.level .nm { font: 600 19px/1.1 var(--f-ui); overflow-wrap: anywhere; }
+.level .ct { font: 400 18px/1 var(--f-text); color: var(--green); }
+.level:hover { background: var(--panel-2); }
+.level:focus-visible { outline: 3px solid var(--yellow); outline-offset: 6px; }
+.level[aria-pressed="true"] { background: var(--yellow); color: var(--night); }
+.level[aria-pressed="true"] .cod, .level[aria-pressed="true"] .ct { color: var(--night); }
+.level .qui {
+  position: absolute; top: -10px; right: 6px; padding: 3px 6px; background: var(--green); color: var(--night);
+  font: 400 8px/1 var(--f-title); animation: lampeggia 1s steps(2) infinite;
+}
+
+.powerups { display: flex; gap: 10px; overflow-x: auto; padding: 6px 6px 10px; position: relative; scrollbar-width: none; flex-wrap: wrap; }
+.pw {
+  flex: none; cursor: pointer; border: 0; background: var(--panel); padding: 9px 12px;
+  display: inline-flex; align-items: center; gap: 9px; font: 500 18px/1 var(--f-ui);
+}
+.pw .pxi { font-size: 22px; color: var(--orange); }
+.pw .n { font: 400 18px/1 var(--f-text); color: var(--green); }
+.pw[aria-pressed="true"] { background: var(--yellow); color: var(--night); }
+.pw[aria-pressed="true"] .pxi, .pw[aria-pressed="true"] .n { color: var(--night); }
+.pw[disabled] { opacity: .35; cursor: default; }
+.extra { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; margin-top: 14px; }
+.cerca { position: relative; flex: 1 1 260px; max-width: 460px; min-width: 0; margin: var(--px); }
+.cerca input {
+  width: 100%; height: 44px; padding: 0 12px; border: 0; background: var(--panel); color: var(--ink);
+  font: 400 22px/1 var(--f-text);
+  box-shadow: 0 -4px 0 0 var(--edge), 0 4px 0 0 var(--edge), -4px 0 0 0 var(--edge), 4px 0 0 0 var(--edge);
+}
+.cerca input::placeholder { color: var(--dim); }
+.cerca input:focus { outline: none; box-shadow: 0 -4px 0 0 var(--yellow), 0 4px 0 0 var(--yellow), -4px 0 0 0 var(--yellow), 4px 0 0 0 var(--yellow); }
+.msg { font-size: 20px; color: var(--orange); }
+
+/* ---------- HUD dei risultati ---------- */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--night); border-bottom: var(--px) solid var(--panel-2); padding-block: 10px; }
+.bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.dove-sei { min-width: 0; flex: 1 1 auto; }
+.dove-sei .lv { display: block; font: 400 10px/1.5 var(--f-title); color: var(--pink); }
+.dove-sei b { display: block; font: 600 22px/1.1 var(--f-ui); overflow-wrap: anywhere; }
+.dove-sei span { font-size: 18px; color: var(--green); }
+.bar-actions { display: flex; gap: 10px; align-items: center; flex: none; }
+.btn {
+  all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: var(--yellow); color: var(--night);
+  font: 400 11px/1.3 var(--f-title);
+  box-shadow: inset -4px -4px 0 0 rgb(0 0 0 / .28);
+}
+.btn:active { box-shadow: inset 4px 4px 0 0 rgb(0 0 0 / .28); }
+.btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.btn .pxi { font-size: 18px; }
+.btn.alt { background: var(--panel-2); color: var(--ink); }
+.seg { display: none; gap: 0; }
+.seg button { all: unset; cursor: pointer; padding: 10px 12px; background: var(--panel); font: 400 10px/1.3 var(--f-title); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--night); }
+.seg button:focus-visible { outline: 3px solid var(--yellow); }
+
+.main { padding-block: 22px 44px; }
+.main .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); gap: 28px; align-items: start; }
+.list-col { min-width: 0; display: grid; gap: 14px; }
+.map-col { position: sticky; top: 92px; min-width: 0; padding: var(--px); }
+#mappa { height: calc(100vh - 120px); max-height: 860px; min-height: 420px; background: var(--panel); position: relative; z-index: 0; }
+.map-note { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 500; padding: 8px 10px; background: var(--panel); font-size: 18px; color: var(--dim); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 16px; }
+.band { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding-top: 10px; }
+.band:first-child { padding-top: 0; }
+.band h3 { margin: 0; font: 400 14px/1.4 var(--f-title); color: var(--yellow); }
+.band .diff { font: 400 10px/1 var(--f-title); color: var(--night); background: var(--green); padding: 4px 6px; }
+.band .diff.n2 { background: var(--orange); }
+.band .diff.n3 { background: var(--red); color: var(--ink); }
+.band span { font-size: 19px; color: var(--dim); }
+.card { background: var(--panel); padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.card.flash { animation: flash .25s steps(2) 6; }
+@keyframes flash { 50% { background: var(--panel-2); } }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.card h4 { margin: 0; font: 700 22px/1.08 var(--f-ui); overflow-wrap: anywhere; }
+.card h4 button { all: unset; cursor: pointer; }
+.card h4 button:hover { color: var(--yellow); }
+.card h4 button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.dist { flex: none; text-align: right; font: 400 12px/1.3 var(--f-title); color: var(--green); white-space: nowrap; }
+.dist small { display: block; font: 400 17px/1 var(--f-text); color: var(--dim); }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 19px; color: var(--dim); }
+.tipo { display: inline-flex; align-items: center; gap: 6px; color: var(--orange); }
+.tipo .pxi { font-size: 17px; }
+.quart { color: var(--ink); }
+.addr { font-size: 19px; color: var(--dim); overflow-wrap: anywhere; }
+.say { background: var(--night); padding: 8px 10px; font-size: 21px; line-height: 1.05; }
+.say b { font: 400 9px/1.6 var(--f-title); color: var(--pink); margin-right: 8px; }
+.acts { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; border-top: 2px dashed var(--panel-2); }
+.acts a { font: 400 10px/1.4 var(--f-title); text-decoration: none; color: var(--blue); }
+.acts a.vai { color: var(--yellow); }
+.acts a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.more { justify-self: center; }
+.empty { padding: 30px 20px; text-align: center; background: var(--panel); color: var(--dim); }
+.empty strong { display: block; color: var(--ink); font: 400 14px/1.5 var(--f-title); margin-bottom: 8px; }
+
+.slot { background: var(--panel); padding: 18px; display: grid; gap: 10px; }
+.slot .eti { font: 400 10px/1.4 var(--f-title); color: var(--pink); }
+.slot .rullo { font: 700 clamp(26px, 3.6vw, 40px)/1.05 var(--f-ui); color: var(--yellow); overflow-wrap: anywhere; min-height: 1.1em; }
+.slot .meta { font-size: 20px; }
+.slot .acts { border-top: 0; padding-top: 0; }
+.slot .acts .btn { font-size: 10px; }
+
+.next-lv { display: grid; gap: 10px; margin-top: 8px; }
+.next-lv h3 { margin: 0; font: 400 12px/1.4 var(--f-title); color: var(--yellow); }
+
+footer { border-top: var(--px) solid var(--panel-2); padding-block: 26px 44px; color: var(--dim); font-size: 19px; }
+footer .wrap { display: grid; gap: 8px; }
+footer h2 { font-size: 12px; }
+footer p { margin: 0; max-width: 80ch; }
+footer .continua { justify-self: start; margin-top: 10px; }
+
+/* Leaflet nel gioco */
+.leaflet-container { font: 400 19px/1.1 var(--f-text); background: var(--panel); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--ink); border-radius: 0; box-shadow: 0 0 0 4px var(--edge); }
+.leaflet-popup-content { margin: 10px 12px; }
+.leaflet-popup-content strong { display: block; font: 700 19px/1.1 var(--f-ui); margin-bottom: 4px; }
+.leaflet-popup-content a { color: var(--yellow); font: 400 9px/1.6 var(--f-title); text-decoration: none; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--ink); }
+.leaflet-bar { border-radius: 0 !important; border: 0 !important; box-shadow: 0 0 0 4px var(--edge) !important; }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--panel); color: var(--ink); border-radius: 0 !important; border-color: var(--edge); font-family: var(--f-title); font-size: 14px; }
+.leaflet-control-attribution { background: rgb(14 20 51 / .85) !important; color: var(--dim); font: 400 15px/1.1 var(--f-text); }
+.leaflet-control-attribution a { color: var(--dim); }
+.pin { display: block; width: 12px; height: 12px; background: var(--blue); box-shadow: 0 0 0 2px var(--night); }
+.pin.nota { background: var(--yellow); width: 14px; height: 14px; }
+.pin.io { background: var(--green); width: 16px; height: 16px; animation: lampeggia 1s steps(2) infinite; }
+
+@media (max-width: 960px) {
+  .title .wrap { grid-template-columns: minmax(0, 1fr); }
+  .powerups { flex-wrap: nowrap; }
+  .seg { display: inline-flex; }
+  .main .wrap { grid-template-columns: minmax(0, 1fr); }
+  .map-col { position: static; }
+  #mappa { height: calc(100dvh - 130px); max-height: none; }
+  .main[data-view="lista"] .map-col { display: none; }
+  .main[data-view="mappa"] .list-col { display: none; }
+}
+@media (max-width: 520px) {
+  body { font-size: 20px; }
+  .title { padding-block: 22px 26px; }
+  .lede { font-size: 22px; }
+  .hud .wrap > :nth-child(n+3) { display: none; }
+  .levels { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .level .nm { font-size: 17px; }
+  .bar-actions .btn span { display: none; }
+  .dove-sei b { font-size: 19px; }
+  .dove-sei .tot { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="hud" aria-hidden="true">
+  <div class="wrap">
+    <span>1UP <b>MATTEO</b></span>
+    <span>HI-SCORE <b class="g" id="hi">000000</b></span>
+    <span>MONDI <b id="nmondi">6</b></span>
+    <span>ORA <b id="ora">--:--</b></span>
+  </div>
+</div>
+
+<header class="title">
+  <div class="wrap">
+    <div>
+      <h1><span class="scusa">SCUSA, NON STASERA</span><span class="anzi">ANZI SÌ!</span></h1>
+      <p class="lede">Il gioco per uscire senza programmare. Premi start o scegli il quartiere: ti dico cosa c’è di buono a pochi passi.</p>
+    </div>
+    <div>
+      <div class="dialog px" aria-live="polite">
+        <div class="riga"><span class="chi">GIULIA</span><span class="cosa" id="domanda">Usciamo stasera?</span></div>
+        <div class="riga"><span class="chi tu">TU</span><span class="cosa barrato">Scusa, non stasera…</span></div>
+        <div class="riga"><span class="chi tu">TU</span><button type="button" class="cosa" id="bolla">Anzi sì! Premi start e dimmi dove sono.</button></div>
+        <span class="next" aria-hidden="true">▼</span>
+      </div>
+      <nav class="menu" aria-label="Menu principale">
+        <button type="button" class="primo" id="m-start"><span><span class="press">PREMI START</span><small>Usa la posizione e trova i posti vicini</small></span></button>
+        <button type="button" id="m-livelli"><span>SELEZIONA LIVELLO<small>Scegli tu il quartiere</small></span></button>
+        <button type="button" id="m-gettone"><span>INSERISCI GETTONE<small>Un posto a caso, pescato per te</small></span></button>
+      </nav>
+      <p class="privacy">La posizione resta sul tuo telefono.</p>
+    </div>
+  </div>
+</header>
+
+<section class="zona" id="sez-mondi" aria-labelledby="t-mondi">
+  <div class="wrap">
+    <div class="zona-head"><h2 id="t-mondi">SELEZIONA IL MONDO</h2><p id="sott-mondi">Roma è divisa in quartieri: ogni quartiere è un livello.</p></div>
+    <div class="tabs" id="mondi" role="group" aria-label="Mondi"></div>
+    <div id="livelli"></div>
+  </div>
+</section>
+
+<section class="zona" aria-labelledby="t-pw">
+  <div class="wrap">
+    <div class="zona-head"><h2 id="t-pw">SCEGLI IL POWER-UP</h2><p>Che voglia hai? Uno solo, o tutti.</p></div>
+    <div class="powerups" id="powerups" role="group" aria-label="Tipo di posto"></div>
+    <div class="extra">
+      <button class="pw px" type="button" id="consigli" aria-pressed="false"></button>
+      <label class="cerca"><span class="sr">Cerca</span><input id="q" type="search" placeholder="CERCA: carbonara, enoteca…" autocomplete="off"></label>
+      <span class="msg" id="geo-msg" role="status" hidden></span>
+    </div>
+  </div>
+</section>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="dove-sei"><span class="lv" id="lv">MONDO 1</span><b id="titolo-ris">TUTTA ROMA</b><span id="conteggio"></span></div>
+    <div class="bar-actions">
+      <button class="btn" type="button" id="gettone" title="Un posto a caso"><svg class="pxi" data-ico="moneta" aria-hidden="true"></svg><span>GETTONE</span></button>
+      <div class="seg" role="group" aria-label="Vista">
+        <button type="button" data-view="lista" aria-pressed="true">LISTA</button>
+        <button type="button" data-view="mappa" aria-pressed="false">MAPPA</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="main" data-view="lista">
+  <div class="wrap">
+    <div class="list-col">
+      <section class="slot px" id="slot" hidden aria-live="polite"></section>
+      <div class="cards" id="cards"></div>
+      <button class="btn alt more" type="button" id="more" hidden></button>
+      <div class="next-lv" id="next-lv" hidden></div>
+    </div>
+    <div class="map-col">
+      <div id="mappa" class="px" role="region" aria-label="Mappa dei posti"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <h2>CREDITI</h2>
+    <p>Posti: la lista Google Maps <a id="fonte" href="#" target="_blank" rel="noopener">“RistoMat”</a> di Matteo, aggiornata il <span id="agg"></span>. Le note firmate MATTEO sono sue.</p>
+    <p>Quartieri e minuti a piedi sono stime dalla posizione, non percorsi veri. Il tipo di locale viene dal nome o, in parte, da © OpenStreetMap e può essere impreciso. Mappa © OpenStreetMap © CARTO.</p>
+    <button class="btn continua" type="button" id="continua">CONTINUA? ▶</button>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="locali.js"></script>
+<script>
+(() => {
+  "use strict";
+  const DATA = window.RISTOMAT || [];
+  const META = window.RISTOMAT_META || {};
+
+  // ---------- Icone a pixel (8x8) ----------
+  const ICO = {
+    casa:    ["...##...", "..####..", ".######.", "########", ".#....#.", ".#.##.#.", ".#.##.#.", ".######."],
+    tavola:  ["#.#..#..", "#.#.##..", "#.#.##..", "###.##..", ".#..##..", ".#...#..", ".#...#..", ".#...#.."],
+    pizza:   ["########", "########", ".##.###.", ".######.", "..#.##..", "..####..", "...##...", "...##..."],
+    calice:  [".#....#.", ".######.", ".######.", "..####..", "...##...", "...##...", "...##...", "..####.."],
+    boccale: [".####...", "######..", "#.##.###", "#.##.#.#", "#.##.#.#", "#.##.###", "#.##.#..", "######.."],
+    tazza:   ["...#.#..", "..#.#...", "........", "######..", "#....###", "#....#.#", "#....###", ".####..."],
+    mondo:   ["..####..", ".#.##.#.", "#..#...#", "######.#", "#.#..###", "#..#...#", ".#.##.#.", "..####.."],
+    panino:  ["..####..", ".######.", "########", "........", "########", ".######.", "........", ".######."],
+    pesce:   ["........", "....###.", "#..#####", "##.###.#", "#######.", "#..#####", "....###.", "........"],
+    carne:   [".....##.", "....####", "...#####", "..####..", ".####...", "###.....", "##......", "#......."],
+    borsa:   ["..####..", "..#..#..", "########", "########", "########", "########", "########", "########"],
+    mistero: ["..####..", ".##..##.", ".....##.", "....##..", "...##...", "...##...", "........", "...##..."],
+    stella:  ["...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"],
+    moneta:  ["..####..", ".#....#.", "#..##..#", "#..#...#", "#..#...#", "#..##..#", ".#....#.", "..####.."],
+    pin:     ["..####..", ".######.", ".##..##.", ".##..##.", ".######.", "..####..", "...##...", "...##..."],
+  };
+  function svg(nome) {
+    let d = "";
+    (ICO[nome] || ICO.mistero).forEach((r, y) => [...r].forEach((c, x) => { if (c === "#") d += `M${x} ${y}h1v1h-1z`; }));
+    return `<svg class="pxi" viewBox="0 0 8 8" aria-hidden="true"><path fill="currentColor" d="${d}"/></svg>`;
+  }
+
+  const PW = {
+    trattoria:  ["Come a casa", "casa"],
+    ristorante: ["A tavola", "tavola"],
+    pizza:      ["Pizza, ovvio", "pizza"],
+    vino:       ["Un calice", "calice"],
+    bar:        ["Due drink", "boccale"],
+    dolce:      ["Dolce & caffè", "tazza"],
+    mondo:      ["Giro del mondo", "mondo"],
+    street:     ["Al volo", "panino"],
+    pesce:      ["Sapore di mare", "pesce"],
+    carne:      ["Brace & carne", "carne"],
+    bottega:    ["Spesa golosa", "borsa"],
+    altro:      ["Da scoprire", "mistero"],
+  };
+  const FASCE = [
+    { max: 10, nome: "SOTTO CASA", diff: "EASY", sotto: "fino a 10 minuti a piedi" },
+    { max: 25, nome: "DUE PASSI", diff: "NORMAL", sotto: "10–25 minuti a piedi" },
+    { max: Infinity, nome: "VALE IL VIAGGIO", diff: "HARD", sotto: "oltre 25 minuti: bici, mezzi o motorino" },
+  ];
+  const PAGINA = 30;
+
+  const $ = (s) => document.querySelector(s);
+  const norm = (s) => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmtGiorno = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "long", year: "numeric" });
+  const fmtKm = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 1 });
+  const ridotto = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const mobile = () => matchMedia("(max-width: 960px)").matches;
+  const scorri = (el, block = "start") => el && el.scrollIntoView({ behavior: ridotto() ? "auto" : "smooth", block });
+
+  // ---------- Mondi e livelli ----------
+  const CITTA = ["Firenze", "Venezia", "Milano", "Bologna"];
+  const mondoDi = (x) => x.c === "Roma" ? "roma" : CITTA.includes(x.c) ? x.c.toLowerCase() : "fuori";
+  const perCitta = DATA.reduce((m, x) => (m[x.c] = (m[x.c] || 0) + 1, m), {});
+  DATA.forEach((x, i) => {
+    x.i = i; x.m = mondoDi(x);
+    x.l = x.m === "roma" ? (x.q || "Periferia") : x.m === "fuori" ? (perCitta[x.c] >= 3 && x.c !== "Altre località" ? x.c : `Altro in ${x.r}`) : "";
+    x.h = norm([x.n, x.a, x.nt, x.c, x.q, PW[x.t] && PW[x.t][0]].join(" "));
+  });
+  const MONDI = [
+    { id: "roma", nome: "Roma" }, ...CITTA.map((c) => ({ id: c.toLowerCase(), nome: c })), { id: "fuori", nome: "Fuori porta" },
+  ].map((m, k) => ({ ...m, w: k + 1, n: DATA.filter((x) => x.m === m.id).length })).filter((m) => m.n);
+
+  // Livelli di Roma: quartieri nell'ordine delle aree; Fuori porta: località per regione
+  const LIVELLI = {};
+  {
+    const q = (META.quartieri || []).filter((z) => DATA.some((x) => x.l === z.n));
+    const per = DATA.filter((x) => x.l === "Periferia").length;
+    const aree = (META.aree || []).map((a) => ({ nome: a, livelli: q.filter((z) => z.a === a) })).filter((a) => a.livelli.length);
+    if (per) aree.push({ nome: "Fuori dal centro", livelli: [{ n: "Periferia" }] });
+    let k = 0;
+    aree.forEach((a) => a.livelli.forEach((z) => { z.cod = `1-${String(++k).padStart(2, "0")}`; z.conta = DATA.filter((x) => x.l === z.n).length; }));
+    LIVELLI.roma = aree;
+    const reg = {};
+    DATA.filter((x) => x.m === "fuori").forEach((x) => { (reg[x.r] = reg[x.r] || {}); reg[x.r][x.l] = (reg[x.r][x.l] || 0) + 1; });
+    const w = MONDI.find((m) => m.id === "fuori");
+    let j = 0;
+    LIVELLI.fuori = Object.entries(reg).sort((a, b) => Object.values(b[1]).reduce((s, v) => s + v, 0) - Object.values(a[1]).reduce((s, v) => s + v, 0))
+      .map(([r, cs]) => ({ nome: r, livelli: Object.entries(cs).sort((a, b) => a[0].startsWith("Altro") - b[0].startsWith("Altro") || b[1] - a[1] || a[0].localeCompare(b[0], "it")).map(([c, n]) => ({ n: c, conta: n, cod: `${w ? w.w : 6}-${String(++j).padStart(2, "0")}` })) }));
+  }
+  const tuttiLivelli = (m) => (LIVELLI[m] || []).flatMap((a) => a.livelli);
+  const centro = (lv) => {
+    const z = (META.quartieri || []).find((q) => q.n === lv);
+    if (z) return z;
+    const arr = DATA.filter((x) => x.l === lv);
+    return arr.length ? { la: arr.reduce((s, x) => s + x.la, 0) / arr.length, lo: arr.reduce((s, x) => s + x.lo, 0) / arr.length } : null;
+  };
+
+  const stato = { mondo: "roma", livello: "", vicino: false, pos: null, posLv: "", voglia: "", consigli: false, q: "", mostrati: PAGINA, vista: "lista", pescato: null };
+
+  // ---------- Distanze ----------
+  function km(a, b) {
+    const R = 6371, r = Math.PI / 180;
+    const h = Math.sin((b.la - a.la) * r / 2) ** 2 + Math.cos(a.la * r) * Math.cos(b.la * r) * Math.sin((b.lo - a.lo) * r / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  const minuti = (k) => Math.max(1, Math.round(k * 1000 * 1.3 / 80));
+  function distanza(x) {
+    if (!stato.pos) return "";
+    const m = minuti(x.km);
+    return m <= 45 ? `${m} MIN<small>a piedi</small>` : `${x.km < 100 ? fmtKm.format(x.km) : Math.round(x.km)} KM<small>da qui</small>`;
+  }
+  const distTesto = (x) => distanza(x).replace(/<small>(.*?)<\/small>/, " $1");
+  const fascia = (x) => FASCE.findIndex((f) => minuti(x.km) <= f.max);
+  const sembraIndirizzo = (x) => !x.a || /^segnaposto/i.test(x.n) || /^(via|viale|piazza|piazzale|largo|vicolo)\b/i.test(x.n);
+  const dest = (x) => sembraIndirizzo(x) ? `${x.la},${x.lo}` : `${x.n}, ${x.a}`;
+  const linkMaps = (x) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(dest(x));
+  const linkVai = (x) => "https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=" + encodeURIComponent(dest(x));
+  const luogo = (x) => x.m === "roma" ? (x.l === "Periferia" ? "Roma" : x.l) : x.c === "Altre località" ? (x.r || "") : x.c;
+  const via = (x) => (x.a || "").replace(/,\s*\d{5}.*$/, "");
+
+  // ---------- Filtri ----------
+  function passa(x, salta) {
+    if (!stato.vicino && x.m !== stato.mondo) return false;
+    if (stato.livello && x.l !== stato.livello) return false;
+    if (salta !== "voglia" && stato.voglia && x.t !== stato.voglia) return false;
+    if (salta !== "consigli" && stato.consigli && !x.nt) return false;
+    if (stato.q) for (const p of stato.q.split(/\s+/)) if (p && !x.h.includes(p)) return false;
+    return true;
+  }
+  function risultati() {
+    const r = DATA.filter((x) => passa(x));
+    if (stato.pos) r.sort((a, b) => a.km - b.km);
+    else r.sort((a, b) => (!!b.nt - !!a.nt) || (b.d || 0) - (a.d || 0));
+    return r;
+  }
+
+  // ---------- Disegno: mondi, livelli, power-up ----------
+  function disegnaMondi() {
+    $("#mondi").innerHTML = MONDI.map((m) => `<button type="button" class="tab px" data-mondo="${m.id}" aria-pressed="${stato.mondo === m.id}">
+      <span class="w">MONDO ${m.w}</span><span class="nm">${esc(m.nome)}</span><span class="ct">× ${m.n} posti</span></button>`).join("");
+    const aree = LIVELLI[stato.mondo];
+    const tutti = `<div class="area"><div class="levels"><button type="button" class="level px" data-livello="" aria-pressed="${!stato.livello}">
+      <span class="cod">TUTTO</span><span class="nm">${stato.mondo === "roma" ? "Tutta Roma" : stato.mondo === "fuori" ? "Tutto fuori porta" : "Tutta " + esc(MONDI.find((m) => m.id === stato.mondo).nome)}</span>
+      <span class="ct">× ${DATA.filter((x) => x.m === stato.mondo).length}</span></button></div></div>`;
+    $("#livelli").innerHTML = tutti + (aree || []).map((a) => `<div class="area"><h3>${esc(a.nome.toUpperCase())}</h3><div class="levels">${
+      a.livelli.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="${stato.livello === z.n}">
+        ${stato.posLv === z.n ? `<span class="qui">SEI QUI</span>` : ""}
+        <span class="cod">LIVELLO ${z.cod}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${z.conta}</span></button>`).join("")
+    }</div></div>`).join("");
+    $("#sott-mondi").textContent = stato.mondo === "roma" ? "Roma è divisa in quartieri: ogni quartiere è un livello."
+      : stato.mondo === "fuori" ? "Gite, mare e borghi: ogni località è un livello." : "Un mondo, un livello: tutta la città.";
+  }
+  function disegnaPowerup() {
+    const base = DATA.filter((x) => passa(x, "voglia"));
+    const c = base.reduce((m, x) => (m[x.t] = (m[x.t] || 0) + 1, m), {});
+    const ordine = Object.keys(PW).filter((k) => k !== "altro").sort((a, b) => (c[b] || 0) - (c[a] || 0)).concat("altro");
+    $("#powerups").innerHTML = `<button type="button" class="pw px" data-voglia="" aria-pressed="${!stato.voglia}">${svg("stella")}Tutto <span class="n">${base.length}</span></button>` +
+      ordine.map((k) => `<button type="button" class="pw px" data-voglia="${k}" aria-pressed="${stato.voglia === k}" ${!c[k] && stato.voglia !== k ? "disabled" : ""}>${svg(PW[k][1])}${esc(PW[k][0])} <span class="n">${c[k] || 0}</span></button>`).join("");
+    const nc = DATA.filter((x) => passa(x, "consigli") && x.nt).length;
+    const b = $("#consigli");
+    b.innerHTML = `${svg("stella")}Solo i consigli di Matteo <span class="n">${nc}</span>`;
+    b.setAttribute("aria-pressed", stato.consigli);
+  }
+
+  // ---------- Disegno: risultati ----------
+  function scheda(x) {
+    return `<article class="card px" id="p${x.i}">
+      <div class="card-top">
+        <h4><button type="button" data-mappa="${x.i}" title="Mostra sulla mappa">${esc(x.n)}</button></h4>
+        ${stato.pos ? `<span class="dist">${distanza(x)}</span>` : ""}
+      </div>
+      <div class="meta"><span class="tipo">${svg(PW[x.t][1])}${esc(PW[x.t][0])}</span><span class="quart">${esc(luogo(x))}</span></div>
+      ${via(x) ? `<div class="addr">${esc(via(x))}</div>` : ""}
+      ${x.nt ? `<div class="say"><b>MATTEO</b>${esc(x.nt)}</div>` : ""}
+      <div class="acts">
+        <a class="vai" href="${linkVai(x)}" target="_blank" rel="noopener">▶ PORTAMI LÌ</a>
+        <a href="${linkMaps(x)}" target="_blank" rel="noopener">APRI SU MAPS</a>
+      </div>
+    </article>`;
+  }
+  let ultimi = [];
+  function intestazione(n, conta) {
+    const m = MONDI.find((m) => m.id === stato.mondo);
+    let lv, tit;
+    if (stato.livello) {
+      const z = tuttiLivelli(stato.mondo).find((z) => z.n === stato.livello);
+      lv = z ? `LIVELLO ${z.cod}` : `MONDO ${m.w}`; tit = stato.livello;
+    } else if (stato.vicino) {
+      lv = stato.posLv ? `SEI DALLE PARTI DI ${stato.posLv.toUpperCase()}` : "PLAYER 1"; tit = "Vicino a te";
+    } else { lv = `MONDO ${m.w}`; tit = m.id === "roma" ? "Tutta Roma" : m.id === "fuori" ? "Fuori porta" : m.nome; }
+    $("#lv").textContent = lv; $("#titolo-ris").textContent = tit;
+    $("#conteggio").innerHTML = (conta ? `<span class="tot">× ${n} posti · </span>${conta[0]} sotto casa` : `× ${n} ${n === 1 ? "posto" : "posti"}`);
+  }
+  function disegnaLista() {
+    ultimi = risultati();
+    const n = ultimi.length, vis = ultimi.slice(0, stato.mostrati);
+    let h = "", conta = null;
+    if (stato.pos && n) {
+      conta = [0, 0, 0]; ultimi.forEach((x) => conta[fascia(x)]++);
+      let cur = -1;
+      for (const x of vis) {
+        const f = fascia(x);
+        if (f !== cur) { cur = f; h += `<div class="band"><h3>${FASCE[f].nome}</h3><span class="diff n${f + 1}">${FASCE[f].diff}</span><span>${FASCE[f].sotto} · ${conta[f]}</span></div>`; }
+        h += scheda(x);
+      }
+    } else h = vis.map(scheda).join("");
+    $("#cards").innerHTML = n ? h : `<div class="empty"><strong>NESSUN POSTO</strong>Cambia power-up o livello e riprova.</div>`;
+    intestazione(n, conta);
+    const resto = n - vis.length;
+    $("#more").hidden = resto <= 0;
+    $("#more").textContent = `CARICA ALTRI ${Math.min(PAGINA, resto)} ▼`;
+    disegnaProssimi();
+  }
+  function disegnaProssimi() {
+    const box = $("#next-lv");
+    if (stato.mondo !== "roma" || !stato.livello || stato.livello === "Periferia") { box.hidden = true; return; }
+    const c = centro(stato.livello);
+    const vicini = tuttiLivelli("roma").filter((z) => z.n !== stato.livello && z.n !== "Periferia")
+      .map((z) => ({ ...z, d: km(c, centro(z.n)) })).sort((a, b) => a.d - b.d).slice(0, 3);
+    box.innerHTML = `<h3>PROSSIMO LIVELLO ▶</h3><div class="levels">${vicini.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="false"><span class="cod">LIVELLO ${z.cod}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${z.conta}</span></button>`).join("")}</div>`;
+    box.hidden = false;
+  }
+
+  function aggiorna({ adatta = true } = {}) {
+    stato.mostrati = PAGINA;
+    disegnaMondi(); disegnaPowerup(); disegnaLista();
+    mappa.aggiorna(ultimi, adatta);
+    rispondi();
+  }
+
+  // ---------- Dialogo ----------
+  function domanda() {
+    const h = new Date().getHours();
+    if (h >= 6 && h < 11) return "Colazione insieme?";
+    if (h >= 11 && h < 15) return "Pranziamo fuori?";
+    if (h >= 15 && h < 18) return "Aperitivo dopo?";
+    if (h >= 18 && h < 23) return "Usciamo stasera?";
+    return "Ultimo giro?";
+  }
+  function rispondi(x) {
+    const b = $("#bolla");
+    let t;
+    if (!x && !stato.vicino && !stato.livello) t = "Anzi sì! Premi start e dimmi dove sono.";
+    else {
+      x = x || ultimi[0];
+      if (!x) t = "Anzi sì… ma qui non trovo niente. Cambiamo livello?";
+      else if (stato.pos && x.km !== undefined) { const m = minuti(x.km); t = `Anzi sì: <b>${esc(x.n)}</b>, ${m <= 45 ? `a ${m} ${m === 1 ? "minuto" : "minuti"} a piedi` : `a ${fmtKm.format(x.km)} km`}. Ci vediamo lì?`; }
+      else t = `Anzi sì: <b>${esc(x.n)}</b>, a ${esc(luogo(x))}. Ci vediamo lì?`;
+    }
+    b.innerHTML = t; b.dataset.i = x ? x.i : "";
+  }
+
+  // ---------- Mappa ----------
+  const mappa = (() => {
+    const el = $("#mappa");
+    const vuoto = { aggiorna() {}, vai() {}, posizione() {}, mostra() {} };
+    if (!window.L) { el.innerHTML = `<div class="map-note">MAPPA NON CARICATA. La lista funziona lo stesso.</div>`; return vuoto; }
+    const m = L.map(el, { zoomControl: true }).setView([41.9, 12.49], 12);
+    const tiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>',
+      subdomains: "abcd", maxZoom: 20,
+    }).addTo(m);
+    let ok = 0, ko = 0, avviso = null;
+    tiles.on("tileload", () => { ok++; if (avviso) { avviso.remove(); avviso = null; } });
+    tiles.on("tileerror", () => { if (!ok && ++ko > 3 && !avviso) { avviso = document.createElement("div"); avviso.className = "map-note"; avviso.textContent = "Sfondo della mappa non caricato: i punti restano cliccabili."; el.appendChild(avviso); } });
+    const strato = L.layerGroup().addTo(m);
+    const punti = new Map();
+    let io = null, ultima = [], daAdattare = false;
+    const icona = (cls, s) => L.divIcon({ className: "", html: `<span class="pin ${cls}"></span>`, iconSize: [s, s], iconAnchor: [s / 2, s / 2] });
+    const I_BASE = icona("", 12), I_NOTA = icona("nota", 14), I_IO = icona("io", 16);
+    function popup(x) {
+      return `<strong>${esc(x.n)}</strong><div>${esc(PW[x.t][0])} · ${esc(luogo(x))}${stato.pos ? " · " + distTesto(x) : ""}</div>` +
+        `<div style="margin-top:8px;display:flex;gap:14px;flex-wrap:wrap"><a href="${linkVai(x)}" target="_blank" rel="noopener">▶ PORTAMI LÌ</a><a href="#p${x.i}" data-scheda="${x.i}">SCHEDA</a></div>`;
+    }
+    const nascosta = () => el.offsetParent === null || !el.clientWidth;
+    function adattaA(lista) {
+      let pts = lista.map((x) => [x.la, x.lo]);
+      if (stato.pos) {
+        const vicini = lista.filter((x) => minuti(x.km) <= 25);
+        pts = (vicini.length >= 3 ? vicini : lista.slice(0, 8)).map((x) => [x.la, x.lo]).concat([[stato.pos.la, stato.pos.lo]]);
+      }
+      if (pts.length) m.fitBounds(L.latLngBounds(pts).pad(0.12), { maxZoom: 16, animate: false });
+    }
+    function aggiorna(lista, adatta) {
+      ultima = lista; strato.clearLayers(); punti.clear();
+      for (const x of lista) punti.set(x.i, L.marker([x.la, x.lo], { icon: x.nt ? I_NOTA : I_BASE, keyboard: false }).bindPopup(() => popup(x), { maxWidth: 260 }).addTo(strato));
+      if (!adatta) return;
+      if (nascosta()) daAdattare = true; else { daAdattare = false; adattaA(lista); }
+    }
+    function mostra() { m.invalidateSize(); if (daAdattare) { adattaA(ultima); daAdattare = false; } }
+    function vai(i) {
+      const x = DATA[i]; daAdattare = false; m.invalidateSize();
+      m.setView([x.la, x.lo], Math.max(m.getZoom(), 16), { animate: false });
+      const mk = punti.get(i);
+      if (mk) mk.openPopup(); else L.popup().setLatLng([x.la, x.lo]).setContent(popup(x)).openOn(m);
+    }
+    function posizione(p) { if (io) { m.removeLayer(io); io = null; } if (p) io = L.marker([p.la, p.lo], { icon: I_IO, keyboard: false, zIndexOffset: 1000 }).bindTooltip("TU").addTo(m); }
+    m.on("popupopen", (e) => { const a = e.popup.getElement().querySelector("[data-scheda]"); if (a) a.addEventListener("click", (ev) => { ev.preventDefault(); mostraScheda(+a.dataset.scheda); }); });
+    addEventListener("resize", () => m.invalidateSize());
+    return { aggiorna, vai, posizione, mostra };
+  })();
+
+  // ---------- Azioni ----------
+  function start() {
+    const msg = $("#geo-msg");
+    const errore = (t) => { msg.textContent = t; msg.hidden = false; scorri($("#sez-mondi")); };
+    if (!navigator.geolocation) return errore("Niente GPS qui: seleziona il livello a mano.");
+    msg.hidden = false; msg.textContent = "Ti cerco…";
+    navigator.geolocation.getCurrentPosition((p) => {
+      msg.hidden = true;
+      stato.pos = { la: p.coords.latitude, lo: p.coords.longitude };
+      DATA.forEach((x) => { x.km = km(stato.pos, x); });
+      const vicino = DATA.reduce((a, b) => (a.km < b.km ? a : b));
+      stato.mondo = vicino.km < 40 ? vicino.m : stato.mondo;
+      stato.posLv = vicino.km < 3 ? vicino.l : "";
+      stato.livello = ""; stato.vicino = true;
+      $("#slot").hidden = true;
+      mappa.posizione(stato.pos);
+      aggiorna();
+      scorri($(".bar"));
+    }, () => errore("Niente posizione: consentila nelle impostazioni del browser, o seleziona il livello qui sotto."),
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 });
+  }
+  function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; $("#slot").hidden = true; aggiorna(); }
+  function scegliLivello(lv, vai) {
+    stato.livello = lv; stato.vicino = false; $("#slot").hidden = true; aggiorna();
+    if (vai) scorri($(".bar"));
+  }
+  function impostaVista(v) {
+    stato.vista = v; $(".main").dataset.view = v;
+    document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.view === v));
+    if (v === "mappa") mappa.mostra();
+  }
+  function lampeggia(el) { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+  function mostraScheda(i) {
+    impostaVista("lista");
+    let idx = ultimi.findIndex((x) => x.i === i);
+    if (idx === -1) { const x = DATA[i]; Object.assign(stato, { mondo: x.m, livello: "", vicino: false, voglia: "", consigli: false, q: "" }); $("#q").value = ""; aggiorna({ adatta: false }); idx = ultimi.findIndex((y) => y.i === i); }
+    if (idx >= stato.mostrati) { stato.mostrati = idx + 1; disegnaLista(); }
+    const el = document.getElementById("p" + i);
+    if (el) { scorri(el, "center"); lampeggia(el); }
+  }
+  function mostraSuMappa(i) { if (mobile()) impostaVista("mappa"); mappa.vai(i); const el = document.getElementById("p" + i); if (el && !mobile()) lampeggia(el); }
+
+  let giro = null;
+  function gettone() {
+    let pool = ultimi.length ? ultimi : DATA.filter((x) => x.m === stato.mondo);
+    if (stato.pos) { const v = pool.filter((x) => minuti(x.km) <= 25); if (v.length) pool = v; }
+    let x = pool[Math.floor(Math.random() * pool.length)];
+    if (pool.length > 1 && stato.pescato === x.i) x = pool[(pool.indexOf(x) + 1) % pool.length];
+    stato.pescato = x.i;
+    const box = $("#slot");
+    box.hidden = false; impostaVista("lista"); scorri(box);
+    box.innerHTML = `<span class="eti">GETTONE INSERITO · ${pool.length} POSTI IN GIOCO</span><div class="rullo" id="rullo">…</div><div id="premio"></div>`;
+    clearInterval(giro);
+    const fine = () => {
+      $("#rullo").textContent = x.n;
+      $("#premio").innerHTML = `<div class="meta"><span class="tipo">${svg(PW[x.t][1])}${esc(PW[x.t][0])}</span><span class="quart">${esc(luogo(x))}</span>${stato.pos ? `<span>${distTesto(x)}</span>` : ""}</div>
+        ${x.nt ? `<div class="say" style="margin-top:8px"><b>MATTEO</b>${esc(x.nt)}</div>` : ""}
+        <div class="acts" style="margin-top:10px"><a class="btn" href="${linkVai(x)}" target="_blank" rel="noopener">▶ PORTAMI LÌ</a><button class="btn alt" type="button" data-ancora>ALTRO GETTONE</button><button class="btn alt" type="button" data-dett="${x.i}">DETTAGLI</button></div>`;
+      $("#premio [data-ancora]").addEventListener("click", gettone);
+      $("#premio [data-dett]").addEventListener("click", () => mostraScheda(x.i));
+      rispondi(x);
+      if (!mobile()) mappa.vai(x.i);
+    };
+    if (ridotto() || pool.length < 2) return fine();
+    let k = 0;
+    giro = setInterval(() => {
+      $("#rullo").textContent = pool[Math.floor(Math.random() * pool.length)].n;
+      if (++k >= 14) { clearInterval(giro); fine(); }
+    }, 70);
+  }
+
+  // ---------- Eventi ----------
+  $("#m-start").addEventListener("click", start);
+  $("#m-livelli").addEventListener("click", () => scorri($("#sez-mondi")));
+  $("#m-gettone").addEventListener("click", gettone);
+  $("#gettone").addEventListener("click", gettone);
+  $("#continua").addEventListener("click", () => scorri(document.body));
+  $("#mondi").addEventListener("click", (e) => { const b = e.target.closest("[data-mondo]"); if (b) scegliMondo(b.dataset.mondo); });
+  document.addEventListener("click", (e) => {
+    const lv = e.target.closest("[data-livello]");
+    if (lv) return scegliLivello(lv.dataset.livello, true);
+    const b = e.target.closest("[data-mappa]");
+    if (b) mostraSuMappa(+b.dataset.mappa);
+  });
+  $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (!b) return; stato.voglia = stato.voglia === b.dataset.voglia ? "" : b.dataset.voglia; aggiorna(); });
+  $("#consigli").addEventListener("click", () => { stato.consigli = !stato.consigli; aggiorna(); });
+  let t;
+  $("#q").addEventListener("input", (e) => { clearTimeout(t); t = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); }, 160); });
+  $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); });
+  $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else start(); });
+  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => impostaVista(b.dataset.view)));
+
+  // ---------- Avvio ----------
+  const ora = new Date();
+  $("#ora").textContent = `${String(ora.getHours()).padStart(2, "0")}:${String(ora.getMinutes()).padStart(2, "0")}`;
+  $("#hi").textContent = String(DATA.length).padStart(6, "0");
+  $("#nmondi").textContent = MONDI.length;
+  $("#domanda").textContent = domanda();
+  $("#fonte").href = META.fonte || "https://www.google.com/maps";
+  $("#agg").textContent = META.aggiornato ? fmtGiorno.format(new Date(META.aggiornato + "T12:00:00")) : "";
+  document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });
+  aggiorna();
+})();
+</script>
+</body>
+</html>

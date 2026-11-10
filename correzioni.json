@@ -1,0 +1,9 @@
+{
+  "_istruzioni": "Chiave = nome esatto del locale come appare su Google Maps. Campi: t (tipo: pizza, trattoria, ristorante, pesce, carne, mondo, vino, bar, dolce, street, bottega, altro), q (quartiere di Roma, come in strumenti/quartieri.py), c (città), nt (nota). Dopo una modifica rilancia strumenti/aggiorna_lista.py.",
+  "Il Goccetto": {
+    "t": "vino"
+  },
+  "La Colombina": {
+    "t": "vino"
+  }
+}
