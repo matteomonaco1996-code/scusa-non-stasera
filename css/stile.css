@@ -283,13 +283,19 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .leaflet-popup-content { margin: 10px 12px; }
 .leaflet-popup-content strong { display: block; font: 400 22px/1.15 var(--f-title); margin-bottom: 4px; }
 .leaflet-popup-content a { color: var(--ocra); font: 400 18px/1.4 var(--f-title); text-decoration: none; }
-.popup-acts { margin-top: 8px; display: flex; gap: 14px; flex-wrap: wrap; }
+.popup-acts { margin-top: 8px; display: flex; gap: 6px 14px; flex-wrap: wrap; }
+.leaflet-popup-content .say { margin-top: 8px; font-size: 14px; }
 .leaflet-container a.leaflet-popup-close-button { color: var(--ink); }
 .leaflet-bar { border-radius: 0 !important; border: 0 !important; box-shadow: 0 0 0 4px var(--edge) !important; }
 .leaflet-bar a, .leaflet-bar a:hover { background: var(--panel); color: var(--ink); border-radius: 0 !important; border-color: var(--edge); font-family: var(--f-title); }
 .leaflet-control-attribution { background: rgb(34 22 15 / .85) !important; color: var(--dim); font-size: 12px; }
 .leaflet-control-attribution a { color: var(--dim); }
+.pin-area { display: grid; place-items: center; cursor: pointer; }
+.pin-hit { cursor: pointer; background: transparent; }
+.pin-area:hover .pin, .pin-area:focus-visible .pin { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
+.pin-area:focus-visible { outline: none; }
 .pin { display: block; width: 12px; height: 12px; background: var(--cielo); box-shadow: 0 0 0 2px var(--bg); }
+.pin.breve { background: var(--ink); }
 .pin.nota { background: var(--ocra); width: 14px; height: 14px; }
 .pin.visto { background: var(--pino-txt); }
 .pin.io { background: var(--pompei-txt); width: 16px; height: 16px; animation: lampeggia 1s steps(2) infinite; }
@@ -414,5 +420,5 @@ dialog.premio { width: min(460px, calc(100vw - 32px)); text-align: center; }
 .etichette span { font-size: 12px; padding: 2px 6px; background: var(--panel-2); color: var(--dim); }
 
 .zoom-lontano .base-quartiere { display: none; }
-.zoom-lontano .pin { width: 7px; height: 7px; margin: 2px; }
-.zoom-lontano .pin.nota, .zoom-lontano .pin.visto { width: 9px; height: 9px; margin: 1px; }
+.zoom-lontano .pin { width: 7px; height: 7px; }
+.zoom-lontano .pin.nota, .zoom-lontano .pin.visto { width: 9px; height: 9px; }

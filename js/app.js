@@ -450,11 +450,16 @@
     const strato = L.layerGroup().addTo(m);
     const punti = new Map();
     let io = null, ultima = [], daAdattare = false;
-    const icona = (cls, s) => L.divIcon({ className: "", html: `<span class="pin ${cls}"></span>`, iconSize: [s, s], iconAnchor: [s / 2, s / 2] });
-    const I = { base: icona("", 12), nota: icona("nota", 14), visto: icona("visto", 12), io: icona("io", 16) };
+    // Due livelli: sopra i quadratini visibili (hanno sempre la precedenza), sotto un'area larga
+    // e invisibile intorno a ciascuno, così col dito si prendono bene anche se manchi il centro.
+    m.createPane("aree").style.zIndex = 590;
+    const icona = (cls, s) => L.divIcon({ className: "pin-area", html: `<span class="pin ${cls}"></span>`, iconSize: [s, s], iconAnchor: [s / 2, s / 2], popupAnchor: [0, -6] });
+    const I = { base: icona("", 14), nota: icona("nota", 16), breve: icona("breve", 14), visto: icona("visto", 14), io: icona("io", 18) };
+    const AREA = L.divIcon({ className: "pin-hit", iconSize: [36, 36], iconAnchor: [18, 18] });
     function popup(x) {
       return `<strong>${esc(x.n)}</strong><div>${esc(PW[x.t][0])} · ${esc(luogo(x))}${stato.pos ? " · " + distTesto(x) : ""}</div>` +
-        `<div class="popup-acts"><a href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><a href="#p${x.i}" data-scheda="${x.i}">Scheda</a></div>`;
+        nota(x) +
+        `<div class="popup-acts"><a href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><a href="${linkMaps(x)}" ${EXT}>Apri su Maps</a><a href="#p${x.i}" data-scheda="${x.i}">Scheda</a></div>`;
     }
     const nascosta = () => el.offsetParent === null || !el.clientWidth;
     function adattaA(lista) {
@@ -469,8 +474,11 @@
       ultima = lista; strato.clearLayers(); punti.clear();
       const visti = SNS.visitati || new Set();
       for (const x of lista) {
-        const ic = visti.has(x.id) ? I.visto : x.nt ? I.nota : I.base;
-        punti.set(x.i, L.marker([x.la, x.lo], { icon: ic, keyboard: false }).bindPopup(() => popup(x), { maxWidth: 260 }).addTo(strato));
+        const ic = visti.has(x.id) ? I.visto : x.nt ? I.nota : x.dr ? I.breve : I.base;
+        const mk = L.marker([x.la, x.lo], { icon: ic, title: x.n, alt: x.n, riseOnHover: true, zIndexOffset: x.nt ? 200 : x.dr ? 100 : 0 })
+          .bindPopup(() => popup(x), { maxWidth: 290, minWidth: 200, autoPanPadding: [24, 24] }).addTo(strato);
+        L.marker([x.la, x.lo], { icon: AREA, pane: "aree", keyboard: false, title: x.n }).on("click", () => mk.openPopup()).addTo(strato);
+        punti.set(x.i, mk);
       }
       if (!adatta) return;
       if (nascosta()) daAdattare = true; else { daAdattare = false; adattaA(lista); }
