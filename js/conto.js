@@ -36,7 +36,13 @@
   const oggiISO = () => new Date().toISOString().slice(0, 10);
   const pad = (n) => String(n).padStart(6, "0");
   const fmtData = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "short", year: "numeric" });
-  const errore = (e) => (e && (e.message || e.error_description)) || "Qualcosa è andato storto: riprova.";
+  function errore(e) {
+    const codice = (e && (e.code || e.error_code)) || "", testo = (e && (e.message || e.error_description)) || "";
+    if (codice === "email_address_not_authorized" || /not authorized/i.test(testo)) return "Le iscrizioni non sono ancora aperte a tutti: riprova tra qualche giorno.";
+    if (codice === "over_email_send_rate_limit" || codice === "over_request_rate_limit" || (e && e.status === 429)) return "Troppe richieste in poco tempo: riprova tra qualche minuto.";
+    if (/failed to fetch|networkerror|load failed/i.test(testo)) return "Connessione assente o servizio non raggiungibile: riprova.";
+    return testo || "Qualcosa è andato storto: riprova.";
+  }
   const stelle = (n) => "★".repeat(n) + "☆".repeat(5 - n);
 
   // Statistiche dal punteggio, per avanzamento missioni e badge
