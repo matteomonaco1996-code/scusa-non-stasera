@@ -20,7 +20,13 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
 - **POWER-UP**: Come a casa · A tavola · Pizza, ovvio · Un calice · Due drink ·
   Dolce & caffè · Giro del mondo · Al volo · Sapore di mare · Brace & carne ·
   Spesa golosa · Da scoprire. In più c'è il filtro *Solo i consigli di Matteo*.
-- **GETTONE**: pesca un posto a caso tra quelli vicini o del livello.
+- **GETTONE**: pesca un posto solo, in una finestra in primo piano. Con la posizione sceglie tra i posti
+  a portata di piedi (12, poi 25, poi 45 minuti; altrimenti i 6 più vicini); dentro un livello pesca lì;
+  senza posizione né livello chiede prima dove. Se non hai scelto un power-up tiene solo i tipi adatti
+  all’ora (si può togliere). Non ripete un posto finché non sono usciti tutti; chi ha un commento esce
+  più spesso. Gli orari di apertura non sono noti: il sito lo dice.
+- **RESTART**: compare nella barra, nella HUD e a lista vuota quando c’è qualcosa da azzerare; riporta
+  tutto com’era all’apertura (mondo, livello, power-up, ricerca, posizione). L’accesso all’account resta.
 - **MAPPA DEL MONDO**: Roma disegnata come la mappa dei livelli di un videogioco (Tevere a pixel,
   quartieri come caselle cliccabili, verdi quelli già visitati), senza servizi esterni.
 - **MAPPA DEI RISULTATI**: strade, Tevere e Aniene di Roma con dati OpenStreetMap ospitati sul sito

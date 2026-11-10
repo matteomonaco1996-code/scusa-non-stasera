@@ -21,6 +21,7 @@
     mistero: ["..####..", ".##..##.", ".....##.", "....##..", "...##...", "...##...", "........", "...##..."],
     stella:  ["...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"],
     moneta:  ["..####..", ".#....#.", "#..##..#", "#..#...#", "#..#...#", "#..##..#", ".#....#.", "..####.."],
+    restart: ["..###.##", ".#...###", "#....###", "#.......", "#.......", "#......#", ".#....#.", "..####.."],
   };
   function svg(nome) {
     let d = "";
@@ -132,7 +133,10 @@
     [41.8328, 12.4242], [41.8321, 12.4231], [41.8312, 12.4221], [41.8305, 12.4216], [41.8286, 12.4210],
   ];
 
-  const stato = { mondo: "roma", livello: "", vicino: false, pos: null, posLv: "", voglia: "", consigli: false, q: "", mostrati: PAGINA, vista: "lista", pescato: null };
+  const INIZIO = { mondo: "roma", livello: "", vicino: false, pos: null, posLv: "", voglia: "", consigli: false, q: "", mostrati: PAGINA, vista: "lista", pescato: null };
+  const stato = { ...INIZIO };
+  // C'è qualcosa da azzerare? Serve a mostrare RESTART solo quando ha senso.
+  const inCorso = () => stato.vicino || !!stato.pos || !!stato.livello || stato.mondo !== INIZIO.mondo || !!stato.voglia || stato.consigli || !!stato.q || stato.pescato !== null;
 
   // ---------- Distanze e link ----------
   function km(a, b) {
@@ -324,7 +328,7 @@
         h += scheda(x);
       }
     } else h = vis.map(scheda).join("");
-    $("#cards").innerHTML = n ? h : `<div class="empty"><strong>Nessun posto</strong>Cambia power-up o livello e riprova.</div>`;
+    $("#cards").innerHTML = n ? h : `<div class="empty"><strong>Nessun posto</strong>Cambia power-up o livello, oppure ricomincia da capo.<button class="btn" type="button" data-restart>${svg("restart")}RESTART</button></div>`;
     intestazione(n, conta);
     const resto = n - vis.length;
     $("#more").hidden = resto <= 0;
@@ -345,17 +349,20 @@
     disegnaMondi(); disegnaOverworld(); disegnaPowerup(); disegnaLista();
     mappa.aggiorna(ultimi, adatta);
     rispondi();
+    segnaInCorso();
   }
+  function segnaInCorso() { const si = inCorso(); document.querySelectorAll(".restart").forEach((b) => { b.hidden = !si; }); }
 
   // ---------- Dialogo ----------
-  function domanda() {
-    const h = new Date().getHours();
-    if (h >= 6 && h < 11) return "Colazione insieme?";
-    if (h >= 11 && h < 15) return "Pranziamo fuori?";
-    if (h >= 15 && h < 18) return "Aperitivo dopo?";
-    if (h >= 18 && h < 23) return "Usciamo stasera?";
-    return "Ultimo giro?";
-  }
+  // I momenti della giornata: la domanda di Gaia e i tipi di posto che hanno senso a quell'ora (per il gettone)
+  const MOMENTI = [
+    { da: 6, a: 11, nome: "colazione", domanda: "Colazione insieme?", tipi: ["dolce", "bottega"] },
+    { da: 11, a: 15, nome: "pranzo", domanda: "Pranziamo fuori?", tipi: ["trattoria", "ristorante", "pizza", "street", "pesce", "carne", "mondo"] },
+    { da: 15, a: 18, nome: "merenda o aperitivo", domanda: "Aperitivo dopo?", tipi: ["dolce", "bottega", "street", "vino", "bar"] },
+    { da: 18, a: 23, nome: "sera", domanda: "Usciamo stasera?", tipi: ["trattoria", "ristorante", "pizza", "pesce", "carne", "mondo", "vino", "bar", "street"] },
+  ];
+  const NOTTE = { nome: "dopocena", domanda: "Ultimo giro?", tipi: ["bar", "vino", "street", "dolce"] };
+  const momento = () => { const h = new Date().getHours(); return MOMENTI.find((m) => h >= m.da && h < m.a) || NOTTE; };
   function rispondi(x) {
     const b = $("#bolla");
     let t;
@@ -494,7 +501,7 @@
     function posizione(p) { if (io) { m.removeLayer(io); io = null; } if (p) io = L.marker([p.la, p.lo], { icon: I.io, keyboard: false, zIndexOffset: 1000 }).bindTooltip("Tu").addTo(m); }
     m.on("popupopen", (e) => { const a = e.popup.getElement().querySelector("[data-scheda]"); if (a) a.addEventListener("click", (ev) => { ev.preventDefault(); mostraScheda(+a.dataset.scheda); }); });
     addEventListener("resize", () => m.invalidateSize());
-    return { aggiorna, vai, posizione, mostra, ridisegna: () => aggiorna(ultima, false) };
+    return { aggiorna, vai, posizione, mostra, chiudi: () => m.closePopup(), ridisegna: () => aggiorna(ultima, false) };
   })();
 
   // ---------- Avvisi ----------
@@ -506,31 +513,49 @@
   }
 
   // ---------- Azioni ----------
-  function start() {
-    const msg = $("#geo-msg");
-    const errore = (t) => { msg.textContent = t; msg.hidden = false; scorri($("#sez-mondi")); };
-    if (!navigator.geolocation) return errore("Niente GPS qui: seleziona il livello a mano.");
-    msg.hidden = false; msg.textContent = "Ti cerco…";
-    navigator.geolocation.getCurrentPosition((p) => {
-      msg.hidden = true;
-      stato.pos = { la: p.coords.latitude, lo: p.coords.longitude };
-      DATA.forEach((x) => { x.km = km(stato.pos, x); });
-      const vicino = DATA.reduce((a, b) => (a.km < b.km ? a : b));
-      stato.mondo = vicino.km < 40 ? vicino.m : stato.mondo;
-      stato.posLv = vicino.km < 3 ? vicino.l : "";
-      stato.livello = ""; stato.vicino = true;
-      $("#slot").hidden = true;
-      mappa.posizione(stato.pos);
-      aggiorna();
-      scorri($(".bar"));
-    }, () => errore("Niente posizione: consentila nelle impostazioni del browser, o seleziona il livello qui sotto."),
-    { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 });
+  // Chiede la posizione al browser e aggiorna il gioco. Risolve con "" se va bene, altrimenti con il motivo.
+  function trovami() {
+    return new Promise((fatto) => {
+      if (!navigator.geolocation) return fatto("Qui non c’è il GPS.");
+      navigator.geolocation.getCurrentPosition((p) => {
+        stato.pos = { la: p.coords.latitude, lo: p.coords.longitude };
+        DATA.forEach((x) => { x.km = km(stato.pos, x); });
+        const vicino = DATA.reduce((a, b) => (a.km < b.km ? a : b));
+        stato.mondo = vicino.km < 40 ? vicino.m : stato.mondo;
+        stato.posLv = vicino.km < 3 ? vicino.l : "";
+        stato.livello = ""; stato.vicino = true;
+        mappa.posizione(stato.pos);
+        aggiorna();
+        fatto("");
+      }, (e) => fatto(e && e.code === 1 ? "Posizione non consentita: attivala nelle impostazioni del browser." : "Non riesco a trovarti in questo momento."),
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 });
+    });
   }
-  function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; $("#slot").hidden = true; aggiorna(); }
-  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; $("#slot").hidden = true; aggiorna(); scorri($(".bar")); }
+  let cerco = false;
+  async function start() {
+    if (cerco) return;
+    cerco = true;
+    const voce = $("#m-start .voce"), prima = voce.textContent;
+    voce.textContent = "TI CERCO…"; toast("Ti cerco…");
+    const err = await trovami();
+    cerco = false; voce.textContent = prima;
+    if (err) { toast(`${err} Intanto scegli il quartiere a mano.`); scorri($("#sez-mondi")); return; }
+    $("#toast").hidden = true;
+    scorri($(".bar"));
+  }
+  function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false; aggiorna(); }
+  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); }
+  // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
+  // dopo aver scorso la lista, la mappa restava quasi tutta fuori schermo. Porta l'inizio subito sotto la barra.
+  function allinea() {
+    const bar = $(".bar"), fermo = parseFloat(getComputedStyle(bar).top) || 0;
+    scrollBy(0, Math.round($(".main").getBoundingClientRect().top - bar.getBoundingClientRect().height - fermo));
+  }
   function impostaVista(v) {
+    const cambia = stato.vista !== v;
     stato.vista = v; $(".main").dataset.view = v;
     document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.view === v));
+    if (cambia && mobile()) allinea();
     if (v === "mappa") mappa.mostra();
   }
   function lampeggia(el) { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
@@ -542,35 +567,129 @@
     const el = document.getElementById("p" + i);
     if (el) { scorri(el, "center"); lampeggia(el); }
   }
-  function mostraSuMappa(i) { if (mobile()) impostaVista("mappa"); mappa.vai(i); const el = document.getElementById("p" + i); if (el && !mobile()) lampeggia(el); }
+  function mostraSuMappa(i) { if (mobile()) { impostaVista("mappa"); allinea(); } mappa.vai(i); const el = document.getElementById("p" + i); if (el && !mobile()) lampeggia(el); }
 
-  let giro = null;
+  // Restart: torna alla schermata del titolo come appena aperto il sito. L'accesso all'account resta.
+  let tCerca;
+  function restart() {
+    clearInterval(gt.timer); clearTimeout(tCerca);
+    document.querySelectorAll("dialog[open]").forEach((d) => d.close());
+    Object.assign(stato, INIZIO);
+    gt.usciti.clear(); gt.ovunque = false; gt.ora = true;
+    $("#q").value = "";
+    mappa.posizione(null); mappa.chiudi();
+    impostaVista("lista");
+    aggiorna();
+    $("#domanda").textContent = momento().domanda;
+    scrollTo({ top: 0, behavior: ridotto() ? "auto" : "smooth" });
+    $("#m-start").focus({ preventScroll: true });
+    toast("Si riparte da capo.");
+  }
+
+  // ---------- Gettone: un posto solo, pescato tra quelli che puoi raggiungere davvero ----------
+  const gt = { usciti: new Set(), ovunque: false, ora: true, timer: null, x: null };
+
+  // Chi è in gioco: prima i tipi adatti all'ora, poi i più vicini
+  function inGioco() {
+    const mom = momento();
+    let pool = ultimi, ora = false;
+    if (gt.ora && !stato.voglia) {
+      const adatti = pool.filter((x) => mom.tipi.includes(x.t));
+      if (adatti.length >= 3) { pool = adatti; ora = true; }
+    }
+    let dove = $("#titolo-ris").textContent;
+    if (stato.pos && stato.vicino) {          // "ultimi" è già in ordine di distanza
+      const passo = [12, 25, 45].find((t) => pool.filter((x) => minuti(x.km) <= t).length >= 4);
+      if (passo) { pool = pool.filter((x) => minuti(x.km) <= passo); dove = `entro ${passo} minuti a piedi`; }
+      else { pool = pool.slice(0, 6); dove = "i più vicini a te"; }
+    }
+    return { pool, dove, ora, mom };
+  }
+  // Non ripete un posto finché non sono usciti tutti; chi ha un commento esce più spesso, chi hai già visitato meno
+  function pesca(pool) {
+    let cand = pool.filter((x) => !gt.usciti.has(x.i)), nuovoGiro = false;
+    if (!cand.length) {
+      pool.forEach((x) => gt.usciti.delete(x.i));
+      cand = pool.filter((x) => x.i !== stato.pescato);
+      if (!cand.length) cand = pool;
+      nuovoGiro = pool.length > 1;
+    }
+    const peso = (x) => (x.nt ? 3 : x.dr ? 2 : 1) * (SNS.visitati.has(x.id) ? 0.3 : 1);
+    let r = Math.random() * cand.reduce((s, x) => s + peso(x), 0);
+    const x = cand.find((y) => (r -= peso(y)) <= 0) || cand[cand.length - 1];
+    gt.usciti.add(x.i);
+    return { x, nuovoGiro };
+  }
   function gettone() {
-    let pool = ultimi.length ? ultimi : DATA.filter((x) => x.m === stato.mondo);
-    if (stato.pos && stato.vicino) { const v = pool.filter((x) => minuti(x.km) <= 25); if (v.length) pool = v; }
-    let x = pool[Math.floor(Math.random() * pool.length)];
-    if (pool.length > 1 && stato.pescato === x.i) x = pool[(pool.indexOf(x) + 1) % pool.length];
-    stato.pescato = x.i;
-    const box = $("#slot");
-    box.hidden = false; impostaVista("lista"); scorri(box);
-    box.innerHTML = `<span class="eti">GETTONE INSERITO · ${pool.length} POSTI IN GIOCO</span><div class="rullo" id="rullo">…</div><div id="premio" class="list-col"></div>`;
-    clearInterval(giro);
+    const d = $("#dlg-gettone");
+    if (!d.open) d.showModal();
+    clearInterval(gt.timer);
+    const g = inGioco();
+    if (!g.pool.length) {
+      $("#get-corpo").innerHTML = `<p class="get-dom">Nessun posto in gioco.</p><p>Con questi filtri non c’è niente da pescare: cambia livello o power-up, oppure ricomincia.</p>
+        <div class="get-acts"><button class="btn" type="button" data-restart>${svg("restart")}RESTART</button></div>`;
+      return;
+    }
+    if (!stato.vicino && !stato.livello && !gt.ovunque && g.pool.length > 12) return chiediDove();
+    estrai(g);
+  }
+  function chiediDove(errore) {
+    const m = MONDI.find((m) => m.id === stato.mondo);
+    const haLivelli = (LIVELLI[stato.mondo] || []).length > 0;
+    $("#get-corpo").innerHTML = `<p class="get-dom">Dove te lo pesco?</p>
+      ${errore ? `<p class="errore" role="alert">${esc(errore)}</p>` : ""}
+      <div class="get-scelte">
+        <button type="button" class="px primo" data-get="vicino"><b>▶ Vicino a me</b><small>Uso la posizione: solo posti a pochi minuti a piedi</small></button>
+        ${haLivelli ? `<button type="button" class="px" data-get="livello"><b>${stato.mondo === "roma" ? "Scelgo il quartiere" : "Scelgo la località"}</b><small>Poi rimetti il gettone: pesco solo lì</small></button>` : ""}
+        <button type="button" class="px" data-get="ovunque"><b>Ovunque ${m.id === "fuori" ? "fuori porta" : "a " + esc(m.nome)}</b><small>Può uscire un posto lontano da te</small></button>
+      </div>
+      <small>Per il gettone la posizione resta sul tuo telefono.</small>`;
+  }
+  function estrai(g) {
+    const { x, nuovoGiro } = pesca(g.pool);
+    gt.x = x; stato.pescato = x.i;
+    const n = g.pool.length;
+    $("#get-corpo").innerHTML = `<span class="eti">GETTONE INSERITO · ${n === 1 ? "1 POSTO" : n + " POSTI"} IN GIOCO</span>
+      <div class="rullo gira" id="rullo" aria-hidden="true">…</div>
+      <div class="get-esito" id="get-esito" aria-live="polite"></div>`;
+    const rullo = $("#rullo");
     const fine = () => {
-      $("#rullo").textContent = x.n;
-      $("#premio").innerHTML = `<div class="meta"><span class="tipo">${svg(PW[x.t][1])}${esc(PW[x.t][0])}</span><span class="quart">${esc(luogo(x))}</span>${stato.pos ? `<span>${distTesto(x)}</span>` : ""}</div>
+      rullo.classList.remove("gira"); rullo.removeAttribute("aria-hidden"); rullo.textContent = x.n;
+      const filtro = stato.voglia ? ` · solo «${esc(PW[stato.voglia][0])}»` : g.ora ? ` · adatti all’ora (${esc(g.mom.nome)})` : !gt.ora ? " · di ogni tipo" : "";
+      const cambia = stato.voglia ? "" : g.ora ? `<button class="link" type="button" data-get="ora">Vanno bene tutti i tipi</button>`
+        : !gt.ora ? `<button class="link" type="button" data-get="ora">Solo quelli adatti all’ora</button>` : "";
+      $("#get-esito").innerHTML = `<span class="sr">È uscito ${esc(x.n)}.</span>
+        <div class="meta"><span class="tipo">${svg(PW[x.t][1])}${esc(PW[x.t][0])}</span><span class="quart">${esc(luogo(x))}</span>${stato.pos ? `<span class="quanto">${distTesto(x)}</span>` : ""}</div>
         ${nota(x)}
-        <div class="acts"><a class="btn" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><button class="btn alt" type="button" data-ancora>Altro gettone</button><button class="btn alt" type="button" data-dett="${x.i}">Dettagli</button></div>`;
-      $("#premio [data-ancora]").addEventListener("click", gettone);
-      $("#premio [data-dett]").addEventListener("click", () => mostraScheda(x.i));
+        ${via(x) ? `<div class="addr">${esc(via(x))}</div>` : ""}
+        <div class="get-acts"><a class="btn" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><button class="btn alt" type="button" data-get="ancora" ${n < 2 ? "disabled" : ""}>Altro gettone</button></div>
+        <div class="get-link"><button class="link" type="button" data-get="mappa">Vedi sulla mappa</button><button class="link" type="button" data-get="scheda">Apri la scheda</button></div>
+        <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? "È l’unico posto in gioco: cambia livello o power-up per pescarne altri." : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
+        <small>Gli orari non li conosciamo: prima di partire controlla su Maps che sia aperto.</small>`;
       rispondi(x);
-      if (!mobile()) mappa.vai(x.i);
+      segnaInCorso();
     };
-    if (ridotto() || pool.length < 2) return fine();
+    if (ridotto() || n < 2) return fine();
     let k = 0;
-    giro = setInterval(() => {
-      $("#rullo").textContent = pool[Math.floor(Math.random() * pool.length)].n;
-      if (++k >= 14) { clearInterval(giro); fine(); }
+    gt.timer = setInterval(() => {
+      rullo.textContent = g.pool[Math.floor(Math.random() * n)].n;
+      if (++k >= 12) { clearInterval(gt.timer); fine(); }
     }, 70);
+  }
+  async function azioneGettone(cosa) {
+    const d = $("#dlg-gettone");
+    if (cosa === "ancora") return gettone();
+    if (cosa === "ovunque") { gt.ovunque = true; return gettone(); }
+    if (cosa === "ora") { gt.ora = !gt.ora; return gettone(); }
+    if (cosa === "livello") { d.close(); scorri($("#sez-mondi")); return toast(stato.mondo === "roma" ? "Tocca un quartiere, poi rimetti il gettone." : "Scegli una località, poi rimetti il gettone."); }
+    if (cosa === "mappa") { d.close(); mostraSuMappa(gt.x.i); if (!mobile()) scorri($(".bar")); return; }
+    if (cosa === "scheda") { d.close(); return mostraScheda(gt.x.i); }
+    if (cosa === "vicino") {
+      $("#get-corpo").innerHTML = `<p class="get-dom">Ti cerco…</p><p>Se il browser te lo chiede, consenti la posizione.</p>`;
+      const err = await trovami();
+      if (!d.open) return;
+      if (err) chiediDove(err); else gettone();
+    }
   }
 
   // ---------- Interfaccia per js/conto.js ----------
@@ -590,7 +709,10 @@
   $("#gettone").addEventListener("click", gettone);
   $("#mondi").addEventListener("click", (e) => { const b = e.target.closest("[data-mondo]"); if (b) scegliMondo(b.dataset.mondo); });
   $("#ow-svg").addEventListener("keydown", (e) => { const n = e.target.closest("[data-livello]"); if (n && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); scegliLivello(n.dataset.livello); } });
+  $("#get-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-get]"); if (b) azioneGettone(b.dataset.get); });
+  $("#dlg-gettone").addEventListener("close", () => clearInterval(gt.timer));
   document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-restart]")) return restart();
     const lv = e.target.closest("[data-livello]");
     if (lv) return scegliLivello(lv.dataset.livello);
     const b = e.target.closest("[data-mappa]");
@@ -598,8 +720,7 @@
   });
   $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (!b) return; stato.voglia = stato.voglia === b.dataset.voglia ? "" : b.dataset.voglia; aggiorna(); });
   $("#consigli").addEventListener("click", () => { stato.consigli = !stato.consigli; aggiorna(); });
-  let t;
-  $("#q").addEventListener("input", (e) => { clearTimeout(t); t = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); }, 160); });
+  $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); }, 160); });
   $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); });
   $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else start(); });
   document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => impostaVista(b.dataset.view)));
@@ -607,7 +728,7 @@
 
   // ---------- Avvio ----------
   $("#hi").textContent = String(DATA.length).padStart(6, "0");
-  $("#domanda").textContent = domanda();
+  $("#domanda").textContent = momento().domanda;
   $("#fonte").href = META.fonte || "https://www.google.com/maps";
   $("#agg").textContent = META.aggiornato ? fmtGiorno.format(new Date(META.aggiornato + "T12:00:00")) : "";
   document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });

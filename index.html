@@ -20,6 +20,7 @@
     <span class="solo-conto">PUNTI <b class="g num" id="punti">000000</b></span>
     <span class="opz">POSTI <b class="g num" id="hi">000000</b></span>
     <button class="btn solo-conto" type="button" id="apri-player">ACCEDI</button>
+    <button class="btn alt restart" type="button" data-restart hidden><svg class="pxi" data-ico="restart" aria-hidden="true"></svg>RESTART</button>
   </div>
 </div>
 
@@ -39,7 +40,7 @@
       <nav class="menu" aria-label="Menu principale">
         <button type="button" class="primo" id="m-start"><span><span class="voce press">PREMI START</span><small>Usa la posizione e trova i posti vicini</small></span></button>
         <button type="button" id="m-livelli"><span><span class="voce">SELEZIONA LIVELLO</span><small>Scegli tu il quartiere</small></span></button>
-        <button type="button" id="m-gettone"><span><span class="voce">INSERISCI GETTONE</span><small>Un posto a caso, pescato per te</small></span></button>
+        <button type="button" id="m-gettone"><span><span class="voce">INSERISCI GETTONE</span><small>Un posto solo: vicino e adatto all’ora</small></span></button>
         <button type="button" class="solo-conto" id="m-player"><span><span class="voce">PLAYER 1</span><small>Accedi, fai punti, scala la classifica</small></span></button>
       </nav>
       <p class="privacy">La posizione resta sul tuo telefono: la inviamo solo quando fai un check-in, e non la salviamo.</p>
@@ -66,7 +67,6 @@
     <div class="extra">
       <button class="pw px" type="button" id="consigli" aria-pressed="false"></button>
       <label class="campo"><span class="sr">Cerca</span><input id="q" type="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
-      <span class="msg" id="geo-msg" role="status" hidden></span>
     </div>
   </div>
 </section>
@@ -75,7 +75,8 @@
   <div class="wrap">
     <div class="dove-sei"><span class="lv" id="lv">MONDO 1</span><b id="titolo-ris">Tutta Roma</b><span id="conteggio"></span></div>
     <div class="bar-actions">
-      <button class="btn" type="button" id="gettone" title="Un posto a caso"><svg class="pxi" data-ico="moneta" aria-hidden="true"></svg><span>GETTONE</span></button>
+      <button class="btn alt restart" type="button" data-restart title="Ricomincia da capo" aria-label="Restart: ricomincia da capo" hidden><svg class="pxi" data-ico="restart" aria-hidden="true"></svg><span>RESTART</span></button>
+      <button class="btn" type="button" id="gettone" title="Gettone: ti pesco un posto" aria-label="Gettone: ti pesco un posto"><svg class="pxi" data-ico="moneta" aria-hidden="true"></svg><span>GETTONE</span></button>
       <div class="seg" role="group" aria-label="Vista">
         <button type="button" data-view="lista" aria-pressed="true">LISTA</button>
         <button type="button" data-view="mappa" aria-pressed="false">MAPPA</button>
@@ -87,7 +88,6 @@
 <main class="main" data-view="lista">
   <div class="wrap">
     <div class="list-col">
-      <section class="slot px" id="slot" hidden aria-live="polite"></section>
       <div class="cards" id="cards"></div>
       <button class="btn alt more" type="button" id="more" hidden></button>
       <div class="next-lv" id="next-lv" hidden></div>
@@ -121,6 +121,11 @@
 <dialog class="finestra" id="dlg-recensione" aria-labelledby="rec-t">
   <div class="testa"><h2 id="rec-t">LA TUA RECENSIONE</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
   <div class="corpo" id="rec-corpo"></div>
+</dialog>
+
+<dialog class="finestra gettone" id="dlg-gettone" aria-labelledby="get-t">
+  <div class="testa"><h2 id="get-t">GETTONE</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
+  <div class="corpo" id="get-corpo"></div>
 </dialog>
 
 <dialog class="finestra premio" id="dlg-premio" aria-labelledby="premio-t">

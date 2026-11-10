@@ -7,10 +7,50 @@
     "t": "vino"
   },
   "MASTO a Testaccio": {
-    "c": "Roma"
+    "c": "Roma",
+    "t": "vino"
   },
   "RETROBOTTEGA": {
     "la": 41.90194,
     "lo": 12.47525
+  },
+  "Imàgo": {
+    "t": "ristorante"
+  },
+  "La Parrina": {
+    "t": "bottega"
+  },
+  "Brac": {
+    "t": "ristorante"
+  },
+  "LORE": {
+    "t": "bar"
+  },
+  "I Casali del Pino": {
+    "t": "ristorante"
+  },
+  "MAZZO": {
+    "t": "ristorante"
+  },
+  "Hotel Splendide Royal": {
+    "t": "ristorante"
+  },
+  "Fafiuché": {
+    "t": "vino"
+  },
+  "Lo'steria": {
+    "t": "trattoria"
+  },
+  "Siciliainbocca Prati- sede unica in Prati": {
+    "t": "ristorante"
+  },
+  "Zuma": {
+    "t": "mondo"
+  },
+  "La Casetta a Monti": {
+    "t": "dolce"
+  },
+  "Officine Beat": {
+    "t": "bar"
   }
 }
