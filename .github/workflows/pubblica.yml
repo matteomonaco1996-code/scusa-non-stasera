@@ -26,18 +26,23 @@ jobs:
 
       - name: Scarica la lista da Google Maps
         if: github.event_name != 'push'
+        env:
+          # Facoltativi: se presenti come segreti del repository, aggiorna anche i posti nel database
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python3 strumenti/aggiorna_lista.py
 
       - name: Salva i locali nuovi
         if: github.event_name != 'push'
         run: |
-          if git diff --quiet -- locali.js; then
+          if git diff --quiet -- locali.js supabase/luoghi.sql; then
             echo "La lista non è cambiata."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Aggiorna la lista dei locali da Google Maps"
+          git add locali.js supabase/luoghi.sql
+          git commit -m "Aggiorna la lista dei locali da Google Maps"
           git push
 
       - name: Setup Pages
@@ -46,7 +51,7 @@ jobs:
       - name: Prepara il sito
         run: |
           mkdir _site
-          cp index.html locali.js _site/
+          cp -r index.html privacy.html termini.html config.js locali.js css js vendor fonts .well-known _site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,0 +1,108 @@
+# Sicurezza, GDPR e obblighi: cosa è fatto e cosa devi fare tu
+
+> Questo documento e i testi di `privacy.html` e `termini.html` sono una base scritta con cura
+> ma **non sono una consulenza legale**. Prima di aprire le registrazioni al pubblico falli
+> rileggere da un avvocato o da un consulente privacy, soprattutto per le recensioni di
+> attività commerciali (rischio diffamazione) e per gli utenti tra 14 e 17 anni.
+
+## 1. Già fatto nel codice
+
+**Privacy by design**
+- Senza account il sito non raccoglie nulla: niente analytics, niente cookie di terze parti, niente banner.
+- Caratteri e librerie ospitati sul sito: nessuna chiamata a Google Fonts o CDN all’apertura.
+- Sfondo della mappa (CARTO) spento finché l’utente non lo accende; scelta ricordata e revocabile.
+- Posizione GPS: usata nel browser; inviata al server solo al check-in, confrontata e scartata.
+  Nel database restano solo posto + giorno (`visite.giorno`, nessuna ora, nessuna coordinata).
+- Registrazione minima: email (solo login), nickname, conferma 14+ anni, versioni dei documenti accettati.
+- Classifica pubblica solo con consenso esplicito (casella non pre-spuntata, revocabile).
+- Diritti self-service: **Esporta i miei dati** (JSON) ed **Elimina account** (cancellazione a cascata).
+- Pulizia automatica (da attivare, vedi sotto): account inattivi 24 mesi, iscrizioni incomplete 30 giorni, segnalazioni chiuse 12 mesi.
+
+**Sicurezza**
+- Content Security Policy: il browser esegue solo i file del sito; niente script o stili inline.
+- `referrer` disattivato; link esterni con `noopener noreferrer`; tutto il testo degli utenti è “escaped”.
+- Database con Row Level Security su ogni tabella, permessi revocati e riaperti uno per uno:
+  ognuno legge solo i propri dati; punti e visite si scrivono **solo** tramite funzioni del server,
+  che verificano distanza (≤ 150 m), limiti (15 check-in e 10 recensioni al giorno) e regole.
+- Recensioni possibili solo dopo un check-in nel posto; lunghezza massima 600 caratteri.
+- Nickname validati (3–20 caratteri sicuri); niente password (accesso con codice monouso).
+- La chiave nel browser è quella pubblica (`anon`): senza le regole del database non apre nulla.
+- Tutte queste regole sono verificate da test automatici (33 controlli) su un vero Postgres.
+
+**Altri obblighi coperti**
+- DSA (Reg. UE 2022/2065): punto di contatto, regole chiare, pulsante “Segnala”, procedura con
+  motivazione delle decisioni e possibilità di contestarle (`termini.html#segnalazioni`).
+- Recensioni (Direttiva Omnibus, D.lgs. 26/2023): spiegato come vengono verificate (check-in GPS).
+- Concorsi a premi (DPR 430/2001): **non applicabile** finché i punti non danno premi. Se un giorno
+  vuoi dare sconti, omaggi o buoni, serve prima una verifica con un consulente.
+- Licenze: dati © OpenStreetMap (ODbL) citati; licenze dei componenti in `vendor/LICENZE.md`.
+
+## 2. Da fare prima di andare online (obbligatorio)
+
+1. **Compila i dati del titolare** in `privacy.html`, `termini.html` e `.well-known/security.txt`:
+   cerca `[NOME E COGNOME]`, `[EMAIL DI CONTATTO]`, `[CITTÀ]`, `[DATA DI PUBBLICAZIONE]`,
+   `[FORNITORE EMAIL]`, `[EMAIL-DI-CONTATTO]`. Usa un’email dedicata al progetto.
+2. **Crea il progetto Supabase** (supabase.com) scegliendo la regione **Central EU (Frankfurt)**.
+3. **Firma il DPA** di Supabase (Data Processing Addendum): lo trovi nella dashboard tra i documenti legali dell’organizzazione o partendo da supabase.com/legal/dpa.
+4. **Database**: SQL Editor → incolla `supabase/schema.sql` → Run; poi `supabase/luoghi.sql` → Run.
+5. **Auth** (Authentication → Providers / URL Configuration / Email Templates):
+   - lascia attivo solo il provider **Email**; disattiva gli altri;
+   - Site URL e Redirect URLs = l’indirizzo del sito (es. `https://<utente>.github.io/scusa-non-stasera/`);
+   - template “Magic Link” in italiano con il codice `{{ .Token }}` (il sito chiede il codice);
+   - scadenza OTP 10 minuti.
+6. **Email**: il servizio email incluso in Supabase è solo per prove (pochissimi invii l’ora).
+   Configura un SMTP con server in UE (es. Brevo o Mailjet) in Authentication → SMTP,
+   firma anche il suo DPA e scrivi il nome del fornitore in `privacy.html`.
+7. **Pulizia automatica**: Database → Extensions → attiva `pg_cron`, poi esegui il blocco
+   commentato in fondo a `schema.sql` (togliendo i `--`).
+8. **Collega il sito**: in `config.js` metti *Project URL* e chiave **anon public**.
+   **Mai** la chiave `service_role` nel sito.
+9. **GitHub Pages**: repository pubblico, Settings → Pages → Source: GitHub Actions,
+   spunta **Enforce HTTPS**. Facoltativo: Settings → Secrets → `SUPABASE_URL` e
+   `SUPABASE_SERVICE_KEY` per aggiornare ogni lunedì anche i posti nel database.
+10. **Prova tutto** con un tuo account: accesso, nickname, check-in vicino e lontano,
+    recensione, segnalazione, classifica, esporta dati, elimina account.
+
+## 3. Da fare nel tempo
+
+- **Segnalazioni**: almeno una volta a settimana guarda Table Editor → `segnalazioni` con
+  `gestita` vuoto. Per rimuovere: in `recensioni` metti `stato = 'nascosta'`; in `segnalazioni`
+  compila `esito`, `motivazione_esito`, `gestita`. Scrivi all’autore (email da Authentication → Users)
+  il motivo e come contestare. Tieni la traccia: serve a dimostrare la diligenza.
+- **Richieste privacy** via email: rispondi entro 30 giorni. Prima verifica che chi scrive sia
+  davvero il titolare dell’account (es. rispondendo dall’email registrata).
+- **Violazioni di dati** (accessi non autorizzati, chiave service_role esposta, ecc.): valuta il
+  rischio e, se c’è, notifica al Garante entro 72 ore (servizio online sul sito del Garante);
+  annota comunque l’accaduto in un registro interno. Ruota subito le chiavi in Supabase.
+- **Aggiornamenti**: una volta ogni qualche mese aggiorna supabase-js e Leaflet (`vendor/`).
+- **Backup**: controlla quali backup offre il tuo piano Supabase; se non ce ne sono,
+  esporta il database periodicamente (Database → Backups o `pg_dump`).
+
+## 4. Registro dei trattamenti (modello)
+
+Una persona fisica senza dipendenti non è sempre obbligata (art. 30.5 GDPR), ma qui il
+trattamento è continuativo: tieni questo registro aggiornato.
+
+| Trattamento | Dati | Interessati | Base giuridica | Destinatari | Extra UE | Conservazione | Misure |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Account e accesso | email, nickname, 14+, versioni documenti, date | utenti registrati | contratto | Supabase, fornitore SMTP | SCC (supporto Supabase) | fino a cancellazione o 24 mesi di inattività | RLS, OTP, HTTPS |
+| Gioco (visite, punti) | posto, giorno | utenti registrati | contratto | Supabase | come sopra | come l’account | scrittura solo via funzioni server |
+| Recensioni pubbliche | voto, testo, nickname | utenti registrati | contratto | pubblico | — | fino a cancellazione | moderazione, limiti |
+| Classifica | nickname, punti | utenti che aderiscono | consenso | pubblico | — | fino a revoca | opt-in |
+| Moderazione (DSA) | segnalazioni, decisioni | segnalanti, autori | obbligo legale | — | — | 12 mesi dopo la decisione | accesso solo admin |
+| Log del sito | IP, user agent | visitatori | legittimo interesse | GitHub | DPF | secondo GitHub | — |
+
+## 5. Valutazione d’impatto (DPIA): perché non è obbligatoria, oggi
+
+Il check-in tratta un dato di posizione, ma in modo puntuale, su richiesta dell’utente, senza
+tracciamento continuo e senza conservare coordinate o orari. Non c’è profilazione né decisioni
+automatizzate, e la scala è piccola. Se in futuro aggiungessi tracciamento continuo, premi,
+pubblicità o analisi dei comportamenti, rifai questa valutazione.
+
+## 6. Limiti noti
+
+- GitHub Pages non permette di impostare header HTTP (es. `frame-ancestors` contro il clickjacking,
+  `Permissions-Policy`). La CSP è nel meta tag. Per header completi pubblica tramite
+  Cloudflare Pages o Netlify, o metti Cloudflare davanti al dominio.
+- La posizione GPS si può falsificare: i punti sono un gioco, non una prova di presenza.
+- Le recensioni sono verificate dal check-in, non dall’acquisto.

@@ -1,0 +1,4 @@
+# Segnalazioni di vulnerabilità di "Scusa, non stasera"
+Contact: mailto:[EMAIL-DI-CONTATTO]
+Expires: 2027-11-10T00:00:00.000Z
+Preferred-Languages: it, en

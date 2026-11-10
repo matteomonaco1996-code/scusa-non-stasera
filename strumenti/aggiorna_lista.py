@@ -12,7 +12,9 @@ Il tipo dei posti con nomi poco chiari sta in tipi.json; i quartieri di Roma in 
 Solo libreria standard: nessuna dipendenza da installare.
 """
 import argparse
+import hashlib
 import json
+import os
 import math
 import re
 import sys
@@ -28,6 +30,7 @@ API = ("https://www.google.com/maps/preview/entitylist/getlist?authuser=0&hl=it&
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "locali.js"
+SQL_LUOGHI = ROOT / "supabase" / "luoghi.sql"
 CORREZIONI = ROOT / "correzioni.json"
 TIPI_EXTRA = ROOT / "tipi.json"
 
@@ -136,6 +139,38 @@ def g(a, i):
     return a[i] if isinstance(a, list) and len(a) > i else None
 
 
+def righe_luoghi(locali):
+    return [{"id": x["id"], "nome": x["n"], "lat": x["la"], "lon": x["lo"],
+             "quartiere": x.get("q"), "citta": x["c"]} for x in locali]
+
+
+def scrivi_sql(locali):
+    """supabase/luoghi.sql: da incollare nel SQL Editor di Supabase dopo schema.sql."""
+    q = lambda v: "null" if v is None else "'" + str(v).replace("'", "''") + "'"
+    valori = ",\n".join(f"({q(r['id'])}, {q(r['nome'])}, {r['lat']}, {r['lon']}, {q(r['quartiere'])}, {q(r['citta'])})"
+                         for r in righe_luoghi(locali))
+    SQL_LUOGHI.parent.mkdir(exist_ok=True)
+    SQL_LUOGHI.write_text(
+        "-- Generato da strumenti/aggiorna_lista.py: posti della lista, per verificare i check-in.\n"
+        "insert into public.luoghi (id, nome, lat, lon, quartiere, citta) values\n" + valori + "\n"
+        "on conflict (id) do update set nome = excluded.nome, lat = excluded.lat, lon = excluded.lon,\n"
+        "  quartiere = excluded.quartiere, citta = excluded.citta, aggiornato = now();\n", "utf-8")
+
+
+def sincronizza_supabase(locali):
+    """Se ci sono SUPABASE_URL e SUPABASE_SERVICE_KEY (solo come segreti, mai nel sito), aggiorna i luoghi."""
+    url, chiave = os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SERVICE_KEY")
+    if not (url and chiave):
+        return
+    req = urllib.request.Request(
+        url.rstrip("/") + "/rest/v1/luoghi?on_conflict=id", method="POST",
+        data=json.dumps(righe_luoghi(locali)).encode(),
+        headers={"apikey": chiave, "Authorization": f"Bearer {chiave}", "Content-Type": "application/json",
+                 "Prefer": "resolution=merge-duplicates,return=minimal"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        print(f"Supabase: luoghi aggiornati ({r.status})")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--file", help="risposta getlist già scaricata (altrimenti scarica)")
@@ -159,9 +194,15 @@ def main():
         p = it[1] or []
         coord = g(p, 5) or []
         nome, nota = pulisci(it[2]), pulisci(it[3])
+        fid = g(p, 6)
+        if fid and fid[1]:
+            ident = str(int(fid[1]) % 2**64)  # CID di Google Maps: stabile nel tempo
+        else:
+            ident = "h" + hashlib.sha1(f"{nome}|{coord[2]:.5f}|{coord[3]:.5f}".encode()).hexdigest()[:15]
         ind = pulisci(g(p, 4))
         cap, citta, prov = analizza_indirizzo(ind)
         locali.append({
+            "id": ident,
             "n": nome, "a": ind, "nt": nota,
             "la": round(coord[2], 6), "lo": round(coord[3], 6),
             "cap": cap, "c": citta, "p": prov,
@@ -211,6 +252,8 @@ def main():
           f"window.RISTOMAT_META = {json.dumps(meta, ensure_ascii=False)};\n"
           "window.RISTOMAT = [\n" + righe + "\n];\n")
     OUT.write_text(js, "utf-8")
+    scrivi_sql(locali)
+    sincronizza_supabase(locali)
 
     print(f"{len(locali)} locali scritti in {OUT.name}")
     print("Tipi:", dict(Counter(x["t"] for x in locali).most_common()))
