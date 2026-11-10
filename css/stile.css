@@ -204,6 +204,7 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .addr { font-size: 15px; color: var(--dim); overflow-wrap: anywhere; }
 .say { background: var(--bg); padding: 8px 10px; font-size: 16px; line-height: 1.35; }
 .say b { font: 400 15px/1.4 var(--f-title); color: var(--pompei-txt); margin-right: 8px; letter-spacing: .03em; }
+.say.breve b { color: var(--ocra); }
 .stelle { color: var(--ocra); font: 400 19px/1.2 var(--f-title); }
 .stelle span { color: var(--dim); font: 400 14px/1.2 var(--f-text); }
 .acts { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; border-top: 2px dashed var(--panel-2); }

@@ -8,7 +8,8 @@ Uso (dalla cartella del sito):
 La lista deve essere condivisa pubblicamente (link "Chiunque abbia il link").
 Il tipo di locale è dedotto dal nome (e dall'eventuale nota): per correggerlo,
 o per cambiare città/zona/nota, aggiungi una voce in correzioni.json.
-Il tipo dei posti con nomi poco chiari sta in tipi.json; i quartieri di Roma in strumenti/quartieri.py.
+Il tipo dei posti con nomi poco chiari sta in tipi.json; i quartieri di Roma in strumenti/quartieri.py;
+le descrizioni "IN BREVE" in in_breve.json.
 Solo libreria standard: nessuna dipendenza da installare.
 """
 import argparse
@@ -33,6 +34,7 @@ OUT = ROOT / "locali.js"
 SQL_LUOGHI = ROOT / "supabase" / "luoghi.sql"
 CORREZIONI = ROOT / "correzioni.json"
 TIPI_EXTRA = ROOT / "tipi.json"
+IN_BREVE = ROOT / "in_breve.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from quartieri import AREE, QUARTIERI, quartiere  # noqa: E402
@@ -188,6 +190,7 @@ def main():
     correzioni = json.loads(CORREZIONI.read_text("utf-8")) if CORREZIONI.exists() else {}
     correzioni = {k: v for k, v in correzioni.items() if not k.startswith("_")}
     tipi_extra = json.loads(TIPI_EXTRA.read_text("utf-8")) if TIPI_EXTRA.exists() else {}
+    in_breve = json.loads(IN_BREVE.read_text("utf-8")) if IN_BREVE.exists() else {}
 
     locali = []
     for it in voci:
@@ -227,11 +230,13 @@ def main():
         x["c"] = x["c"] or "Altre località"
         if x["t"] == "altro":  # il nome non dice che locale è
             x["t"] = tipi_extra.get(x["n"], "altro")
+        fix = correzioni.get(x["n"]) or {}
+        x.update({k: v for k, v in fix.items() if k in ("c", "la", "lo", "r")})  # prima del quartiere
         if x["c"] == "Roma":
             x["q"] = quartiere(x["la"], x["lo"])
-        fix = correzioni.get(x["n"])
-        if fix:
-            x.update({k: v for k, v in fix.items() if k in ("t", "c", "q", "nt", "r")})
+        x.update({k: v for k, v in fix.items() if k in ("t", "q", "nt")})
+        if not x["nt"] and in_breve.get(x["n"]):
+            x["dr"] = in_breve[x["n"]]  # descrizione breve, mostrata solo se Matteo non ha scritto una nota
         del x["cap"]
 
     locali.sort(key=lambda x: -(x["d"] or 0))  # più recenti prima

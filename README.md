@@ -61,6 +61,7 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | `mappa/roma.js` | Strade e fiumi di Roma (© OpenStreetMap, ODbL), generati da `strumenti/mappa_osm.py` |
 | `locali.js` | Dati **generati**: non modificarli a mano |
 | `tipi.json` | Tipo di locale per i posti il cui nome non lo dice |
+| `in_breve.json` | Descrizioni brevi (etichetta IN BREVE) per i posti senza una nota di Matteo: bozze da rileggere |
 | `correzioni.json` | Correzioni manuali (tipo `t`, quartiere `q`, città `c`, nota `nt`): vincono su tutto |
 | `strumenti/aggiorna_lista.py` | Scarica la lista da Google Maps e rigenera `locali.js` |
 | `strumenti/quartieri.py` | I quartieri di Roma: centro, area e sponda del Tevere |
@@ -88,3 +89,6 @@ aggiorna anche i posti nel database. Serve *Settings → Pages → Source: GitHu
 - **Minuti a piedi**: stima in linea d’aria (+30% per le strade), non un percorso.
 - **Tipo di locale**: dal nome o da `tipi.json`; 100 posti restano “Da scoprire”.
 - **Niente orari di apertura**: la lista Google Maps non li fornisce.
+- **IN BREVE**: 201 descrizioni scritte con l’aiuto dell’AI da informazioni di dominio pubblico, solo per
+  i posti più noti. Non sono opinioni di Matteo e possono essere superate: vanno rilette. Gli altri posti
+  restano senza descrizione finché Matteo non scrive una nota su Google Maps o in `correzioni.json`.
