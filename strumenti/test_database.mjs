@@ -1,6 +1,6 @@
 // Test di sicurezza del database (Row Level Security, punti, missioni, diritti GDPR).
 // Usa PGlite (Postgres in WebAssembly) con un finto schema "auth" di Supabase.
-// Come lanciarlo, dalla cartella ristomat/:
+// Come lanciarlo, dalla cartella del sito:
 //   npm install --no-save @electric-sql/pglite@0.5.16
 //   node strumenti/test_database.mjs supabase/schema.sql supabase/luoghi.sql
 

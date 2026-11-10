@@ -362,7 +362,7 @@
       if (!D || disegnata) return;
       disegnata = true;
       const op = { renderer: tela, interactive: false, smoothFactor: 1.2 };
-      if (D.parchi.length) L.polygon(D.parchi.map(dec), { ...op, stroke: false, fillColor: "#2F3F24", fillOpacity: 1 }).addTo(m);
+      if (D.parchi.length) L.polygon(D.parchi.map(dec), { ...op, stroke: false, fillColor: "#3B5330", fillOpacity: 1 }).addTo(m);
       strati.fiume = L.polyline(D.fiumi.map(dec), { ...op, color: "#3E6A8C", lineCap: "round" }).addTo(m);
       vie = L.polyline(D.vie.map(dec), { ...op, color: "#4F3A29" });
       strati.medie = L.polyline(D.medie.map(dec), { ...op, color: "#6E4D33" }).addTo(m);
