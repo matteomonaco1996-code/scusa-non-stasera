@@ -6,7 +6,7 @@
   const C = window.SNS_CONFIG || {};
   const SNS = window.SNS;
   if (!SNS) return;
-  if (!C.supabaseUrl || !C.supabaseKey || !window.supabase) {
+  if (!C.supabaseUrl || !C.supabaseKey || !window.supabase || C.conto === false) {
     document.body.classList.add("senza-conto");
     return;
   }

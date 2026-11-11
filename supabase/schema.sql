@@ -290,6 +290,7 @@ grant execute on function public.classifica() to anon, authenticated;
 -- select cron.schedule('pulizia-account', '17 4 * * 1', $$
 --   delete from auth.users u where
 --     exists (select 1 from public.profili p where p.id = u.id and p.ultimo_accesso < current_date - interval '24 months')
---     or (not exists (select 1 from public.profili p where p.id = u.id) and u.created_at < now() - interval '30 days');
+--     or (not exists (select 1 from public.profili p where p.id = u.id) and u.created_at < now() - interval '30 days'
+--         and not exists (select 1 from public.amministratori a where a.email = lower(u.email)));  -- chi gestisce il sito può non avere un profilo di gioco (vedi statistiche.sql)
 --   delete from public.segnalazioni where gestita < now() - interval '12 months';
 -- $$);

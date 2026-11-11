@@ -69,6 +69,35 @@
     set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) { /* memoria non disponibile */ } },
   };
 
+  // ---------- Contatori anonimi ----------
+  // Aggiungono uno al numero del giorno ("oggi 42 visite") e basta: niente cookie, niente identificativi,
+  // niente nel browser, nessun legame con l'account. Sono attivi solo se in config.js c'è il database.
+  // Chi ha acceso nel browser "non tracciare" (Do Not Track o Global Privacy Control) non viene contato.
+  // I nomi ammessi sono elencati in supabase/statistiche.sql: gli altri vengono ignorati dal database.
+  const CFG = window.SNS_CONFIG || {};
+  const CONTA_URL = CFG.supabaseUrl && CFG.supabaseKey && CFG.statistiche !== false ? String(CFG.supabaseUrl).replace(/\/+$/, "") + "/rest/v1/rpc/conta" : "";
+  function conta(...eventi) {
+    if (!CONTA_URL || navigator.globalPrivacyControl || navigator.doNotTrack === "1") return;
+    const testa = { "Content-Type": "application/json", apikey: CFG.supabaseKey };
+    if (/^eyJ/.test(CFG.supabaseKey)) testa.Authorization = "Bearer " + CFG.supabaseKey;   // chiavi del vecchio tipo
+    try { fetch(CONTA_URL, { method: "POST", keepalive: true, headers: testa, body: JSON.stringify({ p_eventi: eventi }) }).catch(() => {}); } catch (e) { /* contare non deve mai rompere il gioco */ }
+  }
+  // Da dove arriva la visita: solo una categoria tra poche, mai l'indirizzo della pagina di provenienza.
+  // Con ?da=instagram (o qr, volantino, amici…) in fondo al link che condividi la decidi tu.
+  function provenienza() {
+    const da = (new URLSearchParams(location.search).get("da") || "").toLowerCase();
+    if (["google", "instagram", "facebook", "whatsapp", "tiktok", "telegram", "qr", "volantino", "amici"].includes(da)) return da;
+    const ua = navigator.userAgent || "";
+    if (/Instagram/i.test(ua)) return "instagram";
+    if (/FBAN|FBAV|FB_IAB/i.test(ua)) return "facebook";
+    if (/TikTok|musical_ly/i.test(ua)) return "tiktok";
+    let h = "";
+    try { h = new URL(document.referrer).hostname; } catch (e) { /* nessuna provenienza */ }
+    if (!h || h === location.hostname) return "diretto";
+    const noti = [["google", /(^|\.)google\./], ["instagram", /instagram\.com$/], ["facebook", /(facebook|fb)\.com$/], ["whatsapp", /whatsapp\.(com|net)$/], ["tiktok", /tiktok\.com$/], ["telegram", /(^|\.)(t\.me|telegram\.org)$/]];
+    return (noti.find(([, re]) => re.test(h)) || ["altro"])[0];
+  }
+
   // ---------- Mondi e livelli ----------
   const CITTA = ["Firenze", "Venezia", "Milano", "Bologna"];
   const mondoDi = (x) => x.c === "Roma" ? "roma" : CITTA.includes(x.c) ? x.c.toLowerCase() : "fuori";
@@ -173,10 +202,11 @@
   const linkDona = (euro) => /^https:\/\/(www\.)?paypal\.me\//i.test(DONA) && euro ? DONA.replace(/\/+$/, "") + "/" + euro + "EUR" : DONA;
   function importiMoneta() {
     const importi = /^https:\/\/(www\.)?paypal\.me\//i.test(DONA) ? [1, 2, 5] : [];
-    return importi.map((n) => `<a class="moneta-importo px" href="${esc(linkDona(n))}" ${EXT} aria-label="Dona ${n} euro con PayPal"><img src="img/gettone.svg" width="48" height="48" alt=""><b>${n} €</b></a>`).join("") +
-      `<a class="moneta-importo px" href="${esc(DONA)}" ${EXT} aria-label="Dona la cifra che vuoi"><img src="img/gettone.svg" width="48" height="48" alt=""><b>${importi.length ? "Altro" : "Dona"}</b></a>`;
+    return importi.map((n) => `<a class="moneta-importo px" href="${esc(linkDona(n))}" ${EXT} data-dona="${n}" aria-label="Dona ${n} euro con PayPal"><img src="img/gettone.svg" width="48" height="48" alt=""><b>${n} €</b></a>`).join("") +
+      `<a class="moneta-importo px" href="${esc(DONA)}" ${EXT} data-dona="altro" aria-label="Dona la cifra che vuoi"><img src="img/gettone.svg" width="48" height="48" alt=""><b>${importi.length ? "Altro" : "Dona"}</b></a>`;
   }
   function apriMoneta() {
+    conta("dona_apri");
     $("#monete").innerHTML = importiMoneta();
     const d = $("#dlg-moneta"); if (!d.open) d.showModal();
   }
@@ -184,14 +214,34 @@
   // In config.js, monetaPrima = "sempre" (ogni volta), "una" (una volta per visita) oppure "mai".
   const PRIMA = (window.SNS_CONFIG || {}).monetaPrima || "sempre";
   let giaChiesto = false;
-  function primaDiAndare(e) {
-    const a = e.target.closest('a[href^="https://www.google.com/maps/dir/"]');
-    if (!a || !DONA || a.id === "vai-ora" || PRIMA === "mai" || (PRIMA === "una" && giaChiesto)) return;
+  // Restituisce true se ha fermato il clic per mostrare la finestra.
+  function primaDiAndare(e, a) {
+    if (!DONA || PRIMA === "mai" || (PRIMA === "una" && giaChiesto)) return false;
     giaChiesto = true;
     e.preventDefault();
     $("#vai-ora").href = a.href;
     $("#monete-vai").innerHTML = importiMoneta();
     const d = $("#dlg-vai"); if (!d.open) d.showModal();
+    return true;
+  }
+  // Moneta, importi e link a Maps. È agganciata al documento e ai fumetti della mappa: il segno sull'evento
+  // evita che lo stesso clic venga gestito (e contato) due volte.
+  function suClic(e) {
+    if (e.snsVisto) return;
+    e.snsVisto = true;
+    if (DONA && e.target.closest("[data-moneta]")) return apriMoneta();
+    const m = e.target.closest("[data-dona]");
+    if (m) return conta("dona_" + m.dataset.dona);
+    versoMaps(e);
+  }
+  // Ogni clic verso Google Maps: "Portami lì" (indicazioni), "Vai al posto" nella finestra, "Apri su Maps".
+  function versoMaps(e) {
+    const a = e.target.closest('a[href^="https://www.google.com/maps/"]');
+    if (!a) return;
+    if (a.id === "vai-ora") return conta("vai");
+    if (!a.href.startsWith("https://www.google.com/maps/dir/")) return conta("maps");
+    conta("portami");
+    if (!primaDiAndare(e, a)) conta("vai");   // "vai" = le indicazioni si sono aperte davvero
   }
 
   // ---------- Filtri ----------
@@ -535,10 +585,9 @@
     }
     function posizione(p) { if (io) { m.removeLayer(io); io = null; } if (p) io = L.marker([p.la, p.lo], { icon: I.io, keyboard: false, zIndexOffset: 1000 }).bindTooltip("Tu").addTo(m); }
     m.on("popupopen", (e) => {
-      const el = e.popup.getElement(), a = el.querySelector("[data-scheda]"), mo = el.querySelector("[data-moneta]");
+      const el = e.popup.getElement(), a = el.querySelector("[data-scheda]");
       if (a) a.addEventListener("click", (ev) => { ev.preventDefault(); mostraScheda(+a.dataset.scheda); });
-      if (mo) mo.addEventListener("click", apriMoneta);   // i clic dentro i fumetti non arrivano al documento
-      el.querySelectorAll('a[href^="https://www.google.com/maps/dir/"]').forEach((v) => v.addEventListener("click", primaDiAndare));
+      el.addEventListener("click", suClic);   // moneta e link a Maps: suClic li gestisce una volta sola, da qui o dal documento
     });
     addEventListener("resize", () => m.invalidateSize());
     return { aggiorna, vai, posizione, mostra, chiudi: () => m.closePopup(), ridisegna: () => aggiorna(ultima, false) };
@@ -568,8 +617,9 @@
         stato.livello = ""; stato.vicino = true;
         mappa.posizione(stato.pos);
         aggiorna();
+        conta("posizione_si");
         fatto("");
-      }, (e) => fatto(e && e.code === 1 ? "bloccata" : "errore"),
+      }, (e) => { conta("posizione_no"); fatto(e && e.code === 1 ? "bloccata" : "errore"); },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 });
     });
   }
@@ -638,6 +688,7 @@
   async function start() {
     if (cerco) return;
     cerco = true;
+    conta("start");
     const voce = $("#m-start .voce"), prima = voce.textContent;
     voce.textContent = "TI CERCO…"; toast("Ti cerco…");
     const err = await trovami();
@@ -647,7 +698,7 @@
     scorri($(".bar"));
   }
   function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false; aggiorna(); }
-  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); }
+  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); }
   // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
   // dopo aver scorso la lista, la mappa restava quasi tutta fuori schermo. Porta l'inizio subito sotto la barra.
   function allinea() {
@@ -754,6 +805,7 @@
     gt.x = x; stato.pescato = x.i;
     const n = g.pool.length;
     $("#hint-gettone").hidden = true;   // l'ha usato: il suggerimento sopra la lista non serve più
+    conta("gettone");
     $("#get-corpo").innerHTML = `<span class="eti">GETTONE INSERITO · ${n === 1 ? "1 POSTO IN GIOCO" : "UNO A CASO TRA " + n + " POSTI"}</span>
       <div class="rullo gira" id="rullo" aria-hidden="true">…</div>
       <div class="get-esito" id="get-esito" aria-live="polite"></div>`;
@@ -840,9 +892,9 @@
   // Al massimo una volta per visita, e senza salvare niente nel browser.
   if (DONA) {
     $("#moneta-fondo").innerHTML = moneta();
-    document.addEventListener("click", (e) => { if (e.target.closest("[data-moneta]")) apriMoneta(); else primaDiAndare(e); });
     $("#vai-ora").addEventListener("click", () => $("#dlg-vai").close());
   }
+  document.addEventListener("click", suClic);
 
   // Termini: alla prima visita, e ogni volta che cambiano, vanno accettati prima di giocare.
   // Si ricorda solo la versione accettata, nel browser. Privacy e termini restano leggibili senza accettare.
@@ -850,7 +902,7 @@
   if (memoria.get("sns-termini") !== VER_TERMINI) {
     const d = $("#dlg-termini");
     d.addEventListener("cancel", (e) => e.preventDefault());   // Esc non basta: serve una scelta esplicita
-    $("#termini-ok").addEventListener("click", () => { memoria.set("sns-termini", VER_TERMINI); d.close(); proponiPosizione(); });
+    $("#termini-ok").addEventListener("click", () => { memoria.set("sns-termini", VER_TERMINI); d.close(); conta("termini_ok"); proponiPosizione(); });
     d.showModal();
   }
 
@@ -862,4 +914,7 @@
   document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });
   aggiorna();
   proponiPosizione();
+  // Una visita = un'apertura del sito. Ricaricare la pagina o tornare indietro non conta di nuovo.
+  const arrivo = ((performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {}).type;
+  if (arrivo !== "reload" && arrivo !== "back_forward") conta("visita", "da_" + provenienza());
 })();

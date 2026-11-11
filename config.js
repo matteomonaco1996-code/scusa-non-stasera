@@ -8,6 +8,11 @@
 window.SNS_CONFIG = {
   supabaseUrl: "",
   supabaseKey: "",
+  // Con il database acceso si possono tenere separati i due usi:
+  //   conto: false       → niente account, punti e recensioni (restano solo i contatori)
+  //   statistiche: false → niente contatori anonimi delle visite (vedi statistiche.html)
+  conto: true,
+  statistiche: true,
   // Donazione facoltativa ("Dona una moneta"): incolla qui il link della tua pagina per ricevere denaro
   // (per esempio PayPal.me, Ko-fi, Satispay). Deve iniziare con https://
   // Finché resta vuoto la moneta non compare da nessuna parte. Prima di attivarla leggi LEGALE_E_SICUREZZA.md.
@@ -17,5 +22,5 @@ window.SNS_CONFIG = {
   monetaPrima: "sempre",
   // Versioni dei documenti accettati alla registrazione: aggiornale se cambi privacy.html o termini.html.
   versioneTermini: "1.1",
-  versionePrivacy: "1.2",
+  versionePrivacy: "1.3",
 };

@@ -95,7 +95,7 @@ la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagi
 **Già fatto nel sito**
 - Finestra con le informazioni prima di uscire verso PayPal: a chi va la somma, che è facoltativa, che non dà
   nulla in cambio, che non siamo un ente benefico, che serve la maggiore età.
-- `termini.html` (punto 8, versione 1.1) e `privacy.html` (ora versione 1.2) aggiornati; i dati che arrivano da PayPal
+- `termini.html` (punto 8, versione 1.1) e `privacy.html` (ora versione 1.3) aggiornati; i dati che arrivano da PayPal
   (nome, email, importo, messaggio) sono nel registro dei trattamenti dell’informativa.
 - Nessun vantaggio nel gioco per chi dona.
 - **Prima di andare** (dall’11 novembre 2026): toccando “Portami lì” si apre una finestra che ricorda la moneta.
@@ -115,6 +115,21 @@ la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagi
    elettronico (D.Lgs. 70/2003, art. 7) chiede di indicare anche un indirizzo fisico, non solo nome ed email.
    Con le donazioni questo argomento si rafforza. Non è stato inserito: decidi con un professionista.
 4. **Rimborsi**: nei termini c’è l’impegno a restituire entro 14 giorni le donazioni fatte per errore.
+
+### Contatori anonimi e pagina di monitoraggio
+
+Per sapere quante visite riceve il sito non si usano servizi esterni né cookie: il sito aggiunge uno a un
+contatore del giorno nel database (visite, clic principali, provenienza per categoria). Non si salvano
+indirizzi IP, identificativi o legami con gli account, e chi ha acceso “non tracciare” non viene contato.
+Per questo **non serve un banner dei cookie**; l'informativa (versione 1.3) lo spiega nella sezione
+“Contatori anonimi”.
+
+Da ricordare:
+- i contatori contano le aperture, non le persone; chiunque potrebbe farli salire a mano: sono indicativi;
+- `statistiche.html` è leggibile solo dalle email nella tabella `amministratori`: non aggiungerne altre senza motivo;
+- le donazioni si segnano con giorno e importo soltanto: i nomi di chi dona restano in PayPal;
+- se un giorno vuoi sapere *quante persone* (non quante aperture) servono identificativi nel browser: a quel punto
+  cambia il quadro legale (consenso e banner) e va rifatta la valutazione.
 
 ### Accettazione dei termini
 

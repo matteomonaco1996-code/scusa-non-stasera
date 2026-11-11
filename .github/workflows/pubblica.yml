@@ -51,7 +51,7 @@ jobs:
       - name: Prepara il sito
         run: |
           mkdir _site
-          cp -r index.html privacy.html termini.html manifest.webmanifest config.js locali.js css js img vendor fonts mappa .well-known _site/
+          cp -r index.html privacy.html termini.html statistiche.html manifest.webmanifest config.js locali.js css js img vendor fonts mappa .well-known _site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

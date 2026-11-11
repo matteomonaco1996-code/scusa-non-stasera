@@ -1,0 +1,112 @@
+/* Pagina di monitoraggio (statistiche.html). Colori del sito; i segni dei grafici usano un oro e un blu
+   scelti perché restano leggibili sul fondo scuro anche per chi non distingue bene i colori. */
+body:has(.mon) { background: var(--panel-2); }
+.mon {
+  --g-fondo: var(--panel-2);      /* fondo dei grafici */
+  --g-scheda: var(--panel);
+  --g-serie: #c98500;             /* visite e clic */
+  --g-soldi: #3987e5;             /* euro */
+  --g-griglia: #6B1522;           /* righe di fondo: appena visibili */
+  --g-testo: var(--ink);
+  --g-testo2: var(--dim);
+  max-width: 1080px; margin: 0 auto;
+  padding: 28px max(16px, env(safe-area-inset-right, 0px)) 60px max(16px, env(safe-area-inset-left, 0px));
+  display: grid; gap: 18px;
+}
+.mon > p { margin: 0; }
+.mon h1 { font-size: clamp(42px, 7vw, 60px); color: var(--ocra); }
+.mon h3 { margin: 0 0 10px; font: 400 22px/1.2 var(--f-title); color: var(--ocra); letter-spacing: .02em; }
+.mon code { font-size: .92em; background: var(--pozzo); padding: 1px 5px; overflow-wrap: anywhere; }
+.mon-sotto { color: var(--g-testo2); max-width: 70ch; }
+
+.mon-stato:empty { display: none; }
+.mon-stato { background: var(--g-scheda); padding: 18px; display: grid; gap: 14px; max-width: 640px; }
+.mon-stato p { margin: 0; }
+.mon-stato .acts { display: flex; flex-wrap: wrap; gap: 10px; }
+
+#cruscotto { display: grid; gap: 18px; }
+#cruscotto[hidden] { display: none; }
+.mon-esempio { margin: 0; padding: 10px 14px; background: var(--ocra); color: var(--scuro); }
+.mon-esempio[hidden] { display: none; }
+
+/* Una riga sola di filtri, sopra tutto ciò che comandano */
+.mon-filtri { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.mon-filtri .seg { display: flex; }
+.mon-filtri .seg button { all: unset; cursor: pointer; padding: 9px 14px; background: var(--pozzo); color: var(--g-testo); font: 400 18px/1 var(--f-title); letter-spacing: .03em; }
+.mon-filtri .seg button[aria-pressed="true"] { background: var(--ink); color: var(--scuro); }
+.mon-filtri .seg button:focus-visible { outline: 3px solid var(--ocra); outline-offset: 2px; }
+.mon-periodo { color: var(--g-testo2); font-size: 15px; flex: 1 1 auto; }
+
+/* Numeri in evidenza */
+.mon-numeri { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.mon-numero { background: var(--g-scheda); padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.mon-numero .eti { font-size: 15px; color: var(--g-testo2); }
+.mon-numero .val { font: 600 34px/1.15 var(--f-text); color: var(--g-testo); }
+.mon-numero .delta { font-size: 14px; color: var(--g-testo2); }
+
+.mon-scheda { background: var(--g-scheda); padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.mon-scheda > header { display: grid; gap: 4px; }
+.mon-scheda > header p, .mon-nota { margin: 0; font-size: 15px; color: var(--g-testo2); }
+.mon-due { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; align-items: start; }
+@media (max-width: 760px) { .mon-due { grid-template-columns: minmax(0, 1fr); } }
+
+/* Grafico a linea */
+.mon-grafico { position: relative; background: var(--g-fondo); padding: 8px 0 2px; outline: none; }
+.mon-grafico:focus-visible { box-shadow: 0 0 0 3px var(--ocra); }
+.mon-grafico svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+.mon-grafico .griglia { stroke: var(--g-griglia); stroke-width: 1; }
+.mon-grafico .asse { fill: var(--g-testo2); font: 400 12px var(--f-text); font-variant-numeric: tabular-nums; }
+.mon-grafico .linea { fill: none; stroke: var(--g-serie); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.mon-grafico .area { fill: var(--g-serie); opacity: .1; }
+.mon-grafico .punto { fill: var(--g-serie); stroke: var(--g-fondo); stroke-width: 2; }
+.mon-grafico .mirino { stroke: var(--g-testo2); stroke-width: 1; }
+.mon-grafico .fine { fill: var(--g-testo); font: 600 13px var(--f-text); }
+.mon-grafico .vuoto { fill: var(--g-testo2); font: 400 15px var(--f-text); }
+
+/* Barre orizzontali: nome, barra sottile, valore in punta */
+.mon-barre { display: grid; gap: 2px; }
+.mon-barra { display: grid; grid-template-columns: minmax(0, 11em) minmax(40px, 1fr) auto; align-items: center; gap: 10px; padding: 5px 6px; outline: none; }
+.mon-barra:hover, .mon-barra:focus-visible { background: var(--g-fondo); }
+.mon-barra .nome { font-size: 15px; color: var(--g-testo); overflow-wrap: anywhere; }
+.mon-barra .pista { height: 12px; }
+.mon-barra .pieno { display: block; height: 12px; min-width: 2px; background: var(--g-serie); border-radius: 0 4px 4px 0; }
+.mon-barra .val { font: 600 15px var(--f-text); color: var(--g-testo); font-variant-numeric: tabular-nums; text-align: right; min-width: 3.2em; }
+.mon-barra .val small { font-weight: 400; color: var(--g-testo2); font-size: 13px; }
+.mon-barre.soldi .pieno { background: var(--g-soldi); }
+.mon-barre .niente { margin: 0; color: var(--g-testo2); font-size: 15px; }
+@media (max-width: 420px) { .mon-barra { grid-template-columns: minmax(0, 8.2em) minmax(30px, 1fr) auto; gap: 8px; } }
+
+/* Tabella sotto il grafico */
+.mon-tabella summary { cursor: pointer; color: var(--cielo); font-size: 15px; width: fit-content; }
+.mon-tabella .tab-wrap { max-height: 300px; overflow: auto; margin-top: 10px; }
+.mon-tabella table { border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+.mon-tabella th, .mon-tabella td { text-align: left; padding: 5px 18px 5px 0; border-bottom: 1px solid var(--g-griglia); }
+.mon-tabella td:last-child, .mon-tabella th:last-child { text-align: right; padding-right: 8px; }
+
+/* Donazioni segnate a mano */
+.mon-totali { margin: 0 0 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mon-totali div { background: var(--g-fondo); padding: 8px 10px; }
+.mon-totali dt { font-size: 13px; color: var(--g-testo2); }
+.mon-totali dd { margin: 0; font: 600 20px/1.3 var(--f-text); }
+.mon-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 14px; margin-top: 14px; padding: 4px; }
+.mon-form input { width: 100%; box-sizing: border-box; }
+.mon-form input[type="date"] {
+  color-scheme: dark; min-height: 44px; padding: 8px 12px; border: 0; background: var(--panel); color: var(--ink); font: inherit; font-size: 16px;
+  box-shadow: 0 -4px 0 0 var(--edge), 0 4px 0 0 var(--edge), -4px 0 0 0 var(--edge), 4px 0 0 0 var(--edge);
+}
+.mon-form input[type="date"]:focus { outline: none; box-shadow: 0 -4px 0 0 var(--ocra), 0 4px 0 0 var(--ocra), -4px 0 0 0 var(--ocra), 4px 0 0 0 var(--ocra); }
+.mon-form .errore, .mon-form small { grid-column: 1 / -1; margin: 0; }
+.mon-form .btn { min-height: 44px; }
+@media (max-width: 420px) { .mon-form { grid-template-columns: minmax(0, 1fr); } }
+.mon-elenco { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 2px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.mon-elenco li { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 5px 6px; border-bottom: 1px solid var(--g-griglia); }
+.mon-elenco b { font-weight: 600; }
+
+.mon-come ul { margin: 0; padding-left: 22px; display: grid; gap: 8px; color: var(--g-testo2); font-size: 15px; }
+.mon-come b { color: var(--g-testo); font-weight: 600; }
+
+/* Etichetta che segue il dito o il mouse */
+.mon-tip { position: fixed; z-index: 50; pointer-events: none; background: var(--scuro); color: var(--ink); padding: 7px 10px; font-size: 14px; box-shadow: 0 0 0 2px var(--ocra); max-width: 240px; }
+.mon-tip[hidden] { display: none; }
+.mon-tip b { display: block; font: 600 18px/1.2 var(--f-text); }
+.mon-tip span { color: var(--dim); }

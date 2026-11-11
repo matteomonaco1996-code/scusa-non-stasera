@@ -69,6 +69,8 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | `privacy.html`, `termini.html` | Informativa privacy e termini d’uso (da completare con i tuoi dati) |
 | `supabase/schema.sql` | Tabelle, regole di sicurezza e funzioni del database |
 | `supabase/luoghi.sql` | Posti da caricare nel database (generato) |
+| `supabase/statistiche.sql` | Contatori anonimi (visite e clic), chi può leggerli, donazioni segnate a mano |
+| `statistiche.html`, `js/statistiche.js`, `css/statistiche.css` | Pagina di monitoraggio, riservata a chi gestisce il sito |
 | `vendor/`, `fonts/` | Leaflet, supabase-js e caratteri ospitati sul sito, con licenze |
 | `mappa/roma.js` | Strade e fiumi di Roma (© OpenStreetMap, ODbL), generati da `strumenti/mappa_osm.py` |
 | `locali.js` | Dati **generati**: non modificarli a mano |
@@ -108,6 +110,26 @@ non se ne perde nessuna. Non sa però scriverne di nuove. Per i posti appena agg
 (`stato`, `da-cercare`, `applica`): elenca chi è senza descrizione, controlla gli esiti di una ricerca e li salva.
 Le regole e il giro completo sono in `strumenti/DESCRIZIONI.md`. I posti cercati senza trovare nulla sono segnati in
 `descrizioni_tentate.json` e si riprovano dopo 120 giorni. Le chiusure non vengono mai applicate da sole.
+
+### Monitoraggio: visite, clic e donazioni
+
+`statistiche.html` (non è collegata dal gioco e non va nei motori di ricerca) mostra quante volte il sito viene
+aperto, da dove arrivano le visite, quali pulsanti si toccano, i tocchi sulle monete e le donazioni che Matteo
+segna a mano copiandole da PayPal. Con `?esempio` in fondo all'indirizzo mostra numeri inventati.
+
+- **Come conta**: `js/app.js` chiama la funzione `conta` del database a ogni apertura e ai clic principali. Si salva
+  solo un numero per giorno e per tipo di azione (`supabase/statistiche.sql`): niente cookie, niente indirizzi,
+  niente nel browser. Chi ha acceso “non tracciare” non viene contato. Senza database non parte nessuna chiamata.
+- **Chi legge**: solo le email elencate nella tabella `amministratori`, dopo l'accesso con il codice via email.
+  La pagina in sé non contiene dati: i numeri arrivano dal database solo a chi è autorizzato.
+- **Provenienza**: per distinguere i canali, condividi il sito come `ristomat.click/?da=instagram` (oppure
+  `whatsapp`, `facebook`, `tiktok`, `telegram`, `google`, `qr`, `volantino`, `amici`).
+- **Soldi**: il sito non vede i pagamenti. Le donazioni vere sono nell'attività di PayPal; in pagina si segnano
+  a mano giorno e importo, mai il nome di chi ha donato.
+- **Per accenderlo**: progetto Supabase → SQL Editor → `schema.sql`, poi `statistiche.sql`, poi una riga con la
+  propria email in `amministratori`; infine URL e chiave pubblica in `config.js`. `conto: false` tiene spenti
+  account e punti lasciando accesi i contatori; `statistiche: false` fa il contrario.
+- **Prove**: `node strumenti/test_statistiche.mjs supabase/schema.sql supabase/statistiche.sql`.
 
 ### Donazioni
 

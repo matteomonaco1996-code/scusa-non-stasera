@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monitoraggio · Ristomat</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#7A1022">
+<link rel="icon" type="image/svg+xml" href="img/gettone.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="img/icona-32.png">
+<link rel="stylesheet" href="css/stile.css">
+<link rel="stylesheet" href="css/statistiche.css">
+</head>
+<body>
+<main class="mon">
+  <p><a href="index.html">◀ Torna al gioco</a></p>
+  <h1>Monitoraggio</h1>
+  <p class="mon-sotto">Quante volte viene aperto il sito, che cosa si tocca e quanto arriva dalle donazioni. Pagina riservata a chi gestisce il sito.</p>
+
+  <!-- Avvisi: contatore spento, accesso, pagina riservata -->
+  <section class="mon-stato" id="stato" aria-live="polite"></section>
+
+  <div id="cruscotto" hidden>
+    <p class="mon-esempio" id="esempio" role="note" hidden><b>Esempio.</b> Questi numeri sono inventati: servono solo a mostrarti com’è fatta la pagina. Quelli veri arrivano quando il database è acceso.</p>
+
+    <div class="mon-filtri">
+      <div class="seg" role="group" aria-label="Periodo">
+        <button type="button" data-giorni="7" aria-pressed="false">7 GIORNI</button>
+        <button type="button" data-giorni="30" aria-pressed="true">30 GIORNI</button>
+        <button type="button" data-giorni="90" aria-pressed="false">90 GIORNI</button>
+      </div>
+      <span class="mon-periodo" id="periodo"></span>
+      <button class="btn alt mini" type="button" id="esci" hidden>ESCI</button>
+    </div>
+
+    <section class="mon-numeri" id="numeri" aria-label="Numeri del periodo"></section>
+
+    <section class="mon-scheda" aria-labelledby="t-visite">
+      <header><h2 id="t-visite">Visite al giorno</h2><p>Una visita è un’apertura del sito. Ricaricare la pagina non conta di nuovo.</p></header>
+      <div class="mon-grafico" id="g-visite" tabindex="0" role="img" aria-label="Grafico delle visite al giorno. Con le frecce destra e sinistra scorri i giorni; sotto c’è la tabella."></div>
+      <details class="mon-tabella"><summary>Mostra la tabella</summary><div class="tab-wrap"><table id="tab-visite"><thead><tr><th scope="col">Giorno</th><th scope="col">Visite</th></tr></thead><tbody></tbody></table></div></details>
+    </section>
+
+    <div class="mon-due">
+      <section class="mon-scheda" aria-labelledby="t-azioni">
+        <header><h2 id="t-azioni">Che cosa fanno</h2><p>Quante volte è stato toccato ogni pulsante.</p></header>
+        <div class="mon-barre" id="b-azioni"></div>
+      </section>
+      <section class="mon-scheda" aria-labelledby="t-fonti">
+        <header><h2 id="t-fonti">Da dove arrivano</h2><p>I link aperti da WhatsApp o copiati a mano risultano “diretti”. Per distinguerli, condividi il sito come <code>ristomat.click/?da=whatsapp</code> (oppure <code>instagram</code>, <code>qr</code>, <code>volantino</code>, <code>amici</code>).</p></header>
+        <div class="mon-barre" id="b-fonti"></div>
+      </section>
+    </div>
+
+    <section class="mon-scheda" aria-labelledby="t-dona">
+      <header><h2 id="t-dona">Donazioni</h2><p>Il sito non vede i pagamenti: quelli esistono solo dentro PayPal. Qui trovi i tocchi sulle monete, che il sito può contare, e le somme che segni tu copiandole da PayPal.</p></header>
+      <div class="mon-due">
+        <div>
+          <h3>Tocchi sulle monete</h3>
+          <div class="mon-barre" id="b-monete"></div>
+          <p class="mon-nota">Un tocco apre PayPal: non vuol dire che la donazione sia stata fatta.</p>
+        </div>
+        <div>
+          <h3>Donazioni ricevute</h3>
+          <dl class="mon-totali" id="totali"></dl>
+          <div class="mon-barre soldi" id="b-mesi"></div>
+          <form class="form mon-form" id="f-dona">
+            <label class="riga">Giorno<input type="date" id="d-giorno" required></label>
+            <label class="riga">Euro ricevuti<input type="text" id="d-euro" required inputmode="decimal" autocomplete="off" placeholder="2,00" maxlength="9"></label>
+            <button class="btn" type="submit">SEGNA</button>
+            <p class="errore" id="d-err" hidden></p>
+            <small>Solo giorno e importo: non scrivere il nome di chi ha donato.</small>
+          </form>
+          <ul class="mon-elenco" id="elenco" aria-label="Ultime donazioni segnate"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="mon-scheda mon-come" aria-labelledby="t-come">
+      <header><h2 id="t-come">Come leggere questi numeri</h2></header>
+      <ul>
+        <li>Sono <b>contatori anonimi</b>: un numero per giorno e per tipo di azione. Niente cookie, niente indirizzi, nessun elenco di persone. Per questo contano le <b>aperture</b>, non le persone: chi apre il sito tre volte vale tre.</li>
+        <li>Chi ha acceso nel browser “non tracciare” non viene contato, quindi i numeri veri sono un po’ più alti.</li>
+        <li>Chiunque potrebbe, volendo, far salire un contatore a mano: sono numeri per capire l’andamento, non una contabilità.</li>
+        <li>I soldi veri sono quelli che vedi in PayPal. Per il commercialista vale l’estratto di PayPal, non questa pagina.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+<div class="mon-tip" id="tip" hidden></div>
+<script src="vendor/supabase/supabase.js"></script>
+<script src="config.js"></script>
+<script src="js/statistiche.js"></script>
+</body>
+</html>
