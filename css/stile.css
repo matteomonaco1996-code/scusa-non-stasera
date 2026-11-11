@@ -1,6 +1,6 @@
 /* Scusa, non stasera — stile "Pixel Roma", in rosso
    Layout: HUD in alto, schermata del titolo con dialogo e menu; poi Seleziona mondo → livelli (quartieri)
-   → power-up; risultati con HUD adesivo e mappa a lato (su telefono: Lista/Mappa). Un solo tema: bordeaux acceso, quasi rosso, con l'oro per ciò che si tocca. */
+   → power-up; risultati con HUD adesivo e mappa a lato (su telefono: Lista/Mappa). Un solo tema: bordeaux, con l'oro per ciò che si tocca. */
 
 @font-face { font-family: "Jersey 10"; font-weight: 400; font-display: swap; src: url("../fonts/jersey-10-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "Figtree"; font-weight: 400; font-display: swap; src: url("../fonts/figtree-latin-400-normal.woff2") format("woff2"); }
@@ -10,17 +10,17 @@
 
 :root {
   color-scheme: dark;
-  --bg: #A4142A;          /* bordeaux acceso, quasi rosso: il fondo della pagina */
-  --panel: #84101F;       /* schede e finestre */
-  --panel-2: #6A0C18;     /* pulsanti secondari, testate */
-  --pozzo: #590A14;       /* riquadri incassati: note, recensioni, numeri */
-  --edge: #47070F;        /* bordo a pixel */
-  --scuro: #33050C;       /* testo sopra l'oro, contorni sulla mappa */
-  --mappa: #3A0810;       /* fondo della mappa: scuro, così strade, parchi e fiume si leggono */
+  --bg: #7A1022;          /* bordeaux: il fondo della pagina */
+  --panel: #5E0B19;       /* schede e finestre */
+  --panel-2: #430711;     /* pulsanti secondari, testate */
+  --pozzo: #3A0610;       /* riquadri incassati: note, recensioni, numeri */
+  --edge: #2B040A;        /* bordo a pixel */
+  --scuro: #220307;       /* testo sopra l'oro, contorni sulla mappa */
+  --mappa: #22040A;       /* fondo della mappa: scuro, così strade, parchi e fiume si leggono */
   --ink: #FFF4E8;         /* travertino */
   --dim: #F1CFC6;
   --ocra: #FFC233;        /* oro: titoli e pulsanti */
-  --pompei: #560A15;      /* vino scuro: ombre, barrato, avvisi */
+  --pompei: #3A0610;      /* vino scuro: ombre, barrato, avvisi */
   --pompei-txt: #FFB9AE;  /* etichette */
   --pino: #2F6B3A;        /* verde pino */
   --pino-txt: #C8F0B6;
@@ -288,7 +288,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .leaflet-container a.leaflet-popup-close-button { color: var(--ink); }
 .leaflet-bar { border-radius: 0 !important; border: 0 !important; box-shadow: 0 0 0 4px var(--edge) !important; }
 .leaflet-bar a, .leaflet-bar a:hover { background: var(--panel); color: var(--ink); border-radius: 0 !important; border-color: var(--edge); font-family: var(--f-title); }
-.leaflet-control-attribution { background: rgb(51 5 12 / .85) !important; color: var(--dim); font-size: 12px; }
+.leaflet-control-attribution { background: rgb(34 3 7 / .85) !important; color: var(--dim); font-size: 12px; }
 .leaflet-control-attribution a { color: var(--dim); }
 .pin-area { display: grid; place-items: center; cursor: pointer; }
 .pin-hit { cursor: pointer; background: transparent; }

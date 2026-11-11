@@ -396,9 +396,9 @@
       const op = { renderer: tela, interactive: false, smoothFactor: 1.2 };
       if (D.parchi.length) L.polygon(D.parchi.map(dec), { ...op, stroke: false, fillColor: "#3E6638", fillOpacity: 1 }).addTo(m);
       strati.fiume = L.polyline(D.fiumi.map(dec), { ...op, color: "#3E6A8C", lineCap: "round" }).addTo(m);
-      vie = L.polyline(D.vie.map(dec), { ...op, color: "#6B1622" });
-      strati.medie = L.polyline(D.medie.map(dec), { ...op, color: "#8C2231" }).addTo(m);
-      strati.grandi = L.polyline(D.grandi.map(dec), { ...op, color: "#B03A48" }).addTo(m);
+      vie = L.polyline(D.vie.map(dec), { ...op, color: "#55111B" });
+      strati.medie = L.polyline(D.medie.map(dec), { ...op, color: "#781C29" }).addTo(m);
+      strati.grandi = L.polyline(D.grandi.map(dec), { ...op, color: "#A33442" }).addTo(m);
       mostraVie();
       if (fiumeDisegnato) { m.removeLayer(fiumeDisegnato); fiumeDisegnato = null; }
       base.forEach((l) => l.bringToFront && l.bringToFront());
