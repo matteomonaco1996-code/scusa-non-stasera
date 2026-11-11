@@ -1,13 +1,24 @@
 // Scusa, non stasera — account, punti, missioni, check-in e recensioni (Supabase).
 // Si attiva solo se config.js contiene URL e chiave pubblica del progetto Supabase.
 // I punti li calcola il database: qui si mostrano e si racconta il percorso.
-(() => {
+// La libreria di Supabase (pesante) si scarica solo se gli account sono accesi: altrimenti non serve a nessuno.
+(function avvia() {
   "use strict";
   const C = window.SNS_CONFIG || {};
   const SNS = window.SNS;
   if (!SNS) return;
-  if (!C.supabaseUrl || !C.supabaseKey || !window.supabase || C.conto === false) {
+  if (!C.supabaseUrl || !C.supabaseKey || C.conto === false) {
     document.body.classList.add("senza-conto");
+    return;
+  }
+  if (!window.supabase) {
+    if (avvia.provato) { document.body.classList.add("senza-conto"); return; }
+    avvia.provato = true;
+    const sc = document.createElement("script");
+    sc.src = "vendor/supabase/supabase.js";
+    sc.onload = avvia;
+    sc.onerror = () => document.body.classList.add("senza-conto");
+    document.head.appendChild(sc);
     return;
   }
   const { esc, toast, perId, luogo, memoria } = SNS;

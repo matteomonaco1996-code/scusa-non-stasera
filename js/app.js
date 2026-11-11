@@ -467,7 +467,7 @@
   // ---------- Mappa: i punti sempre, lo sfondo solo su richiesta ----------
   const mappa = (() => {
     const el = $("#mappa");
-    if (!window.L) { el.innerHTML = `<div class="map-gate"><b>Mappa non disponibile</b>La lista funziona lo stesso.</div>`; return { aggiorna() {}, vai() {}, posizione() {}, mostra() {}, ridisegna() {} }; }
+    if (!window.L) { el.innerHTML = `<div class="map-gate"><b>Mappa non disponibile</b>La lista funziona lo stesso.</div>`; return { aggiorna() {}, vai() {}, posizione() {}, mostra() {}, ridisegna() {}, anticipa() {}, chiudi() {} }; }
     const nascostaSubito = () => el.offsetParent === null || !el.clientWidth;
     const m = L.map(el, { zoomControl: false, attributionControl: true }).setView([41.9, 12.49], 12);
     L.control.zoom({ position: "bottomleft" }).addTo(m);   // in basso: in alto si aprono i fumetti dei posti
@@ -566,8 +566,19 @@
       }
       if (pts.length) m.fitBounds(L.latLngBounds(pts).pad(0.12), { maxZoom: 16, animate: false });
     }
+    // I segnaposti si costruiscono solo quando la mappa si vede. Sul telefono la mappa parte nascosta dietro la
+    // lista: farne quasi mille all'apertura, e rifarli a ogni filtro, rallentava tutto per niente.
+    let sporca = false;
     function aggiorna(lista, adatta) {
-      ultima = lista; strato.clearLayers(); punti.clear();
+      ultima = lista;
+      if (nascosta()) { sporca = true; if (adatta) daAdattare = true; return; }
+      sporca = false;
+      disegna(lista);
+      if (adatta) { daAdattare = false; adattaA(lista); }
+    }
+    function pronta() { if (sporca) { sporca = false; disegna(ultima); } }
+    function disegna(lista) {
+      strato.clearLayers(); punti.clear();
       const visti = SNS.visitati || new Set();
       for (const x of lista) {
         const ic = visti.has(x.id) ? I.visto : x.nt ? I.nota : x.dr ? I.breve : I.base;
@@ -576,13 +587,11 @@
         L.marker([x.la, x.lo], { icon: AREA, pane: "aree", keyboard: false, title: x.n }).on("click", () => mk.openPopup()).addTo(strato);
         punti.set(x.i, mk);
       }
-      if (!adatta) return;
-      if (nascosta()) daAdattare = true; else { daAdattare = false; adattaA(lista); }
     }
-    function mostra() { caricaBase(); m.invalidateSize(); if (daAdattare) { adattaA(ultima); daAdattare = false; } }
+    function mostra() { caricaBase(); m.invalidateSize(); pronta(); if (daAdattare) { adattaA(ultima); daAdattare = false; } }
     function vai(i) {
       caricaBase();
-      const x = DATA[i]; daAdattare = false; m.invalidateSize();
+      const x = DATA[i]; daAdattare = false; m.invalidateSize(); pronta();
       m.setView([x.la, x.lo], Math.max(m.getZoom(), 16), { animate: false });
       const mk = punti.get(i);
       if (mk) mk.openPopup(); else L.popup().setLatLng([x.la, x.lo]).setContent(popup(x)).openOn(m);
@@ -593,8 +602,19 @@
       if (a) a.addEventListener("click", (ev) => { ev.preventDefault(); mostraScheda(+a.dataset.scheda); });
       el.addEventListener("click", suClic);   // moneta e link a Maps: suClic li gestisce una volta sola, da qui o dal documento
     });
-    addEventListener("resize", () => m.invalidateSize());
-    return { aggiorna, vai, posizione, mostra, chiudi: () => m.closePopup(), ridisegna: () => aggiorna(ultima, false) };
+    addEventListener("resize", () => { m.invalidateSize(); if (!nascosta()) { pronta(); if (daAdattare) { adattaA(ultima); daAdattare = false; } } });
+    // Lo sfondo di Roma pesa: lo si scarica in anticipo, senza fretta, solo dopo che è stata scelta una zona
+    // (così chi apre la mappa non aspetta) e mai con il risparmio dati acceso o una rete molto lenta.
+    let anticipata = false;
+    function anticipa() {
+      const rete = navigator.connection || {};
+      if (anticipata || caricando || (window.SNS_MAPPA && window.SNS_MAPPA.roma) || rete.saveData || /2g/.test(rete.effectiveType || "")) return;
+      anticipata = true;
+      const l = document.createElement("link");
+      l.rel = "prefetch"; l.href = "mappa/roma.js"; l.as = "script";
+      document.head.appendChild(l);
+    }
+    return { aggiorna, vai, posizione, mostra, anticipa, chiudi: () => m.closePopup(), ridisegna: () => aggiorna(ultima, false) };
   })();
 
   // ---------- Avvisi ----------
@@ -609,10 +629,14 @@
   // Chiede la posizione al browser e aggiorna il gioco. Risolve con "" se va bene, altrimenti con il motivo:
   // "assente" (il browser non la offre), "bloccata" (permesso negato o posizione spenta), "errore" (non ti trova).
   const POS_ERR = { assente: "Questo browser non sa dirmi dove sei.", bloccata: "La posizione è bloccata o spenta.", errore: "Non riesco a trovarti in questo momento." };
+  // Prima si prova la via rapida (reti e Wi-Fi: risponde in un attimo e in città basta per i minuti a piedi).
+  // Il GPS vero, che può metterci parecchi secondi, si usa solo se la via rapida non risponde o è troppo vaga.
   function trovami() {
     return new Promise((fatto) => {
       if (!navigator.geolocation) return fatto("assente");
-      navigator.geolocation.getCurrentPosition((p) => {
+      const SVELTA = { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 };
+      const PRECISA = { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 };
+      const usa = (p) => {
         stato.pos = { la: p.coords.latitude, lo: p.coords.longitude };
         DATA.forEach((x) => { x.km = km(stato.pos, x); });
         const vicino = DATA.reduce((a, b) => (a.km < b.km ? a : b));
@@ -622,9 +646,15 @@
         mappa.posizione(stato.pos);
         aggiorna();
         conta("posizione_si");
+        mappa.anticipa();
         fatto("");
-      }, (e) => { conta("posizione_no"); fatto(e && e.code === 1 ? "bloccata" : "errore"); },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 });
+      };
+      const no = (e) => { conta("posizione_no"); fatto(e && e.code === 1 ? "bloccata" : "errore"); };
+      const precisa = () => navigator.geolocation.getCurrentPosition(usa, no, PRECISA);
+      navigator.geolocation.getCurrentPosition(
+        (p) => (p.coords.accuracy > 400 ? precisa() : usa(p)),          // più vaga di 400 metri: meglio aspettare il GPS
+        (e) => (e && e.code === 1 ? no(e) : precisa()),                 // rifiutata: inutile riprovare; altrimenti GPS
+        SVELTA);
     });
   }
 
@@ -706,7 +736,7 @@
     percorso.avanza();
   }
   function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false; aggiorna(); percorso.avanza(); }
-  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); percorso.avanza(); }
+  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa(); }
   // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
   // dopo aver scorso la lista, la mappa restava quasi tutta fuori schermo. Porta l'inizio subito sotto la barra.
   function allinea() {
@@ -841,8 +871,8 @@
     let k = 0;
     gt.timer = setInterval(() => {
       rullo.textContent = g.pool[Math.floor(Math.random() * n)].n;
-      if (++k >= 12) { clearInterval(gt.timer); fine(); }
-    }, 70);
+      if (++k >= 8) { clearInterval(gt.timer); fine(); }
+    }, 55);
   }
   async function azioneGettone(cosa, b) {
     const d = $("#dlg-gettone");
