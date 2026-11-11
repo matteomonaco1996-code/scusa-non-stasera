@@ -325,7 +325,7 @@
       <form class="form" id="f-reg">
         <label class="riga">Nickname<input type="text" id="g-nick" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_.\\-]{3,20}" autocomplete="nickname"><small>3–20 caratteri: lettere, numeri, punto, trattino. Non usare il tuo nome e cognome.</small></label>
         <label class="spunta"><input type="checkbox" id="g-eta" required><span>Ho almeno 14 anni.</span></label>
-        <label class="spunta"><input type="checkbox" id="g-termini" required><span>Accetto i <a href="termini.html" target="_blank">termini d’uso</a> e ho letto l’<a href="privacy.html" target="_blank">informativa privacy</a>.</span></label>
+        <label class="spunta"><input type="checkbox" id="g-termini" required><span>Accetto i <a href="termini.html" target="_blank" rel="noopener">termini d’uso</a> e ho letto l’<a href="privacy.html" target="_blank" rel="noopener">informativa privacy</a>.</span></label>
         <label class="spunta"><input type="checkbox" id="g-classifica"><span>Mostra il mio nickname e i miei punti nella classifica pubblica (facoltativo, puoi cambiarlo quando vuoi).</span></label>
         <p class="errore" id="g-err" hidden></p>
         <div class="conto-acts"><button class="btn" type="submit">Inizia a giocare</button><button class="btn alt" type="button" id="g-esci">Annulla ed esci</button></div>

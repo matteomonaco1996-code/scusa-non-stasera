@@ -66,6 +66,27 @@
 10. **Prova tutto** con un tuo account: accesso, nickname, check-in vicino e lontano,
     recensione, segnalazione, classifica, esporta dati, elimina account.
 
+### Dominio personalizzato (se lo compri)
+
+Il sito resta su GitHub Pages: cambia solo l’indirizzo. L’ordine conta, per non lasciare aperta
+la possibilità che qualcun altro agganci un proprio sito al tuo dominio.
+
+1. **Venditore**: account con password unica e verifica in due passaggi, rinnovo automatico attivo,
+   blocco del trasferimento attivo. Per un `.it` intestato a persona fisica **non dare il consenso**
+   alla pubblicazione dei dati nel WHOIS (è facoltativo).
+2. **Verifica il dominio su GitHub** (impostazioni dell’account → Pages → *Add a domain*): GitHub dà
+   una riga TXT da aggiungere nel DNS del venditore. Fallo per primo.
+3. **Repository → Settings → Pages → Custom domain**: scrivi il dominio e salva.
+4. **Solo ora il DNS**: quattro righe `A` per il dominio (185.199.108.153, 185.199.109.153,
+   185.199.110.153, 185.199.111.153) e una riga `CNAME` per `www` verso `<utente>.github.io`.
+   Togli le righe di “parcheggio” messe dal venditore. Niente righe jolly (`*`).
+5. Quando GitHub ha emesso il certificato, spunta **Enforce HTTPS**.
+6. **Email**: il dominio non spedisce posta, quindi dichiaralo, così nessuno può spedire a suo nome:
+   TXT su `@` = `v=spf1 -all` e TXT su `_dmarc` = `v=DMARC1; p=reject;`. Quando configurerai
+   l’SMTP per i codici di accesso, queste due righe andranno sostituite con quelle del fornitore.
+7. **Nel sito**: aggiorna `og:url` e `og:image` in `index.html` e, in Supabase, Site URL e Redirect URLs.
+8. **Se un giorno lasci scadere il dominio**: prima togli il dominio da GitHub Pages e le righe DNS.
+
 ## 3. Da fare nel tempo
 
 - **Segnalazioni**: almeno una volta a settimana guarda Table Editor → `segnalazioni` con
