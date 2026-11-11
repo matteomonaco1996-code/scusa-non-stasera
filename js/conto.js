@@ -342,7 +342,7 @@
       $("#player").close();
       premio({
         titolo: "PLAYER 1 PRONTO", sotto: `Benvenuto, ${io.profilo.nickname}. Livello 1 · ${titolo(1)}`, righe: [], totale: 0, livelloPrima: 1,
-        poi: [["Premi start: trova un posto vicino", () => SNS.start()], ["Dopo"]],
+        poi: [["Vicino a me: trova un posto qui intorno", () => SNS.start()], ["Dopo"]],
       });
     });
   }
@@ -355,7 +355,7 @@
       <div class="punteggio"><div><b class="num">${p.punti}</b><span>punti</span></div><div><b class="num">${st.posti}</b><span>posti</span></div><div><b class="num">${st.recensioni}</b><span>recensioni</span></div></div>
       <div><small>Livello ${p.livello + 1} · ${esc(titolo(p.livello + 1))} tra ${100 - nelLivello} punti</small><div class="barra-liv"><i id="barra"></i></div></div>
       ${prossima ? `<div class="missione-next"><span>Prossima missione · +${bonus(prossima.c)}</span><b>${esc(prossima.t)}</b><small>${esc(prossima.d)} (${prossima.ora}/${prossima.n})</small>
-        ${prossima.c === "primo_passo" || prossima.c === "esploratore" || prossima.c === "re_di_roma" ? `<button class="btn mini" type="button" id="p-start">Premi start</button>` : ""}</div>` : ""}
+        ${prossima.c === "primo_passo" || prossima.c === "esploratore" || prossima.c === "re_di_roma" ? `<button class="btn mini" type="button" id="p-start">Vicino a me</button>` : ""}</div>` : ""}
       <details open><summary>Missioni (${f.size}/${MISSIONI.length})</summary><ul class="missioni">${MISSIONI.map((m) => {
         const ora = Math.min(m.v(st), m.n), ok = f.has(m.c);
         return `<li class="${ok ? "ok" : ""}"><div><b>${ok ? "★" : "☆"} ${esc(m.t)}</b><span class="num">+${bonus(m.c)}</span></div><small>${esc(m.d)}</small><div class="barra-mis"><i data-perc="${ok ? 100 : Math.round(ora / m.n * 100)}"></i></div></li>`;

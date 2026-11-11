@@ -28,6 +28,8 @@
     stella:  ["...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"],
     moneta:  ["..####..", ".#....#.", "#..##..#", "#..#...#", "#..#...#", "#..##..#", ".#....#.", "..####.."],
     restart: ["..###.##", ".#...###", "#....###", "#.......", "#.......", "#......#", ".#....#.", "..####.."],
+    pin:     ["..####..", ".######.", ".##..##.", ".##..##.", ".######.", "..####..", "...##...", "...##..."],
+    zona:    ["###..###", "###..###", "###..###", "........", "........", "###..###", "###..###", "###..###"],
   };
   function svg(nome) {
     let d = "";
@@ -648,9 +650,12 @@
     const d = $("#dlg-posizione"), c = $("#pos-corpo");
     const cosa = /Android|iPhone|iPad|iPod/.test(navigator.userAgent || "") || mobile() ? "telefono" : "computer";
     const scelte = (si, no) => `<div class="get-acts in-colonna">${si ? `<button class="btn" type="button" data-pos="attiva">${si}</button>` : ""}<button class="btn alt" type="button" data-pos="no">${no}</button></div>`;
-    if (fase === "chiedi") c.innerHTML = `<p>Con la posizione ti mostro i posti più vicini a te e quanti minuti a piedi ci vogliono.</p>
-      <p>Tocca il pulsante: il ${cosa} ti chiede il permesso, scegli <b>Consenti</b>.</p>
-      ${scelte("▶ Attiva la posizione", "Non ora: scelgo io la zona")}
+    // Il titolo dice che cosa sta succedendo: una scelta, la ricerca, oppure la posizione da riattivare
+    $("#pos-t").textContent = fase === "chiedi" ? "DA DOVE PARTIAMO?" : fase === "cerco" ? "TI CERCO…" : "ATTIVA LA POSIZIONE";
+    if (fase === "chiedi") c.innerHTML = `<div class="get-scelte">
+        <button type="button" class="px primo" data-pos="attiva"><b>▶ Vicino a me</b><small>Uso la posizione: il ${cosa} ti chiede il permesso, scegli «Consenti». Vedi i posti a pochi minuti a piedi.</small></button>
+        <button type="button" class="px" data-pos="no"><b>Scelgo la zona</b><small>Un quartiere di Roma, un’altra città o fuori porta. Senza usare la posizione.</small></button>
+      </div>
       <small>La posizione resta sul tuo ${cosa}: la inviamo solo quando fai un check-in, e non la salviamo.</small>`;
     else if (fase === "cerco") c.innerHTML = `<p class="get-dom">Ti cerco…</p><p>Se il ${cosa} te lo chiede, scegli <b>Consenti</b>.</p>`;
     else if (fase === "bloccata") c.innerHTML = `<p class="errore" role="alert">La posizione è bloccata per questo sito, oppure è spenta sul ${cosa}.</p>
@@ -673,7 +678,7 @@
     if ($("#dlg-gettone").open) gettone(); else scorri($(".bar"));
   }
   // All'apertura del sito: se la posizione non è già consentita, la finestra che la propone.
-  // Chi risponde "non ora" (o chiude) non se la ritrova alla visita dopo: PREMI START resta lì.
+  // Chi sceglie la zona (o chiude) non se la ritrova alla visita dopo: le due scelte restano in cima alla pagina.
   async function proponiPosizione() {
     if (!navigator.geolocation || stato.pos || memoria.get("sns-posizione") === "no") return;
     let permesso = "prompt";
@@ -880,7 +885,7 @@
   $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (!b) return; stato.voglia = stato.voglia === b.dataset.voglia ? "" : b.dataset.voglia; aggiorna(); });
   $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); }, 160); });
   $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); });
-  $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else start(); });
+  $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else finestraPosizione("chiedi"); });   // "Portami fuori" → da dove partiamo?
   document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => impostaVista(b.dataset.view)));
   document.querySelectorAll("dialog [data-chiudi]").forEach((b) => b.addEventListener("click", () => b.closest("dialog").close()));
 

@@ -104,7 +104,33 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
 .dialog .next { position: absolute; right: 14px; bottom: 6px; color: var(--ocra); font-size: 14px; animation: lampeggia 1s steps(2) infinite; }
 @keyframes lampeggia { 50% { opacity: 0; } }
 
-.menu { margin-top: 18px; display: grid; gap: 4px; max-width: 30em; }
+/* La prima scelta: due strade, ben distinte */
+.partenza { margin-top: 20px; display: grid; gap: 12px; max-width: 36em; }
+.partenza h2 { font-size: 28px; }
+.partenza-scelte { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 2px; }
+.partenza-scelte button { cursor: pointer; border: 0; text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 12px; padding: 14px; background: var(--panel-2); color: var(--ink); font: inherit; }
+.partenza-scelte button:hover { background: var(--edge); }
+.partenza-scelte button:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+.partenza-scelte .pxi { font-size: 30px; margin-top: 2px; color: var(--ocra); }
+.partenza-scelte .voce { display: block; font: 400 26px/1.15 var(--f-title); letter-spacing: .03em; }
+.partenza-scelte small { display: block; margin-top: 4px; font-size: 15px; line-height: 1.35; color: var(--dim); }
+.partenza-scelte .primo { background: var(--ocra); color: var(--scuro); }
+.partenza-scelte .primo:hover { background: var(--ocra); }
+.partenza-scelte .primo .pxi, .partenza-scelte .primo small { color: var(--scuro); }
+/* Sul telefono restano una accanto all'altra, così si vedono insieme: icona sopra, testo più corto */
+@media (max-width: 560px) {
+  .title .wrap { row-gap: 22px; }            /* meno aria sopra, così le due scelte stanno nella prima schermata */
+  .partenza { margin-top: 12px; gap: 8px; }
+  .partenza h2 { font-size: 24px; }
+  .partenza-scelte { gap: 14px; }
+  .partenza-scelte button { grid-template-columns: minmax(0, 1fr); align-content: start; gap: 4px; padding: 10px; }
+  .partenza-scelte .pxi { font-size: 24px; margin-top: 0; }
+  .partenza-scelte .voce { font-size: 22px; letter-spacing: .01em; }
+  .partenza-scelte small { margin-top: 2px; font-size: 14px; line-height: 1.3; }
+  .partenza-scelte .lungo { display: none; }
+}
+
+.menu { margin-top: 14px; display: grid; gap: 4px; max-width: 30em; }
 .menu button { all: unset; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; padding: 9px 12px; }
 .menu button::before { content: "▶"; color: var(--ocra); visibility: hidden; font: 400 20px/1.6 var(--f-title); }
 .menu button:hover::before, .menu button:focus-visible::before, .menu button.primo::before { visibility: visible; }

@@ -19,7 +19,7 @@
   const piu = (g, n) => { const d = data(g); d.setDate(d.getDate() + n); return iso(d); };
 
   const AZIONI = [
-    ["visita", "Aperture del sito"], ["termini_ok", "Termini accettati"], ["start", "PREMI START"],
+    ["visita", "Aperture del sito"], ["termini_ok", "Termini accettati"], ["start", "“Vicino a me” toccato"],
     ["posizione_si", "Posizione trovata"], ["posizione_no", "Posizione non trovata"], ["livello", "Quartiere scelto"],
     ["gettone", "Gettoni inseriti"], ["portami", "“Portami lì” toccato"], ["vai", "Indicazioni aperte"], ["maps", "“Apri su Maps”"],
   ];

@@ -7,7 +7,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://*.basemaps.cartocdn.com; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="description" content="Il gioco per uscire senza programmare: premi start o scegli il quartiere, scopri i posti della lista di Matteo e fai punti visitandoli.">
+<meta name="description" content="Il gioco per uscire senza programmare: parti dai posti vicini a te o scegli la zona, e scopri i posti della lista di Matteo.">
 <meta name="theme-color" content="#7A1022">
 <link rel="icon" type="image/svg+xml" href="img/gettone.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="img/icona-32.png">
@@ -19,7 +19,7 @@
 <meta property="og:locale" content="it_IT">
 <meta property="og:site_name" content="Scusa, non stasera">
 <meta property="og:title" content="Scusa, non stasera. Anzi sì!">
-<meta property="og:description" content="Il gioco per uscire senza programmare: premi start o scegli il quartiere e scopri i posti buoni a pochi passi.">
+<meta property="og:description" content="Il gioco per uscire senza programmare: parti dai posti vicini a te o scegli la zona e scopri i posti buoni.">
 <meta property="og:url" content="https://ristomat.click/">
 <meta property="og:image" content="https://ristomat.click/img/anteprima.png">
 <meta property="og:image:width" content="1200">
@@ -49,7 +49,7 @@
         <h1><span class="scusa">Scusa, non<br>stasera.</span> <span class="anzi">Anzi sì!</span></h1>
       </div>
       <p class="sottotitolo">Ristomat</p>
-      <p class="lede">Il gioco per uscire senza programmare. Premi start o scegli il quartiere: ti dico cosa c’è di buono a pochi passi. Se vuoi, fai punti visitando e recensendo i posti.</p>
+      <p class="lede">Il gioco per uscire senza programmare. Parti dai posti vicini a te oppure scegli una zona: ti dico cosa c’è di buono. <span class="solo-conto">Se vuoi, fai punti visitando e recensendo i posti.</span></p>
     </div>
     <div>
       <div class="dialog px" aria-live="polite">
@@ -58,9 +58,14 @@
         <div class="riga"><span class="chi tu">TU</span><button type="button" class="cosa" id="bolla">Anzi sì! Portami fuori.</button></div>
         <span class="next" aria-hidden="true">▼</span>
       </div>
-      <nav class="menu" aria-label="Menu principale">
-        <button type="button" class="primo" id="m-start"><span><span class="voce press">PREMI START</span><small>Usa la posizione e trova i posti vicini</small></span></button>
-        <button type="button" id="m-livelli"><span><span class="voce">SELEZIONA LIVELLO</span><small>Scegli tu il quartiere</small></span></button>
+      <section class="partenza" aria-labelledby="partenza-t">
+        <h2 id="partenza-t">Da dove partiamo?</h2>
+        <div class="partenza-scelte">
+          <button type="button" class="px primo" id="m-start"><svg class="pxi" data-ico="pin" aria-hidden="true"></svg><span><b class="voce">VICINO A ME</b><small>Uso la posizione<span class="lungo"> del telefono: i posti a pochi minuti a piedi</span></small></span></button>
+          <button type="button" class="px" id="m-livelli"><svg class="pxi" data-ico="zona" aria-hidden="true"></svg><span><b class="voce">SCELGO LA ZONA</b><small>Quartiere<span class="lungo"> di Roma</span>, città o fuori porta</small></span></button>
+        </div>
+      </section>
+      <nav class="menu" aria-label="Altre voci">
         <button type="button" id="m-gettone"><span><span class="voce">INSERISCI GETTONE</span><small>Indeciso? Ti pesco io un posto a caso. È gratis</small></span></button>
         <button type="button" class="dona" id="m-dona" data-moneta hidden><span><span class="voce"><img src="img/gettone.svg" width="22" height="22" alt="">DONA UNA MONETA</span><small>Il sito è gratis. Se ti è utile, puoi offrire una moneta a Matteo</small></span></button>
         <button type="button" class="solo-conto" id="m-player"><span><span class="voce">PLAYER 1</span><small>Accedi, fai punti, scala la classifica</small></span></button>
@@ -155,7 +160,7 @@
 </dialog>
 
 <dialog class="finestra" id="dlg-posizione" aria-labelledby="pos-t">
-  <div class="testa"><h2 id="pos-t">ATTIVA LA POSIZIONE</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
+  <div class="testa"><h2 id="pos-t">DA DOVE PARTIAMO?</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
   <div class="corpo" id="pos-corpo"></div>
 </dialog>
 

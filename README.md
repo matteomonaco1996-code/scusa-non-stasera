@@ -9,12 +9,15 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
 
 ## Come si gioca
 
-- **PREMI START**: usa il GPS del telefono (la posizione non esce dal browser) e
+- **DA DOVE PARTIAMO?**: la prima scelta, in cima alla pagina e nella finestra che compare alla prima visita, è
+  tra due strade ben distinte: **VICINO A ME** (usa la posizione) e **SCELGO LA ZONA** (quartiere, città o fuori
+  porta, senza posizione). Anche la battuta “Anzi sì! Portami fuori.” apre questa scelta.
+- **VICINO A ME**: usa il GPS del telefono (la posizione non esce dal browser) e
   mostra i posti in ordine di distanza, a fasce: *Sotto casa* (EASY, fino a 10
   minuti a piedi), *Due passi* (NORMAL, 10–25), *Vale il viaggio* (HARD).
 - **ATTIVA LA POSIZIONE**: all’apertura, se la posizione non è già consentita, una finestra spiega a cosa
   serve e la chiede (dopo i termini, mai insieme). Se è bloccata o spenta il sito non può riaccenderla:
-  la finestra mostra i passi per iPhone, Android o computer, e la stessa guida compare da PREMI START e dal
+  la finestra mostra i passi per iPhone, Android o computer, e la stessa guida compare da VICINO A ME e dal
   gettone. Chi risponde “non ora” non se la ritrova alla visita dopo (`sns-posizione` nel browser).
 - **SELEZIONA IL MONDO**: Roma, Firenze, Venezia, Milano, Bologna, Fuori porta.
 - **LIVELLI**: a Roma ogni **quartiere** è un livello (38 quartieri in 5 aree:
