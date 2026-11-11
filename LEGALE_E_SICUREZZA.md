@@ -93,8 +93,10 @@ Il link in `config.js` (`donazione`) porta a PayPal.Me. Il sito non tratta pagam
 la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagina di PayPal in una nuova scheda.
 
 **Già fatto nel sito**
-- Finestra con le informazioni prima di uscire verso PayPal: a chi va la somma, che è facoltativa, che non dà
-  nulla in cambio, che non siamo un ente benefico, che serve la maggiore età.
+- Finestra con le informazioni prima di uscire verso PayPal: a chi va la somma, che è un regalo facoltativo, che
+  non siamo un ente benefico, che serve la maggiore età. Che non si riceve nulla in cambio (né punti né altri
+  vantaggi) non è più ripetuto nella finestra: resta scritto nei termini, punto 8, a cui la finestra rimanda.
+  Se un giorno si accendono account e punti, conviene rimetterlo in una riga, perché lì il dubbio può nascere.
 - `termini.html` (punto 8, versione 1.1) e `privacy.html` (ora versione 1.3) aggiornati; i dati che arrivano da PayPal
   (nome, email, importo, messaggio) sono nel registro dei trattamenti dell’informativa.
 - Nessun vantaggio nel gioco per chi dona.
