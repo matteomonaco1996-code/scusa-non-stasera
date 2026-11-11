@@ -478,11 +478,11 @@
       disegnata = true;
       const op = { renderer: tela, interactive: false, smoothFactor: 1.2 };
       const stile = getComputedStyle(el), tinta = (nome, se) => stile.getPropertyValue(nome).trim() || se;   // i colori stanno nel foglio di stile
-      if (D.parchi.length) L.polygon(D.parchi.map(dec), { ...op, stroke: false, fillColor: tinta("--parco", "#3E6638"), fillOpacity: 1 }).addTo(m);
-      strati.fiume = L.polyline(D.fiumi.map(dec), { ...op, color: tinta("--fiume", "#3E6A8C"), lineCap: "round" }).addTo(m);
-      vie = L.polyline(D.vie.map(dec), { ...op, color: tinta("--via", "#55111B") });
-      strati.medie = L.polyline(D.medie.map(dec), { ...op, color: tinta("--via-media", "#781C29") }).addTo(m);
-      strati.grandi = L.polyline(D.grandi.map(dec), { ...op, color: tinta("--via-grande", "#A33442") }).addTo(m);
+      if (D.parchi.length) L.polygon(D.parchi.map(dec), { ...op, stroke: false, fillColor: tinta("--parco", "#B7D5A8"), fillOpacity: 1 }).addTo(m);
+      strati.fiume = L.polyline(D.fiumi.map(dec), { ...op, color: tinta("--fiume", "#82B1D3"), lineCap: "round" }).addTo(m);
+      vie = L.polyline(D.vie.map(dec), { ...op, color: tinta("--via", "#D6C6AE") });
+      strati.medie = L.polyline(D.medie.map(dec), { ...op, color: tinta("--via-media", "#C4A892") }).addTo(m);
+      strati.grandi = L.polyline(D.grandi.map(dec), { ...op, color: tinta("--via-grande", "#A86F66") }).addTo(m);
       mostraVie();
       if (fiumeDisegnato) { m.removeLayer(fiumeDisegnato); fiumeDisegnato = null; }
       base.forEach((l) => l.bringToFront && l.bringToFront());
@@ -513,8 +513,7 @@
     gate.innerHTML = `<button class="btn mini alt" type="button" data-sfondo title="Carica lo sfondo con i nomi delle vie da CARTO: riceverà il tuo indirizzo IP (vedi Privacy)" aria-label="Carica i nomi delle vie da CARTO, che riceverà il tuo indirizzo IP">Nomi vie · CARTO</button>`;
     function accendi(ricorda) {
       if (tiles) return;
-      const chiara = getComputedStyle(el).getPropertyValue("--carto").trim() === "chiara";   // con la tavolozza chiara, anche lo sfondo con i nomi è chiaro
-      tiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/" + (chiara ? "light_all" : "dark_all") + "/{z}/{x}/{y}{r}.png", {
+      tiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {   // chiaro, come la mappa del sito
         attribution: '© <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
         subdomains: "abcd", maxZoom: 20, referrerPolicy: "no-referrer",
       }).addTo(m);

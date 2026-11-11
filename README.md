@@ -80,7 +80,6 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | --- | --- |
 | `index.html` | La pagina (solo HTML: niente script inline, per la Content Security Policy) |
 | `css/stile.css`, `js/app.js`, `js/conto.js` | Stile, gioco, account e punti |
-| `css/temi.css`, `js/tema.js` | Prova dei colori: tre tavolozze visibili solo aggiungendo `?tema=calmo`, `?tema=notte` o `?tema=carta` all’indirizzo. Provvisori: finita la prova resta la tavolozza scelta, dentro `stile.css` |
 | `config.js` | Indirizzo e chiave pubblica di Supabase (vuoti = account disattivati) |
 | `privacy.html`, `termini.html` | Informativa privacy e termini d’uso (da completare con i tuoi dati) |
 | `supabase/schema.sql` | Tabelle, regole di sicurezza e funzioni del database |

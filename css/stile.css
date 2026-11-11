@@ -1,6 +1,8 @@
-/* Scusa, non stasera — stile "Pixel Roma", in rosso
+/* Scusa, non stasera — stile "Pixel Roma"
    Layout: HUD in alto, schermata del titolo con dialogo e menu; poi Seleziona mondo → livelli (quartieri)
-   → power-up; risultati con HUD adesivo e mappa a lato (su telefono: Lista/Mappa). Un solo tema: bordeaux, con l'oro per ciò che si tocca. */
+   → power-up; risultati con HUD adesivo e mappa a lato (su telefono: Lista/Mappa).
+   Colori: una cornice bordeaux (pagina, barra, pulsanti: crema e oro) e, sopra, la "carta" dove si legge
+   (schede, finestre, tessere delle zone, pagine di testo: fondo crema, inchiostro scuro, accento bordeaux). */
 
 @font-face { font-family: "Press Start 2P"; font-weight: 400; font-display: swap; src: url("../fonts/press-start-2p-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "Jersey 10"; font-weight: 400; font-display: swap; src: url("../fonts/jersey-10-latin-400-normal.woff2") format("woff2"); }
@@ -10,26 +12,24 @@
 
 :root {
   color-scheme: dark;
-  --bg: #7A1022;          /* bordeaux: il fondo della pagina */
-  --panel: #5E0B19;       /* schede e finestre */
-  --panel-2: #430711;     /* pulsanti secondari, testate */
-  --pozzo: #3A0610;       /* riquadri incassati: note, recensioni, numeri */
+  /* La cornice */
+  --bg: #691421;          /* bordeaux: il fondo della pagina */
+  --panel: #470F17;       /* campi e pulsanti sul bordeaux */
+  --panel-2: #380C12;     /* pulsanti secondari, avvisi, righe di separazione */
+  --pozzo: #310C11;       /* riquadri incassati */
   --edge: #2B040A;        /* bordo a pixel */
-  --scuro: #220307;       /* testo sopra l'oro, contorni sulla mappa */
-  --mappa: #22040A;       /* fondo della mappa: scuro, così strade, parchi e fiume si leggono */
+  --scuro: #220307;       /* testo sopra l'oro, contorni */
   --ink: #FFF3D6;         /* crema, come nel logo */
-  --dim: #F1CFC6;
-  --ocra: #F2B632;        /* oro del logo: titoli e pulsanti */
+  --dim: #EBDBCE;
+  --ocra: #F2B632;        /* l'accento: oro sul bordeaux, bordeaux sulla carta (vedi sotto) */
   --pompei: #3D0711;      /* vino scuro: ombra del titolo, avvisi */
   --pompei-txt: #FFB9AE;  /* etichette */
   --pino: #2F6B3A;        /* verde pino */
   --pino-txt: #C8F0B6;
   --cielo: #B9D9F5;
-  --via: #55111B;         /* mappa: vie piccole, medie, grandi */
-  --via-media: #781C29;
-  --via-grande: #A33442;
-  --parco: #3E6638;
-  --fiume: #3E6A8C;
+  --fiume: #3E6A8C;       /* il Tevere nella mappa dei quartieri */
+  /* Colori fissi: valgono uguali sulla cornice e sulla carta */
+  --oro: #F2B632; --crema: #FFF3D6; --vino: #821828; --carta: #F9EFD8;
 
   --f-logo: "Press Start 2P", "Jersey 10", monospace;   /* solo per il logo: titolo e RISTOMAT */
   --f-title: "Jersey 10", "Arial Narrow", "Trebuchet MS", system-ui, sans-serif;
@@ -37,12 +37,21 @@
   --px: 4px;
 }
 
+/* La carta: fondo crema e inchiostro scuro, perché è lì che si legge. Ridefinisce i colori per tutto ciò che contiene. */
+.card, dialog.finestra, .overworld, .empty, .dona-fondo, .leaflet-popup, .tab, .level, .pw, .legale {
+  color-scheme: light; color: var(--ink);
+  --panel: var(--carta); --panel-2: #EDDEBE; --pozzo: #F2E5C9; --riga: #D9C49A;
+  --ink: #250E10; --dim: #5F4642; --pompei: #F7CBC7; --pompei-txt: #913E20; --pino-txt: #1D5B2B; --cielo: #16558C;
+}
+/* Sulla carta l'accento è il bordeaux (l'oro sul crema non si legge) e sopra l'accento si scrive in crema.
+   Le tessere delle zone restano fuori: stanno sul bordeaux, quindi quella scelta diventa d'oro. */
+.card, dialog.finestra, .overworld, .empty, .dona-fondo, .leaflet-popup, .legale { --ocra: var(--vino); --scuro: var(--crema); }
+
 *, *::before, *::after { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.5 var(--f-text); font-synthesis: none; }
+body { margin: 0; background: var(--bg) repeating-linear-gradient(to bottom, rgb(0 0 0 / .09) 0 1px, transparent 1px 3px); color: var(--ink); font: 400 17px/1.5 var(--f-text); font-synthesis: none; }   /* le righe "da vecchio schermo" stanno sul fondo: non passano sopra i testi */
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 40; background: var(--bg); }
-body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1000; background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .07) 0 1px, transparent 1px 3px); }
 a { color: var(--cielo); }
 button, input, select, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--ocra); outline-offset: 3px; }
@@ -181,11 +190,11 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .level:focus-visible { outline: 3px solid var(--ocra); outline-offset: 6px; }
 .level[aria-pressed="true"] { background: var(--ocra); color: var(--scuro); }
 .level[aria-pressed="true"] .cod, .level[aria-pressed="true"] .ct { color: var(--scuro); }
-.level .qui { position: absolute; top: -10px; right: 6px; padding: 2px 6px; background: var(--pino); color: var(--ink); font: 400 14px/1.3 var(--f-title); animation: lampeggia 1s steps(2) infinite; }
+.level .qui { position: absolute; top: -10px; right: 6px; padding: 2px 6px; background: var(--pino); color: var(--crema); font: 400 14px/1.3 var(--f-title); animation: lampeggia 1s steps(2) infinite; }
 
 .powerups { display: flex; gap: 10px; overflow-x: auto; padding: 6px 6px 10px; position: relative; scrollbar-width: none; flex-wrap: wrap; }
 .pw { flex: none; cursor: pointer; border: 0; background: var(--panel); color: var(--ink); padding: 9px 12px; display: inline-flex; align-items: center; gap: 8px; font: 400 20px/1 var(--f-title); }
-.pw .pxi { font-size: 20px; color: var(--ocra); }
+.pw .pxi { font-size: 20px; color: var(--vino); }
 .pw .n { font: 400 14px/1 var(--f-text); color: var(--pino-txt); }
 .pw[aria-pressed="true"] { background: var(--ocra); color: var(--scuro); }
 .pw[aria-pressed="true"] .pxi, .pw[aria-pressed="true"] .n { color: var(--scuro); }
@@ -218,7 +227,10 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .main .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); gap: 28px; align-items: start; }
 .list-col { min-width: 0; display: grid; gap: 14px; }
 .map-col { position: sticky; top: 92px; min-width: 0; padding: var(--px); }
-#mappa { height: calc(100vh - 120px); max-height: 860px; min-height: 420px; background: var(--mappa); position: relative; z-index: 0; }
+#mappa {   /* chiara, come una carta stampata: i colori di strade, parchi e fiume li legge app.js da qui */
+  --mappa: #F3EBD7; --via: #D6C6AE; --via-media: #C4A892; --via-grande: #A86F66; --parco: #B7D5A8; --fiume: #82B1D3;
+  height: calc(100vh - 120px); max-height: 860px; min-height: 420px; background: var(--mappa); position: relative; z-index: 0;
+}
 .map-gate {
   position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 500; padding: 12px 14px; background: var(--panel);
   display: grid; gap: 8px; font-size: 14px; color: var(--dim);
@@ -254,7 +266,7 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .say.breve b { color: var(--ocra); }
 .stelle { color: var(--ocra); font: 400 19px/1.2 var(--f-title); }
 .stelle span { color: var(--dim); font: 400 14px/1.2 var(--f-text); }
-.acts { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; border-top: 2px dashed var(--panel-2); }
+.acts { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; border-top: 2px dashed var(--riga, var(--panel-2)); }
 .acts a { font: 400 19px/1.3 var(--f-title); text-decoration: none; color: var(--cielo); }
 .acts a.vai { color: var(--ocra); }
 .acts a:hover { text-decoration: underline; text-underline-offset: 4px; }
@@ -277,7 +289,7 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 /* ---------- Finestre (player, recensione, segnalazione) ---------- */
 dialog.finestra {
   border: 0; padding: 0; background: var(--panel); color: var(--ink); width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 40px);
-  box-shadow: 0 0 0 4px var(--ocra), 0 0 0 9999px rgb(0 0 0 / .6);   /* cornice d'oro: sul fondo scurito il bordo scuro non si vedeva */
+  box-shadow: 0 0 0 4px var(--oro), 0 0 0 9999px rgb(0 0 0 / .6);   /* cornice d'oro: stacca la finestra dal fondo scurito */
 }
 dialog.finestra::backdrop { background: transparent; }
 .finestra .testa { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; background: var(--panel-2); z-index: 1; }
@@ -307,13 +319,13 @@ dialog.finestra::backdrop { background: transparent; }
 .pericolo { border-top: 2px dashed var(--pompei); padding-top: 12px; display: grid; gap: 10px; }
 
 /* ---------- Pagine legali ---------- */
-body:has(.legale) { background: var(--panel-2); }   /* testi lunghi: fondo più scuro, si legge meglio */
+body:has(.legale) { background: var(--carta); }   /* testi lunghi: tutta la pagina è carta */
 .legale { max-width: 760px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-right, 0px)) 60px max(16px, env(safe-area-inset-left, 0px)); }
 .legale h1 { font-size: clamp(42px, 7vw, 60px); color: var(--ocra); }
 .legale h2 { margin-top: 30px; }
 .legale p, .legale li { line-height: 1.6; }
 .legale table { width: 100%; border-collapse: collapse; font-size: 15px; }
-.legale th, .legale td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--edge); }
+.legale th, .legale td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--riga); }
 .legale .tab-wrap { overflow-x: auto; }
 .legale .da-compilare { background: var(--pompei); color: var(--ink); padding: 0 4px; }
 
@@ -337,13 +349,13 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .leaflet-control-attribution a { color: var(--dim); }
 .pin-area { display: grid; place-items: center; cursor: pointer; }
 .pin-hit { cursor: pointer; background: transparent; }
-.pin-area:hover .pin, .pin-area:focus-visible .pin { box-shadow: 0 0 0 2px var(--scuro), 0 0 0 4px var(--ink); }
+.pin-area:hover .pin, .pin-area:focus-visible .pin { box-shadow: 0 0 0 2px #FFF8E8, 0 0 0 4px #250E10; }
 .pin-area:focus-visible { outline: none; }
-.pin { display: block; width: 12px; height: 12px; background: var(--cielo); box-shadow: 0 0 0 2px var(--scuro); }
-.pin.breve { background: var(--ink); }
-.pin.nota { background: var(--ocra); width: 14px; height: 14px; }
-.pin.visto { background: var(--pino-txt); }
-.pin.io { background: var(--pompei-txt); width: 16px; height: 16px; animation: lampeggia 1s steps(2) infinite; }
+.pin { display: block; width: 12px; height: 12px; background: #16558C; box-shadow: 0 0 0 2px #FFF8E8; }   /* segnaposto scuri con il bordo chiaro: si staccano dalla mappa e tra loro */
+.pin.breve { background: var(--vino); }
+.pin.nota { background: var(--oro); box-shadow: 0 0 0 2px var(--scuro); width: 14px; height: 14px; }
+.pin.visto { background: #2D6A39; }
+.pin.io { background: #250E10; width: 16px; height: 16px; animation: lampeggia 1s steps(2) infinite; }
 
 @media (max-width: 960px) {
   .title .wrap { grid-template-columns: minmax(0, 1fr); }
@@ -410,14 +422,15 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .ow-nodo rect { fill: var(--panel-2); stroke: var(--edge); stroke-width: 3; }
 .ow-nodo text { fill: var(--ink); font: 400 15px var(--f-title); pointer-events: none; }
 .ow-nodo rect.ow-hit { fill: transparent; stroke: none; }
-.ow-nodo:hover rect:not(.ow-hit), .ow-nodo:focus-visible rect:not(.ow-hit) { fill: var(--edge); stroke: var(--ocra); }
+.ow-nodo:hover rect:not(.ow-hit), .ow-nodo:focus-visible rect:not(.ow-hit) { fill: #E0CCA0; stroke: var(--ocra); }
 .ow-nodo:focus-visible { outline: none; }
 .ow-nodo.fatto rect:not(.ow-hit) { fill: var(--pino); stroke: var(--pino-txt); }
+.ow-nodo.fatto text { fill: var(--crema); }
 .ow-nodo.on rect:not(.ow-hit) { fill: var(--ocra); stroke: var(--ink); }
 .ow-nodo.on text { fill: var(--scuro); }
 .ow-io rect { fill: var(--pompei-txt); stroke: var(--scuro); stroke-width: 2; animation: lampeggia 1s steps(2) infinite; }
 .base-fiume { stroke: var(--fiume); stroke-width: 7; fill: none; opacity: .9; }
-.base-quartiere { display: inline-block; transform: translate(-50%, -50%); white-space: nowrap; font: 400 15px/1 var(--f-title); color: var(--dim); opacity: .7; letter-spacing: .04em; pointer-events: none; }
+.base-quartiere { display: inline-block; transform: translate(-50%, -50%); white-space: nowrap; font: 400 15px/1 var(--f-title); color: #5F4642; opacity: .85; letter-spacing: .04em; pointer-events: none; }
 .map-gate { top: 12px; right: 12px; bottom: auto; left: auto; padding: 0; background: none; box-shadow: none; display: block; }
 .map-gate .btn { font-size: 13px; padding: 6px 10px; box-shadow: 0 0 0 3px var(--edge), inset -3px -3px 0 0 rgb(0 0 0 / .25); }
 .map-gate b { font-size: 15px; }
@@ -461,7 +474,7 @@ dialog.premio { width: min(460px, calc(100vw - 32px)); text-align: center; }
 .esempio span { display: block; font: 400 15px/1.3 var(--f-title); font-style: normal; color: var(--pompei-txt); letter-spacing: .03em; margin-bottom: 2px; }
 .voto-stelle { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 .voto-stelle legend { width: 100%; }
-.voto-stelle label { cursor: pointer; font-size: 30px; line-height: 1; color: rgb(255 244 232 / .3); }
+.voto-stelle label { cursor: pointer; font-size: 30px; line-height: 1; color: rgb(37 14 16 / .25); }
 .voto-stelle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .voto-stelle label:has(input:checked), .voto-stelle label:has(~ label input:checked) { color: var(--ocra); }
 .voto-stelle label:has(input:focus-visible) { outline: 3px solid var(--ocra); outline-offset: 2px; }
@@ -542,7 +555,7 @@ dialog.termini { width: min(640px, 100vw); max-width: 100vw; margin: auto auto 0
   dialog[open] .moneta-importo:nth-child(3) img { animation-delay: .16s; }
   dialog[open] .moneta-importo:nth-child(4) img { animation-delay: .24s; }
 }
-.dona-fondo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin: 3px 3px 14px; padding: 14px 16px; background: var(--panel); box-shadow: 0 0 0 3px var(--ocra); color: var(--ink); }
+.dona-fondo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin: 3px 3px 14px; padding: 14px 16px; background: var(--panel); box-shadow: 0 0 0 3px var(--oro); color: var(--ink); }
 .dona-fondo[hidden] { display: none; }
 .dona-fondo p { flex: 1 1 260px; font-size: 16px; }
 .dona-fondo b { color: var(--ocra); font-weight: 600; }
