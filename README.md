@@ -139,8 +139,8 @@ sono i numeri, che il database consegna solo alle email nella tabella `amministr
 ### Donazioni
 
 In `config.js`, `donazione` è il link della pagina dove ricevere una moneta (PayPal.Me). Se è vuoto non compare
-nulla. Quando c'è, “Dona una moneta” compare nel fumetto di ogni posto sulla mappa, nel risultato del
-gettone e in fondo alla pagina. In più, toccando “Portami lì” si apre prima la finestra **Prima di andare**:
+nulla. Quando c'è, “Dona una moneta” compare, ben in vista: come voce del menu iniziale, in un riquadro in fondo
+alla pagina, nel fumetto di ogni posto sulla mappa e nel risultato del gettone (un pulsante con il bordo d'oro). In più, toccando “Portami lì” si apre prima la finestra **Prima di andare**:
 in cima il pulsante “Vai al posto” (che apre le indicazioni), sotto le monete. `monetaPrima` in `config.js`
 decide quando: `"sempre"` (ogni volta), `"una"` (una volta per visita), `"mai"`. Vedi `LEGALE_E_SICUREZZA.md`.
 

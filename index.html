@@ -62,6 +62,7 @@
         <button type="button" class="primo" id="m-start"><span><span class="voce press">PREMI START</span><small>Usa la posizione e trova i posti vicini</small></span></button>
         <button type="button" id="m-livelli"><span><span class="voce">SELEZIONA LIVELLO</span><small>Scegli tu il quartiere</small></span></button>
         <button type="button" id="m-gettone"><span><span class="voce">INSERISCI GETTONE</span><small>Indeciso? Ti pesco io un posto a caso. È gratis</small></span></button>
+        <button type="button" class="dona" id="m-dona" data-moneta hidden><span><span class="voce"><img src="img/gettone.svg" width="22" height="22" alt="">DONA UNA MONETA</span><small>Il sito è gratis. Se ti è utile, puoi offrire una moneta a Matteo</small></span></button>
         <button type="button" class="solo-conto" id="m-player"><span><span class="voce">PLAYER 1</span><small>Accedi, fai punti, scala la classifica</small></span></button>
       </nav>
       <p class="privacy">La posizione resta sul tuo telefono: la inviamo solo quando fai un check-in, e non la salviamo.</p>
@@ -122,12 +123,15 @@
 
 <footer>
   <div class="wrap">
+    <div class="dona-fondo" id="dona-fondo" hidden>
+      <p><b>Ristomat è gratis.</b> Se ti è utile, puoi offrire una moneta a Matteo, che lo cura. È facoltativo.</p>
+      <span id="moneta-fondo"></span>
+    </div>
     <nav aria-label="Informazioni legali">
       <a href="privacy.html">Privacy</a>
       <a href="termini.html">Termini d’uso</a>
       <a href="termini.html#segnalazioni">Segnala un contenuto</a>
       <button class="link" type="button" id="spegni-mappa" hidden>Spegni lo sfondo della mappa</button>
-      <span id="moneta-fondo"></span>
     </nav>
     <p>I posti vengono dalla lista Google Maps <a id="fonte" href="#" target="_blank" rel="noopener noreferrer">“RistoMat”</a> di Matteo, aggiornata il <span id="agg"></span>. Le note firmate MATTEO sono sue; le recensioni sono degli utenti che hanno fatto check-in nel posto. Le righe IN BREVE sono descrizioni scritte con l’aiuto dell’intelligenza artificiale a partire da informazioni pubbliche in rete (siti dei locali, guide, recensioni): possono essere imprecise o non aggiornate, e non sono giudizi nostri.</p>
     <p>Quartieri e minuti a piedi sono stime dalla posizione. Il tipo di locale viene dal nome o, in parte, da © OpenStreetMap. Mappa: dati © OpenStreetMap (ODbL) ospitati sul sito; nomi delle vie © CARTO solo se li accendi. Punti, livelli e badge sono solo un gioco: non danno premi.</p>
@@ -176,10 +180,12 @@
   <div class="corpo">
     <a class="btn vai-ora" id="vai-ora" href="#" target="_blank" rel="noopener noreferrer" autofocus>▶ VAI AL POSTO</a>
     <small>Andare è gratis: non serve donare.</small>
-    <h3 class="vai-dona">Vuoi fare una donazione?</h3>
-    <p>È un regalo in denaro, facoltativo, a Matteo: ha scelto questi posti uno per uno e paga le spese del sito. Non dà punti né altri vantaggi.</p>
-    <div class="monete" id="monete-vai"></div>
-    <p>Scegli una moneta: si apre la pagina PayPal di Matteo con quella cifra (con «Altro» la scrivi tu). Paghi solo se confermi lì.</p>
+    <div class="dona-box">
+      <h3><img src="img/gettone.svg" width="28" height="28" alt="">Vuoi fare una donazione?</h3>
+      <p>È un regalo in denaro, facoltativo, a Matteo: ha scelto questi posti uno per uno e paga le spese del sito. Non dà punti né altri vantaggi.</p>
+      <div class="monete" id="monete-vai"></div>
+      <p>Scegli una moneta: si apre la pagina PayPal di Matteo con quella cifra (con «Altro» la scrivi tu). Paghi solo se confermi lì.</p>
+    </div>
     <small>Il sito non vede i dati della tua carta. Solo per maggiorenni. Non siamo un ente benefico: la somma non è detraibile. Donato per errore? Scrivici entro 14 giorni e te la restituiamo. <a href="termini.html#donazioni" target="_blank" rel="noopener">Regole sulle donazioni</a> · <a href="privacy.html#donazioni" target="_blank" rel="noopener">Privacy</a></small>
   </div>
 </dialog>

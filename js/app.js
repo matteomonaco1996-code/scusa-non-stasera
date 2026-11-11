@@ -892,6 +892,8 @@
   // Al massimo una volta per visita, e senza salvare niente nel browser.
   if (DONA) {
     $("#moneta-fondo").innerHTML = moneta();
+    $("#dona-fondo").hidden = false;
+    $("#m-dona").hidden = false;
     $("#vai-ora").addEventListener("click", () => $("#dlg-vai").close());
   }
   document.addEventListener("click", suClic);
