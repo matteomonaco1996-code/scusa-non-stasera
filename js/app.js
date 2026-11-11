@@ -381,7 +381,7 @@
       g.insertBefore(r, g.firstChild);
     });
     const z = stato.livello && livelli.find((l) => l.n === stato.livello);
-    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${z.conta} posti` : "Tocca un quartiere per giocare quel livello. Le caselle verdi sono quartieri dove hai già fatto check-in. Mappa non in scala: il centro è ingrandito.";
+    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${z.conta} posti` : "Tocca un quartiere per giocare quel livello. Le caselle verdi sono quartieri dove hai già fatto check-in.";
   }
 
   function disegnaPowerup() {
