@@ -1,5 +1,7 @@
 -- Generato da strumenti/aggiorna_lista.py: posti della lista, per verificare i check-in.
 insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
+('1506106188939753919', 'Osteria Iotto', 42.140216, 12.382613, null, 'Campagnano di Roma', 'trattoria'),
+('10115245044159309995', 'Mariù - Trattoria Gentile', 41.86798, 12.493878, 'Garbatella', 'Roma', 'trattoria'),
 ('10146047069823709798', 'Taverna delle Vacche', 41.8997, 12.470491, 'Navona · Campo de'' Fiori', 'Roma', 'trattoria'),
 ('9138556891812727682', 'Trattoria Ai Villini', 41.909882, 12.466908, 'Prati', 'Roma', 'trattoria'),
 ('4758920574029921469', 'Bar del Cappuccino', 41.892207, 12.474896, 'Ghetto', 'Roma', 'bar'),
