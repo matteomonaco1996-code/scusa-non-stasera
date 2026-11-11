@@ -446,6 +446,11 @@
   ];
   const NOTTE = { nome: "dopocena", domanda: "Un ultimo bicchiere?", no: "Scusa, non stasera…", tipi: ["bar", "vino", "street", "dolce"] };
   const momento = () => { const h = new Date().getHours(); return MOMENTI.find((m) => h >= m.da && h < m.a) || NOTTE; };
+  // L'ora nei messaggi della chat: quella vera, e un minuto prima per la domanda di Gaia
+  function orari() {
+    const due = (n) => String(n).padStart(2, "0"), ora = (d) => due(d.getHours()) + ":" + due(d.getMinutes()), adesso = new Date();
+    document.querySelectorAll(".chat .ora").forEach((e) => { e.textContent = ora(e.dataset.prima ? new Date(adesso.getTime() - 60000) : adesso); });
+  }
   function rispondi(x) {
     const b = $("#bolla");
     let t;
@@ -738,7 +743,7 @@
     mappa.posizione(null); mappa.chiudi();
     impostaVista("lista");
     aggiorna();
-    $("#domanda").textContent = momento().domanda; $("#risposta").textContent = momento().no;
+    $("#domanda").textContent = momento().domanda; $("#risposta").textContent = momento().no; orari();
     scrollTo({ top: 0, behavior: ridotto() ? "auto" : "smooth" });
     $("#m-start").focus({ preventScroll: true });
     toast("Si riparte da capo.");
@@ -1021,7 +1026,7 @@
 
   // ---------- Avvio ----------
   $("#hi").textContent = String(DATA.length).padStart(6, "0");
-  $("#domanda").textContent = momento().domanda; $("#risposta").textContent = momento().no;
+  $("#domanda").textContent = momento().domanda; $("#risposta").textContent = momento().no; orari();
   $("#fonte").href = META.fonte || "https://www.google.com/maps";
   $("#agg").textContent = META.aggiornato ? fmtGiorno.format(new Date(META.aggiornato + "T12:00:00")) : "";
   document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });

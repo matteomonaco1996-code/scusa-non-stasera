@@ -49,14 +49,15 @@
         <h1>Ristomat<span class="sr"> · Scusa, non stasera</span></h1>
       </div>
       <p class="lede">Il gioco per uscire senza programmare: ti dico cosa c’è di buono, vicino a te o nella zona che scegli. <span class="solo-conto">Se vuoi, fai punti visitando e recensendo i posti.</span></p>
-      <div class="vignetta" aria-live="polite">
-        <div class="battuta lei">
-          <div class="chi"><svg class="faccia" viewBox="0 0 12 12" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true"><rect width="12" height="12" fill="#FFB9AE"/><path fill="#7A1022" d="M4 1h4v1h-4zM3 2h6v1h-6zM3 3h6v1h-6zM3 4h6v1h-6zM4 5h4v1h-4zM3 7h6v1h-6zM2 8h8v1h-8zM1 9h10v1h-10zM1 10h10v1h-10zM1 11h10v1h-10z"/></svg><span>GAIA</span></div>
-          <p class="fumetto"><span id="domanda">Usciamo stasera?</span></p>
+      <div class="chat" aria-live="polite">
+        <div class="chat-testa">
+          <svg class="chat-foto" viewBox="0 0 36 36" width="36" height="36" aria-hidden="true"><circle cx="18" cy="18" r="18" fill="#DFE5E7"/><circle cx="18" cy="14" r="6" fill="#fff"/><path fill="#fff" d="M6.5 30.5c1.6-5.6 6.2-8.5 11.5-8.5s9.900 2.900 11.500 8.500a18 18 0 0 1-23 0z"/></svg>
+          <div><b>Gaia</b><small>online</small></div>
         </div>
-        <div class="battuta io">
-          <div class="chi"><svg class="faccia" viewBox="0 0 12 12" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true"><rect width="12" height="12" fill="#B9D9F5"/><path fill="#22507A" d="M4 1h4v1h-4zM3 2h6v1h-6zM3 3h6v1h-6zM3 4h6v1h-6zM4 5h4v1h-4zM3 7h6v1h-6zM2 8h8v1h-8zM1 9h10v1h-10zM1 10h10v1h-10zM1 11h10v1h-10z"/></svg><span>TU</span></div>
-          <p class="fumetto"><span class="barrato" id="risposta">Scusa, non stasera…</span><button type="button" id="bolla">Anzi sì! Portami fuori.</button></p>
+        <div class="chat-corpo">
+          <p class="msg lei"><span class="sr">Gaia: </span><span id="domanda">Usciamo stasera?</span><span class="meta"><span class="ora" data-prima="1">20:29</span></span></p>
+          <p class="msg io"><span class="sr">Tu: </span><span class="barrato" id="risposta">Scusa, non stasera…</span><span class="meta"><span class="ora">20:30</span><span class="spunte" aria-hidden="true">✓✓</span></span></p>
+          <p class="msg io seguito azione"><span class="sr">Tu: </span><button type="button" id="bolla">Anzi sì! Portami fuori.</button><span class="meta"><span class="ora">20:30</span><span class="spunte" aria-hidden="true">✓✓</span></span></p>
         </div>
       </div>
     </div>
