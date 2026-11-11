@@ -25,6 +25,11 @@
   --pino: #2F6B3A;        /* verde pino */
   --pino-txt: #C8F0B6;
   --cielo: #B9D9F5;
+  --via: #55111B;         /* mappa: vie piccole, medie, grandi */
+  --via-media: #781C29;
+  --via-grande: #A33442;
+  --parco: #3E6638;
+  --fiume: #3E6A8C;
 
   --f-logo: "Press Start 2P", "Jersey 10", monospace;   /* solo per il logo: titolo e RISTOMAT */
   --f-title: "Jersey 10", "Arial Narrow", "Trebuchet MS", system-ui, sans-serif;
@@ -89,8 +94,8 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
 .scena { margin-top: 18px; display: grid; gap: 12px; max-width: 36em; }
 .battuta { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: end; }
 .battuta.io { grid-template-columns: minmax(0, 1fr) auto; }
-.tipo { display: block; width: 72px; height: 88px; flex: none; image-rendering: pixelated; }
-.tipo.gettone { width: 60px; height: 60px; margin: 0 6px 6px; }
+.figura { display: block; width: 72px; height: 88px; flex: none; image-rendering: pixelated; }
+.figura.gettone { width: 60px; height: 60px; margin: 0 6px 6px; }
 .voce-di { display: grid; gap: 4px; justify-items: start; min-width: 0; margin-bottom: 14px; }
 .battuta.io .voce-di { justify-items: end; }
 .voce-di .nome { font: 400 16px/1 var(--f-title); letter-spacing: .05em; color: var(--pompei-txt); }
@@ -124,8 +129,8 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
   .title .wrap { row-gap: 10px; }            /* meno aria sopra, così le due scelte stanno nella prima schermata */
   .scena { margin-top: 12px; gap: 8px; }
   .battuta { gap: 12px; }
-  .tipo { width: 54px; height: 66px; }
-  .tipo.gettone { width: 46px; height: 46px; margin: 0 4px 6px; }
+  .figura { width: 54px; height: 66px; }
+  .figura.gettone { width: 46px; height: 46px; margin: 0 4px 6px; }
   .voce-di { margin-bottom: 10px; }
   .fumetto { padding: 8px 11px; font-size: 17px; }
   .partenza { margin-top: 0; gap: 8px; }
@@ -397,7 +402,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .overworld { background: var(--panel); padding: 12px; margin-top: 14px; margin-bottom: 4px; }
 .overworld svg { display: block; width: 100%; height: auto; max-height: 76vh; }
 .overworld figcaption { margin-top: 8px; font-size: 15px; color: var(--dim); }
-.ow-fiume { fill: #3E6A8C; }
+.ow-fiume { fill: var(--fiume); }
 .ow-nome { fill: var(--dim); font: 400 14px var(--f-title) !important; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
 .ow-nodo.on .ow-nome { fill: var(--ocra) !important; }
 .ow-nodo:hover .ow-nome, .ow-nodo:focus-visible .ow-nome { fill: var(--ink); }
@@ -411,7 +416,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .ow-nodo.on rect:not(.ow-hit) { fill: var(--ocra); stroke: var(--ink); }
 .ow-nodo.on text { fill: var(--scuro); }
 .ow-io rect { fill: var(--pompei-txt); stroke: var(--scuro); stroke-width: 2; animation: lampeggia 1s steps(2) infinite; }
-.base-fiume { stroke: #3E6A8C; stroke-width: 7; fill: none; opacity: .9; }
+.base-fiume { stroke: var(--fiume); stroke-width: 7; fill: none; opacity: .9; }
 .base-quartiere { display: inline-block; transform: translate(-50%, -50%); white-space: nowrap; font: 400 15px/1 var(--f-title); color: var(--dim); opacity: .7; letter-spacing: .04em; pointer-events: none; }
 .map-gate { top: 12px; right: 12px; bottom: auto; left: auto; padding: 0; background: none; box-shadow: none; display: block; }
 .map-gate .btn { font-size: 13px; padding: 6px 10px; box-shadow: 0 0 0 3px var(--edge), inset -3px -3px 0 0 rgb(0 0 0 / .25); }

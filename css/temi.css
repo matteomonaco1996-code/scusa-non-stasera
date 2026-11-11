@@ -1,0 +1,54 @@
+/* Prova dei colori. Tre tavolozze da confrontare sul telefono: si accendono aggiungendo all'indirizzo del sito
+   ?tema=calmo, ?tema=notte oppure ?tema=carta (vedi js/tema.js). Senza parametro il sito resta com'è.
+   Finita la prova resta solo la tavolozza scelta, dentro stile.css. */
+
+/* In tutte e tre: le righe "da vecchio schermo" restano sul fondo della pagina e non passano più sopra i testi */
+:root[data-tema] body::after { display: none; }
+:root[data-tema] body { background-image: repeating-linear-gradient(to bottom, rgb(0 0 0 / .09) 0 1px, transparent 1px 3px); }
+
+/* ---------- A · CALMO: lo stesso bordeaux, meno acceso e un po' più scuro; i testi secondari non sono più rosa ---------- */
+:root[data-tema="calmo"] {
+  --bg: #5B161F; --panel: #441016; --panel-2: #300B0F; --pozzo: #270A0D; --edge: #1A0507; --scuro: #1A0507; --mappa: #150A0A;
+  --dim: #DED2C5; --pompei: #2E0A0E; --pompei-txt: #E6B9A4;
+  --via: #361F21; --via-media: #523335; --via-grande: #805756;
+}
+
+/* ---------- B · NOTTE: fondo scuro neutro; il bordeaux resta per testate, pulsanti secondari e righe ---------- */
+:root[data-tema="notte"] {
+  --bg: #140D0D; --panel: #261C1C; --panel-2: #57161D; --pozzo: #1A1312; --edge: #060404; --scuro: #130808; --mappa: #0C0808;
+  --dim: #CCC2B8; --pompei: #57161D; --pompei-txt: #F0A99F;
+  --via: #2D2424; --via-media: #473C3B; --via-grande: #74625F;
+}
+
+/* ---------- C · CARTA: cornice bordeaux, contenuti su carta crema con inchiostro scuro ---------- */
+:root[data-tema="carta"] {
+  --bg: #691421; --panel: #470F17; --panel-2: #380C12; --pozzo: #310C11; --dim: #EBDBCE;
+  --oro: #F2B632;                 /* l'oro vero, dove dentro la carta "--ocra" diventa bordeaux */
+}
+/* Tutto ciò che è carta: schede, finestre, tessere delle zone */
+:root[data-tema="carta"] :is(.card, dialog.finestra, .overworld, .empty, .dona-fondo, .leaflet-popup, .tab, .level, .pw) {
+  color-scheme: light; color: var(--ink);
+  --panel: #F9EFD8; --panel-2: #EDDEBE; --pozzo: #F2E5C9; --ink: #250E10; --dim: #5F4642;
+  --pompei: #F7CBC7; --pompei-txt: #913E20; --pino-txt: #1D5B2B; --cielo: #16558C;
+}
+/* Sulla carta l'accento è il bordeaux (l'oro sul crema non si legge) e sopra l'accento si scrive in crema */
+:root[data-tema="carta"] :is(.card, dialog.finestra, .overworld, .empty, .dona-fondo, .leaflet-popup) { --ocra: #821828; --scuro: #FFF3D6; }
+:root[data-tema="carta"] dialog.finestra, :root[data-tema="carta"] .dona-fondo { box-shadow: 0 0 0 4px var(--oro), 0 0 0 9999px rgb(0 0 0 / .6); }
+:root[data-tema="carta"] .dona-fondo { box-shadow: 0 0 0 3px var(--oro); }
+:root[data-tema="carta"] .acts { border-top-color: #D9C49A; }
+:root[data-tema="carta"] .pw:not([aria-pressed="true"]) .pxi { color: #821828; }
+:root[data-tema="carta"] .level .qui { color: #FFF3D6; }
+:root[data-tema="carta"] .voto-stelle label { color: rgb(37 14 16 / .25); }
+:root[data-tema="carta"] .ow-nodo:hover rect:not(.ow-hit), :root[data-tema="carta"] .ow-nodo:focus-visible rect:not(.ow-hit) { fill: #E0CCA0; }
+:root[data-tema="carta"] .ow-nodo.fatto text { fill: #FFF3D6; }
+/* La mappa: chiara come una carta stampata, con i segnaposto scuri */
+:root[data-tema="carta"] #mappa {
+  --mappa: #F3EBD7; --via: #D6C6AE; --via-media: #C4A892; --via-grande: #A86F66; --parco: #B7D5A8; --fiume: #82B1D3; --carto: chiara;
+}
+:root[data-tema="carta"] .pin { background: #16558C; box-shadow: 0 0 0 2px #FFF8E8; }
+:root[data-tema="carta"] .pin.breve { background: #821828; }
+:root[data-tema="carta"] .pin.nota { background: #F2B632; box-shadow: 0 0 0 2px #250E10; }
+:root[data-tema="carta"] .pin.visto { background: #2D6A39; }
+:root[data-tema="carta"] .pin.io { background: #250E10; }
+:root[data-tema="carta"] .pin-area:hover .pin, :root[data-tema="carta"] .pin-area:focus-visible .pin { box-shadow: 0 0 0 2px #FFF8E8, 0 0 0 4px #250E10; }
+:root[data-tema="carta"] .base-quartiere { color: #5F4642; opacity: .85; }
