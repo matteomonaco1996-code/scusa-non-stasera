@@ -87,21 +87,36 @@ la possibilità che qualcun altro agganci un proprio sito al tuo dominio.
 7. **Nel sito**: aggiorna `og:url` e `og:image` in `index.html` e, in Supabase, Site URL e Redirect URLs.
 8. **Se un giorno lasci scadere il dominio**: prima togli il dominio da GitHub Pages e le righe DNS.
 
-### Donazioni: la moneta “Lascia una moneta” (se la attivi)
+### Donazioni: la moneta “Lascia una moneta” (attiva dall’11 novembre 2026)
 
-Nel codice è pronta ma spenta: compare solo quando in `config.js` scrivi il link in `donazione`.
-Il sito non tratta pagamenti né dati di pagamento: la moneta è un semplice link alla pagina del
-servizio che scegli, che si apre in una nuova scheda. Prima di accenderla:
+Il link in `config.js` (`donazione`) porta a PayPal.Me. Il sito non tratta pagamenti né dati di pagamento:
+la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagina di PayPal in una nuova scheda.
 
-1. **Fisco**: ricevere denaro dal pubblico può essere reddito da dichiarare. Conta la sostanza: una
-   somma data senza nulla in cambio è una cosa, un compenso “per il servizio” un’altra; se diventa
-   abituale può servire la partita IVA. **Chiedi a un commercialista prima di attivarla** e tieni
-   traccia di quanto ricevi.
-2. **Volontarietà**: la moneta non deve mai essere una condizione per usare il sito, né dare vantaggi
-   nel gioco (punti, livelli, posti in più). Così resta una liberalità e non un acquisto.
-3. **Termini e privacy**: vanno aggiornati con una riga sulle donazioni e con il nome del servizio
-   usato, che tratta i dati di chi dona come titolare autonomo.
-4. **Costi**: sui piccoli importi la commissione fissa del servizio pesa molto; controlla le tariffe.
+**Già fatto nel sito**
+- Finestra con le informazioni prima di uscire verso PayPal: a chi va la somma, che è facoltativa, che non dà
+  nulla in cambio, che non siamo un ente benefico, che serve la maggiore età.
+- `termini.html` (punto 8) e `privacy.html` aggiornati alla versione 1.1; i dati che arrivano da PayPal
+  (nome, email, importo, messaggio) sono nel registro dei trattamenti dell’informativa.
+- Nessun vantaggio nel gioco per chi dona; nessuna richiesta che blocca l’uso del sito.
+
+**Da fare tu (non si risolve dal codice)**
+1. **Fisco**: ricevere denaro dal pubblico può essere reddito da dichiarare. Conta la sostanza: una somma data
+   senza nulla in cambio è una cosa, un compenso “per il servizio” un’altra; se diventa abituale può servire la
+   partita IVA. **Parlane con un commercialista** e tieni traccia di quanto ricevi.
+2. **Regole di PayPal**: PayPal distingue le donazioni dai trasferimenti tra amici e familiari e applica una
+   commissione (3,40% più una quota fissa). Leggi le “Regole sull’utilizzo consentito” di PayPal e verifica che il
+   tuo tipo di conto vada bene per ricevere donazioni dal pubblico; in dubbio, chiedilo a PayPal.
+3. **Indirizzo del gestore**: se il sito viene considerato un’attività economica, la legge sul commercio
+   elettronico (D.Lgs. 70/2003, art. 7) chiede di indicare anche un indirizzo fisico, non solo nome ed email.
+   Con le donazioni questo argomento si rafforza. Non è stato inserito: decidi con un professionista.
+4. **Rimborsi**: nei termini c’è l’impegno a restituire entro 14 giorni le donazioni fatte per errore.
+
+### Accettazione dei termini
+
+Alla prima visita, e quando cambia `versioneTermini` in `config.js`, compare una finestra in basso: finché non
+si preme “Accetto i termini” il gioco non parte. Nel browser si salva solo la versione accettata (`sns-termini`).
+Non è un banner per i cookie: il sito non usa cookie di tracciamento, quindi quel consenso non serve.
+Quando cambi termini o informativa in modo importante, alza i numeri di versione in `config.js` e nelle due pagine.
 
 ## 3. Da fare nel tempo
 

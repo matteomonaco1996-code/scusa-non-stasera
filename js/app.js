@@ -168,7 +168,16 @@
 
   // ---------- Moneta: donazione facoltativa. Compare solo se in config.js c'è un link https ----------
   const DONA = (() => { try { const u = new URL((window.SNS_CONFIG || {}).donazione || ""); return u.protocol === "https:" ? u.href : ""; } catch (e) { return ""; } })();
-  const moneta = () => DONA ? `<a class="moneta" href="${esc(DONA)}" ${EXT}><img src="img/gettone.svg" width="24" height="24" alt="">Lascia una moneta</a>` : "";
+  const moneta = () => DONA ? `<button class="moneta" type="button" data-moneta><img src="img/gettone.svg" width="24" height="24" alt="">Lascia una moneta</button>` : "";
+  // Con un link PayPal.Me l'importo si può mettere nell'indirizzo (…/2EUR): la pagina di PayPal si apre già compilata
+  const linkDona = (euro) => /^https:\/\/(www\.)?paypal\.me\//i.test(DONA) && euro ? DONA.replace(/\/+$/, "") + "/" + euro + "EUR" : DONA;
+  function apriMoneta() {
+    const importi = /^https:\/\/(www\.)?paypal\.me\//i.test(DONA) ? [1, 2, 5] : [];
+    $("#monete").innerHTML = importi.map((n) => `<a class="moneta-importo px" href="${esc(linkDona(n))}" ${EXT}><img src="img/gettone.svg" width="48" height="48" alt=""><b>${n} €</b></a>`).join("") +
+      `<a class="moneta-importo px" href="${esc(DONA)}" ${EXT}><img src="img/gettone.svg" width="48" height="48" alt=""><b>${importi.length ? "Altro" : "Vai"}</b></a>`;
+    $("#moneta-avviso").hidden = true;
+    const d = $("#dlg-moneta"); if (!d.open) d.showModal();
+  }
 
   // ---------- Filtri ----------
   function passa(x, salta) {
@@ -510,7 +519,11 @@
       if (mk) mk.openPopup(); else L.popup().setLatLng([x.la, x.lo]).setContent(popup(x)).openOn(m);
     }
     function posizione(p) { if (io) { m.removeLayer(io); io = null; } if (p) io = L.marker([p.la, p.lo], { icon: I.io, keyboard: false, zIndexOffset: 1000 }).bindTooltip("Tu").addTo(m); }
-    m.on("popupopen", (e) => { const a = e.popup.getElement().querySelector("[data-scheda]"); if (a) a.addEventListener("click", (ev) => { ev.preventDefault(); mostraScheda(+a.dataset.scheda); }); });
+    m.on("popupopen", (e) => {
+      const el = e.popup.getElement(), a = el.querySelector("[data-scheda]"), mo = el.querySelector("[data-moneta]");
+      if (a) a.addEventListener("click", (ev) => { ev.preventDefault(); mostraScheda(+a.dataset.scheda); });
+      if (mo) mo.addEventListener("click", apriMoneta);   // i clic dentro i fumetti non arrivano al documento
+    });
     addEventListener("resize", () => m.invalidateSize());
     return { aggiorna, vai, posizione, mostra, chiudi: () => m.closePopup(), ridisegna: () => aggiorna(ultima, false) };
   })();
@@ -749,7 +762,18 @@
       if (document.visibilityState !== "visible" || !inAttesa) return;
       inAttesa = false; giaMostrato = true; $("#toast").hidden = true; $("#moneta-avviso").hidden = false;
     });
-    $("#moneta-avviso").addEventListener("click", (e) => { if (e.target.closest("button, a")) $("#moneta-avviso").hidden = true; });
+    $("#moneta-avviso").addEventListener("click", (e) => { if (e.target.closest("button")) $("#moneta-avviso").hidden = true; });
+    document.addEventListener("click", (e) => { if (e.target.closest("[data-moneta]")) apriMoneta(); });
+  }
+
+  // Termini: alla prima visita, e ogni volta che cambiano, vanno accettati prima di giocare.
+  // Si ricorda solo la versione accettata, nel browser. Privacy e termini restano leggibili senza accettare.
+  const VER_TERMINI = (window.SNS_CONFIG || {}).versioneTermini || "1";
+  if (memoria.get("sns-termini") !== VER_TERMINI) {
+    const d = $("#dlg-termini");
+    d.addEventListener("cancel", (e) => e.preventDefault());   // Esc non basta: serve una scelta esplicita
+    $("#termini-ok").addEventListener("click", () => { memoria.set("sns-termini", VER_TERMINI); d.close(); });
+    d.showModal();
   }
 
   // ---------- Avvio ----------
