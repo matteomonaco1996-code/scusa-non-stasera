@@ -261,7 +261,7 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .tipo .pxi { font-size: 16px; }
 .quart { color: var(--ink); font-weight: 600; }
 .addr { font-size: 15px; color: var(--dim); overflow-wrap: anywhere; }
-.say { background: var(--pozzo); padding: 8px 10px; font-size: 16px; line-height: 1.35; }
+.say { background: var(--pozzo); padding: 8px 10px; font-size: 16px; line-height: 1.35; white-space: pre-line; }   /* le note possono andare a capo: una riga per idea */
 .say b { font: 400 15px/1.4 var(--f-title); color: var(--pompei-txt); margin-right: 8px; letter-spacing: .03em; }
 .say.breve b { color: var(--ocra); }
 .stelle { color: var(--ocra); font: 400 19px/1.2 var(--f-title); }
