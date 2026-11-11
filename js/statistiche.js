@@ -23,6 +23,11 @@
     ["posizione_si", "Posizione trovata"], ["posizione_no", "Posizione non trovata"], ["livello", "Quartiere scelto"],
     ["gettone", "Gettoni inseriti"], ["portami", "“Portami lì” toccato"], ["vai", "Indicazioni aperte"], ["maps", "“Apri su Maps”"],
   ];
+  // “Proponilo”: chi propone un posto e che cosa fa chi riceve il link
+  const INVITI = [
+    ["invito_apri", "“Proponilo” aperto"], ["invito_manda", "Invio toccato"], ["invito_arriva", "Inviti aperti da chi li riceve"],
+    ["invito_si", "“Ci sto!”"], ["invito_altro", "Controproposta"], ["invito_no", "“Un’altra volta”"], ["invito_risposta", "Risposta: invio toccato"],
+  ];
   const FONTI = {
     da_diretto: "Link diretto", da_google: "Google", da_instagram: "Instagram", da_facebook: "Facebook", da_whatsapp: "WhatsApp",
     da_tiktok: "TikTok", da_telegram: "Telegram", da_qr: "Codice QR", da_volantino: "Volantino", da_amici: "Amici", da_altro: "Altri siti",
@@ -57,7 +62,8 @@
       const visite = Math.round((14 + (179 - i) * 0.22) * (d === 5 || d === 6 ? 1.7 : d === 0 ? 1.3 : 1) * (0.7 + caso() * 0.6));
       const parte = (q) => Math.round(visite * q * (0.6 + caso() * 0.8));
       const r = { visita: visite, termini_ok: parte(0.55), start: parte(0.4), posizione_si: parte(0.27), posizione_no: parte(0.1), livello: parte(0.5),
-        gettone: parte(0.45), portami: parte(0.3), vai: parte(0.27), maps: parte(0.12), dona_apri: parte(0.02), dona_1: parte(0.012), dona_2: parte(0.008), dona_5: parte(0.004), dona_altro: parte(0.003) };
+        gettone: parte(0.45), portami: parte(0.3), vai: parte(0.27), maps: parte(0.12),
+        invito_apri: parte(0.08), invito_manda: parte(0.05), invito_arriva: parte(0.04), invito_si: parte(0.02), invito_altro: parte(0.008), invito_no: parte(0.004), invito_risposta: parte(0.022), dona_apri: parte(0.02), dona_1: parte(0.012), dona_2: parte(0.008), dona_5: parte(0.004), dona_altro: parte(0.003) };
       let resto = visite;
       for (const [f, q] of [["da_instagram", 0.34], ["da_qr", 0.12], ["da_google", 0.08], ["da_whatsapp", 0.07], ["da_altro", 0.03]]) { const n = Math.min(resto, parte(q)); r[f] = n; resto -= n; }
       r.da_diretto = resto;
@@ -230,6 +236,7 @@
     disegnaBarre($("#b-azioni"), AZIONI.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "delle aperture" }, visite);
     const fonti = Object.keys(FONTI).map((e) => ({ nome: FONTI[e], n: somma([e], dal, al) })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n);
     disegnaBarre($("#b-fonti"), fonti, { fmt: (n) => fmtN.format(n), di: "delle visite", quotaInRiga: true }, fonti.reduce((s, r) => s + r.n, 0));
+    disegnaBarre($("#b-inviti"), INVITI.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "" }, 0);
     disegnaBarre($("#b-monete"), MONETE.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "" }, 0);
     disegnaDonazioni(p);
   }

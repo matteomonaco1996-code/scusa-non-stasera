@@ -48,7 +48,8 @@ language sql immutable as $$
     'da_qr', 'da_volantino', 'da_amici', 'da_altro',
     'start', 'posizione_si', 'posizione_no', 'livello', 'gettone',
     'portami', 'vai', 'maps',
-    'dona_apri', 'dona_1', 'dona_2', 'dona_5', 'dona_altro'
+    'dona_apri', 'dona_1', 'dona_2', 'dona_5', 'dona_altro',
+    'invito_apri', 'invito_manda', 'invito_arriva', 'invito_si', 'invito_no', 'invito_altro', 'invito_risposta'
   ]
 $$;
 

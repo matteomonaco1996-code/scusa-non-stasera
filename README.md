@@ -80,7 +80,7 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | --- | --- |
 | `index.html` | La pagina (solo HTML: niente script inline, per la Content Security Policy) |
 | `css/stile.css`, `js/app.js`, `js/conto.js` | Stile, gioco, account e punti |
-| `config.js` | Indirizzo e chiave pubblica di Supabase (vuoti = account disattivati) |
+| `config.js` | Indirizzo e chiave pubblica di Supabase (vuoti = account disattivati), link per la moneta, inviti accesi o spenti (`inviti`) |
 | `privacy.html`, `termini.html` | Informativa privacy e termini d’uso (da completare con i tuoi dati) |
 | `supabase/schema.sql` | Tabelle, regole di sicurezza e funzioni del database |
 | `supabase/luoghi.sql` | Posti da caricare nel database (generato) |
@@ -159,6 +159,14 @@ nulla. Quando c'è, “Dona una moneta” compare, ben in vista: come voce del m
 alla pagina, nel fumetto di ogni posto sulla mappa e nel risultato del gettone (un pulsante con il bordo d'oro). In più, toccando “Portami lì” si apre prima la finestra **Prima di andare**:
 in cima il pulsante “Vai al posto” (che apre le indicazioni), sotto le monete. `monetaPrima` in `config.js`
 decide quando: `"sempre"` (ogni volta), `"una"` (una volta per visita), `"mai"`. Vedi `LEGALE_E_SICUREZZA.md`.
+
+### Inviti: “Proponilo”
+
+Su ogni scheda e nel risultato del gettone c'è “Proponilo”: apre una finestra con un messaggio pronto (“Stasera qui?
+Enoteca Corsi, Pantheon. Ci stai?” più un link) da mandare con la condivisione del telefono, con WhatsApp o copiandolo.
+Il link è `https://ristomat.click/?posto=<numero del posto>&m=<momento>&da=amici`: chi lo apre vede quel posto e può
+rispondere “Ci sto!”, dire di no, o pescare un altro posto nella stessa zona e rimandarlo (“Meglio qui?”, con `&r=1`).
+Il sito non riceve e non salva nulla: né messaggi né destinatari. `inviti: false` in `config.js` lo spegne.
 
 ### Indirizzo del sito: https://ristomat.click
 

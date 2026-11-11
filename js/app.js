@@ -215,6 +215,7 @@
   // Prima di aprire le indicazioni verso un posto: una finestra con "Vai al posto" in cima e, sotto, la moneta.
   // In config.js, monetaPrima = "sempre" (ogni volta), "una" (una volta per visita) oppure "mai".
   const PRIMA = (window.SNS_CONFIG || {}).monetaPrima || "sempre";
+  const INVITI = (window.SNS_CONFIG || {}).inviti !== false;   // "Proponilo": l'invito da mandare a qualcuno
   let giaChiesto = false;
   // Restituisce true se ha fermato il clic per mostrare la finestra.
   function primaDiAndare(e, a) {
@@ -410,6 +411,7 @@
       <div class="acts">
         <a class="vai" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a>
         <a href="${linkMaps(x)}" ${EXT}>Apri su Maps</a>
+        ${INVITI ? `<button type="button" class="proponi" data-invita="${x.i}">Proponilo</button>` : ""}
       </div>
     </article>`;
   }
@@ -468,12 +470,12 @@
   // I momenti della giornata: la domanda di Gaia, il "no" che le risponde a tono (di sera è il nome del sito)
   // e i tipi di posto che hanno senso a quell'ora (per il gettone)
   const MOMENTI = [
-    { da: 6, a: 11, nome: "colazione", domanda: "Colazione insieme?", no: "Scusa, non stamattina…", tipi: ["dolce", "bottega"] },
-    { da: 11, a: 15, nome: "pranzo", domanda: "Pranziamo insieme?", no: "Scusa, non oggi…", tipi: ["trattoria", "ristorante", "pizza", "street", "pesce", "carne", "mondo"] },
-    { da: 15, a: 18, nome: "merenda o aperitivo", domanda: "Aperitivo dopo?", no: "Scusa, non stasera…", tipi: ["dolce", "bottega", "street", "vino", "bar"] },
-    { da: 18, a: 23, nome: "sera", domanda: "Usciamo stasera?", no: "Scusa, non stasera…", tipi: ["trattoria", "ristorante", "pizza", "pesce", "carne", "mondo", "vino", "bar", "street"] },
+    { da: 6, a: 11, k: "c", breve: "Colazione", qui: "Colazione qui?", nome: "colazione", domanda: "Colazione insieme?", no: "Scusa, non stamattina…", tipi: ["dolce", "bottega"] },
+    { da: 11, a: 15, k: "p", breve: "Pranzo", qui: "Pranzo qui?", nome: "pranzo", domanda: "Pranziamo insieme?", no: "Scusa, non oggi…", tipi: ["trattoria", "ristorante", "pizza", "street", "pesce", "carne", "mondo"] },
+    { da: 15, a: 18, k: "a", breve: "Aperitivo", qui: "Aperitivo qui?", nome: "merenda o aperitivo", domanda: "Aperitivo dopo?", no: "Scusa, non stasera…", tipi: ["dolce", "bottega", "street", "vino", "bar"] },
+    { da: 18, a: 23, k: "s", breve: "Stasera", qui: "Stasera qui?", nome: "sera", domanda: "Usciamo stasera?", no: "Scusa, non stasera…", tipi: ["trattoria", "ristorante", "pizza", "pesce", "carne", "mondo", "vino", "bar", "street"] },
   ];
-  const NOTTE = { nome: "dopocena", domanda: "Un ultimo bicchiere?", no: "Scusa, non stasera…", tipi: ["bar", "vino", "street", "dolce"] };
+  const NOTTE = { k: "n", breve: "Ultimo bicchiere", qui: "Un ultimo bicchiere qui?", nome: "dopocena", domanda: "Un ultimo bicchiere?", no: "Scusa, non stasera…", tipi: ["bar", "vino", "street", "dolce"] };
   const momento = () => { const h = new Date().getHours(); return MOMENTI.find((m) => h >= m.da && h < m.a) || NOTTE; };
   function rispondi(x) {
     const b = $("#bolla");
@@ -793,7 +795,7 @@
     clearInterval(gt.timer); clearTimeout(tCerca);
     document.querySelectorAll("dialog[open]").forEach((d) => d.close());
     Object.assign(stato, INIZIO);
-    gt.usciti.clear(); gt.ovunque = false; gt.ora = true;
+    gt.usciti.clear(); gt.ovunque = false; gt.ora = true; inv.rilancio = false;
     $("#q").value = "";
     mappa.posizione(null); mappa.chiudi();
     impostaVista("lista");
@@ -885,6 +887,7 @@
         ${nota(x)}
         ${via(x) ? `<div class="addr">${esc(via(x))}</div>` : ""}
         <div class="get-acts"><a class="btn" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><button class="btn alt" type="button" data-get="ancora" ${n < 2 ? "disabled" : ""}>Altro gettone</button></div>
+        ${INVITI ? `<div class="get-acts"><button class="btn alt" type="button" data-get="invita">Proponilo: ${esc(inv.rilancio ? "Meglio qui?" : g.mom.qui)}</button></div>` : ""}
         <div class="get-link"><button class="link" type="button" data-get="mappa">Vedi sulla mappa</button><button class="link" type="button" data-get="scheda">Apri la scheda</button></div>
         ${DONA ? `<p class="moneta-riga">${moneta()}<small>Donazione facoltativa a Matteo, che cura il sito.</small></p>` : ""}
         <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? "È l’unico posto in gioco: cambia livello o power-up per pescarne altri." : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
@@ -903,6 +906,7 @@
     const d = $("#dlg-gettone");
     if (cosa === "guida") return finestraPosizione(b.dataset.fase);
     if (cosa === "ancora") return gettone();
+    if (cosa === "invita") return proponi(gt.x);
     if (cosa === "ovunque") { gt.ovunque = true; return gettone(); }
     if (cosa === "ora") { gt.ora = !gt.ora; return gettone(); }
     if (cosa === "livello") { d.close(); scorri($("#sez-mondi")); return toast(stato.mondo === "roma" ? "Tocca un quartiere, poi rimetti il gettone." : "Scegli una località, poi rimetti il gettone."); }
@@ -914,6 +918,154 @@
       if (!d.open) return;
       if (err) chiediDove(err); else gettone();
     }
+  }
+
+  // ---------- Inviti: "Stasera qui?" ----------
+  // Proponi un posto a qualcuno: parte un messaggio con un link; chi lo apre vede quel posto e risponde "Ci sto!"
+  // oppure ne propone un altro. Tutto passa dall'app di messaggi di chi scrive: il sito non riceve né salva
+  // messaggi, destinatari o risposte. Nel link ci sono solo il numero del posto e il momento della giornata.
+  const QUANDO = [...MOMENTI, NOTTE];
+  const quandoDi = (k) => QUANDO.find((m) => m.k === k);
+  const inv = { x: null, k: "", contro: false, testo: "", fase: "", da: null, rilancio: false };   // posto e momento scelti; l'invito ricevuto (da); se stai rilanciando con un altro posto
+  function linkInvito(x, k, contro) {
+    const u = new URL(location.href);
+    u.search = ""; u.hash = "";
+    u.searchParams.set("posto", x.id); u.searchParams.set("m", k);
+    if (contro) u.searchParams.set("r", "1");
+    u.searchParams.set("da", "amici");
+    return u.href;
+  }
+  const doveSta = (x) => (luogo(x) ? ", " + luogo(x) : "");
+  // Il messaggio pronto e i modi per mandarlo: la condivisione del telefono (se c'è), WhatsApp, copia e incolla
+  function invio(testo) {
+    inv.testo = testo;
+    return `<p class="messaggio" id="inv-testo">${esc(testo)}</p>
+      <div class="get-acts">
+        ${navigator.share ? `<button class="btn" type="button" data-inv="condividi" autofocus>▶ Invia</button>` : ""}
+        <a class="btn${navigator.share ? " alt" : ""}" href="https://wa.me/?text=${encodeURIComponent(testo)}" ${EXT} data-inv="whatsapp"${navigator.share ? "" : " autofocus"}>WhatsApp</a>
+        <button class="btn alt" type="button" data-inv="copia">Copia il messaggio</button>
+      </div>
+      <p class="errore" id="inv-avviso" role="status" hidden></p>`;
+  }
+  // Chi propone
+  function proponi(x) {
+    if (!INVITI || !x) return;
+    Object.assign(inv, { x, contro: inv.rilancio, k: inv.rilancio && inv.da ? inv.da.k : momento().k });
+    conta("invito_apri");
+    schermoManda();
+    const d = $("#dlg-invito"); if (!d.open) d.showModal();
+  }
+  function schermoManda() {
+    const { x, k, contro } = inv;
+    inv.fase = "manda";
+    $("#inv-t").textContent = "PROPONILO";
+    $("#inv-corpo").innerHTML = `<span class="eti">${contro ? "LA TUA CONTROPROPOSTA" : "MANDALO A CHI VUOI"}</span>
+      <div class="rullo">${esc(x.n)}</div>
+      ${contro ? "" : `<div class="quando" role="group" aria-label="Per quando?">${QUANDO.map((m) => `<button type="button" data-inv="quando" data-k="${m.k}" aria-pressed="${m.k === k}">${m.breve}</button>`).join("")}</div>`}
+      ${invio(`${contro ? "Meglio qui?" : quandoDi(k).qui} ${x.n}${doveSta(x)}. Ci stai?\n${linkInvito(x, k, contro)}`)}
+      <p class="get-info">Chi lo riceve apre il sito su questo posto e ti risponde «Ci sto!», oppure te ne propone un altro. Il sito non salva il messaggio né a chi lo mandi.</p>`;
+  }
+  // Chi riceve
+  function schermoInvito() {
+    const { x, k, contro } = inv.da;
+    $("#inv-t").textContent = (contro ? "Meglio qui?" : quandoDi(k).qui).toUpperCase();
+    $("#inv-corpo").innerHTML = `<span class="eti">${contro ? "TI RISPONDONO CON UN ALTRO POSTO" : "TI HANNO PROPOSTO UN POSTO"}</span>
+      <div class="rullo">${esc(x.n)}</div>
+      <div class="meta"><span class="tipo">${svg(PW[x.t][1])}${esc(PW[x.t][0])}</span><span class="quart">${esc(luogo(x))}</span></div>
+      ${nota(x)}
+      ${via(x) ? `<div class="addr">${esc(via(x))}</div>` : ""}
+      <div class="get-acts"><button class="btn" type="button" data-inv="si" autofocus>Ci sto!</button><button class="btn alt" type="button" data-inv="no">${esc(quandoDi(k).no)}</button></div>
+      <div class="get-link"><button class="link" type="button" data-inv="mappa">Vedi sulla mappa</button><button class="link" type="button" data-inv="scheda">Apri la scheda</button></div>
+      <p class="get-info">Il sito non sa chi ti ha scritto né che cosa rispondi: la risposta parte dal tuo telefono.</p>`;
+  }
+  function schermoNo() {
+    const { x, k } = inv.da, zona = luogo(x);
+    $("#inv-t").textContent = "ANZI SÌ?";
+    $("#inv-corpo").innerHTML = `<p class="get-dom">${esc(quandoDi(k).no)}</p>
+      <div class="get-scelte">
+        <button type="button" class="px primo" data-inv="altro"><b>▶ Anzi sì: ne propongo un altro</b><small>Pesco un posto ${zona ? (x.m === "roma" && x.l !== "Periferia" ? "in zona " : "a ") + esc(zona) : "lì vicino"} e glielo mando</small></button>
+        <button type="button" class="px" data-inv="passo"><b>No, stavolta passo</b><small>Rispondo che facciamo un’altra volta</small></button>
+      </div>
+      <p class="get-info"><button class="link" type="button" data-inv="invito">◀ Torna all’invito</button></p>`;
+  }
+  function schermoRisposta(si) {
+    const { x, k } = inv.da;
+    inv.fase = "risposta";
+    $("#inv-t").textContent = si ? "CI STO!" : "UN’ALTRA VOLTA";
+    $("#inv-corpo").innerHTML = `<span class="eti">LA TUA RISPOSTA</span>
+      ${invio(si ? `Ci sto! ${x.n}${doveSta(x)}: ci vediamo lì.` : `${quandoDi(k).no} Facciamo un’altra volta?`)}
+      ${si ? `<div class="get-acts"><a class="btn alt" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a></div>` : ""}
+      <p class="get-info"><button class="link" type="button" data-inv="invito">◀ Torna all’invito</button></p>`;
+  }
+  // Porta il sito nella zona di quel posto (serve per mappa, scheda e controproposta)
+  function portaA(x) {
+    Object.assign(stato, { mondo: x.m, livello: x.l === "Periferia" ? "" : (x.l || ""), vicino: false, voglia: "", q: "" });
+    $("#q").value = "";
+    aggiorna();
+  }
+  async function copia(testo) {
+    try { await navigator.clipboard.writeText(testo); return true; } catch (e) { /* si prova alla vecchia maniera */ }
+    try {
+      const a = document.createElement("textarea");
+      a.value = testo; a.setAttribute("readonly", ""); a.style.position = "fixed"; a.style.opacity = "0";
+      $("#dlg-invito").appendChild(a); a.select();
+      const fatto = document.execCommand("copy");
+      a.remove();
+      return fatto;
+    } catch (e) { return false; }
+  }
+  async function azioneInvito(cosa, b) {
+    const d = $("#dlg-invito"), avviso = (t) => { const a = $("#inv-avviso"); if (a) { a.textContent = t; a.hidden = !t; } };
+    const manda = () => conta(inv.fase === "risposta" ? "invito_risposta" : "invito_manda");
+    if (cosa === "quando") { inv.k = b.dataset.k; return schermoManda(); }
+    if (cosa === "whatsapp") return manda();   // è un link: si apre da solo
+    if (cosa === "condividi") {
+      manda();
+      try { await navigator.share({ text: inv.testo }); } catch (e) { if (!e || e.name !== "AbortError") avviso("Qui la condivisione non parte: usa WhatsApp o copia il messaggio."); }
+      return;
+    }
+    if (cosa === "copia") {
+      manda();
+      if (!(await copia(inv.testo))) return avviso("Non riesco a copiarlo: tieni premuto sul messaggio qui sopra e copialo a mano.");
+      const prima = b.textContent; b.textContent = "Copiato ✓"; setTimeout(() => { if (b.isConnected) b.textContent = prima; }, 2000);
+      return;
+    }
+    if (!inv.da) return;
+    const x = inv.da.x;
+    if (cosa === "invito") return schermoInvito();
+    if (cosa === "si") { conta("invito_si"); return schermoRisposta(true); }
+    if (cosa === "no") return schermoNo();
+    if (cosa === "passo") { conta("invito_no"); return schermoRisposta(false); }
+    if (cosa === "mappa") { d.close(); portaA(x); mostraSuMappa(x.i); if (!mobile()) scorri($(".bar")); return; }
+    if (cosa === "scheda") { d.close(); portaA(x); return mostraScheda(x.i); }
+    if (cosa === "altro") {   // controproposta: un gettone nella stessa zona, senza ripescare il posto proposto
+      conta("invito_altro");
+      d.close(); portaA(x);
+      gt.usciti.add(x.i); inv.rilancio = true;
+      scorri($(".bar"));
+      return gettone();
+    }
+  }
+  // Un invito in arrivo: ?posto=<numero del posto>&m=<momento>[&r=1 se è una controproposta]
+  const arrivato = (() => {
+    if (!INVITI) return null;
+    let p;
+    try { p = new URLSearchParams(location.search); } catch (e) { return null; }
+    const id = p.get("posto");
+    return id ? { x: perId.get(id) || null, k: (quandoDi(p.get("m")) || momento()).k, contro: p.get("r") === "1", visto: false } : null;
+  })();
+  // Che cosa mostrare per primo: l'invito, se sei arrivato da un invito; altrimenti la domanda sulla posizione
+  function accogli() {
+    if ($("#dlg-termini").open) return;            // prima i termini: poi si riparte da qui
+    if (!arrivato || arrivato.visto) return proponiPosizione();
+    arrivato.visto = true;
+    // L'indirizzo torna pulito: ricaricando la pagina o tornando indietro l'invito non si riapre da solo
+    try { const u = new URL(location.href); ["posto", "m", "r"].forEach((k) => u.searchParams.delete(k)); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* non indispensabile */ }
+    if (!arrivato.x) { toast("Questo invito non vale più: quel posto non è nella lista."); return proponiPosizione(); }
+    inv.da = arrivato;
+    conta("invito_arriva");
+    schermoInvito();
+    $("#dlg-invito").showModal();
   }
 
   // ---------- Interfaccia per js/conto.js ----------
@@ -1040,6 +1192,7 @@
   $("#ow-svg").addEventListener("keydown", (e) => { const n = e.target.closest("[data-livello]"); if (n && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); scegliLivello(n.dataset.livello); } });
   $("#get-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-get]"); if (b) azioneGettone(b.dataset.get, b); });
   $("#pos-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-pos]"); if (b) azionePosizione(b.dataset.pos); });
+  $("#inv-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-inv]"); if (b) azioneInvito(b.dataset.inv, b); });
   // Chiusa senza posizione (non ora, Chiudi, Esc): si ricorda, così alla prossima visita non viene riproposta
   $("#dlg-posizione").addEventListener("close", () => { if (!stato.pos) memoria.set("sns-posizione", "no"); });
   $("#dlg-gettone").addEventListener("close", () => clearInterval(gt.timer));
@@ -1047,6 +1200,8 @@
     if (e.target.closest("[data-restart]")) return restart();
     const lv = e.target.closest("[data-livello]");
     if (lv) return scegliLivello(lv.dataset.livello);
+    const pr = e.target.closest("[data-invita]");
+    if (pr) return proponi(DATA[+pr.dataset.invita]);
     const b = e.target.closest("[data-mappa]");
     if (b) mostraSuMappa(+b.dataset.mappa);
   });
@@ -1075,7 +1230,8 @@
   if (memoria.get("sns-termini") !== VER_TERMINI) {
     const d = $("#dlg-termini");
     d.addEventListener("cancel", (e) => e.preventDefault());   // Esc non basta: serve una scelta esplicita
-    $("#termini-ok").addEventListener("click", () => { memoria.set("sns-termini", VER_TERMINI); d.close(); conta("termini_ok"); proponiPosizione(); });
+    if (arrivato && arrivato.x) $("#ter-invito").hidden = false;
+    $("#termini-ok").addEventListener("click", () => { memoria.set("sns-termini", VER_TERMINI); d.close(); conta("termini_ok"); accogli(); });
     d.showModal();
   }
 
@@ -1086,7 +1242,7 @@
   $("#agg").textContent = META.aggiornato ? fmtGiorno.format(new Date(META.aggiornato + "T12:00:00")) : "";
   document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });
   aggiorna();
-  if (!percorso.avvio()) proponiPosizione();   // se si riprende da dove si era, niente finestra in mezzo
+  if (!percorso.avvio()) accogli();   // se si riprende da dove si era, niente finestra in mezzo
   // Una visita = un'apertura del sito. Ricaricare la pagina o tornare indietro non conta di nuovo.
   const arrivo = ((performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {}).type;
   if (arrivo !== "reload" && arrivo !== "back_forward") conta("visita", "da_" + provenienza());

@@ -20,7 +20,10 @@ window.SNS_CONFIG = {
   // Quando ricordare la moneta prima di aprire le indicazioni ("Portami lì"):
   // "sempre" = ogni volta, "una" = una volta sola per visita, "mai" = mai (la moneta resta negli altri punti).
   monetaPrima: "sempre",
+  // "Proponilo": il pulsante per mandare un posto a qualcuno ("Stasera qui?") con un link al sito.
+  // false = il pulsante non compare e i link di invito aprono il sito normale.
+  inviti: true,
   // Versioni dei documenti accettati alla registrazione: aggiornale se cambi privacy.html o termini.html.
   versioneTermini: "1.1",
-  versionePrivacy: "1.4",
+  versionePrivacy: "1.5",
 };

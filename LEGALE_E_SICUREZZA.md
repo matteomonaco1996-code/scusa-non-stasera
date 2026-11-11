@@ -106,6 +106,19 @@ la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagi
   `monetaPrima: "una"` (una volta per visita) oppure `"mai"`. Non renderlo mai obbligatorio e non nascondere
   “Vai al posto”: un invito a donare che ostacola il servizio diventa una pratica scorretta verso chi usa il sito.
 
+### Inviti: “Proponilo” (dal 12 novembre 2026)
+
+- Su ogni scheda e dopo il gettone c’è “Proponilo”: prepara un messaggio (“Stasera qui?”, il nome del posto, un link)
+  che l’utente manda da sé con la condivisione del telefono, WhatsApp o copia e incolla. Chi apre il link vede il
+  posto e può rispondere “Ci sto!”, rifiutare o proporne un altro.
+- **Il sito non riceve nulla**: né il messaggio, né il destinatario, né la risposta. Nel link ci sono solo il numero
+  del posto e il momento della giornata. Per questo non servono account, moderazione o nuovi trattamenti di dati:
+  è spiegato in `privacy.html` (versione 1.5, sezione “Proporre un posto a qualcuno”).
+- Nel link **non si può scrivere testo libero** (nomi, messaggi): è voluto, così nessuno può far comparire sul sito
+  frasi scritte da lui. Se in futuro si vuole aggiungere “da parte di…”, va ripensato questo punto.
+- Per spegnerlo: `inviti: false` in `config.js`. I pulsanti spariscono e i vecchi link aprono il sito normale.
+
+
 **Da fare tu (non si risolve dal codice)**
 1. **Fisco**: ricevere denaro dal pubblico può essere reddito da dichiarare. Conta la sostanza: una somma data
    senza nulla in cambio è una cosa, un compenso “per il servizio” un’altra; se diventa abituale può servire la
