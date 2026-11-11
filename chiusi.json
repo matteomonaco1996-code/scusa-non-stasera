@@ -1,4 +1,6 @@
 {
  "_istruzioni": "Posti che hanno chiuso e non vanno mostrati sul sito, anche se restano nella lista di Google Maps. Chiave = id del locale (o nome esatto). Valore = perché e da quale fonte. Per rimetterne uno, cancella la sua riga.",
- "14116146777627576109": "Circoletto Roma, via dei Cerchi 55: chiuso secondo Gambero Rosso del 2 gennaio 2025 (titolo: «Chiude Circoletto…», al suo posto una pizza al taglio). Articolo non letto per intero: https://www.gamberorosso.it/notizie/chiude-circoletto-roma-pizza-taglio-pantera/"
+ "14116146777627576109": "Circoletto Roma, via dei Cerchi 55: chiuso secondo Gambero Rosso del 2 gennaio 2025 (titolo: «Chiude Circoletto…», al suo posto una pizza al taglio). Articolo non letto per intero: https://www.gamberorosso.it/notizie/chiude-circoletto-roma-pizza-taglio-pantera/",
+ "14047136819904909949": "Burgez, via Candia 6: chiuso. Confermato da Matteo l'11 novembre 2026.",
+ "5494162308835015370": "BAUHAUS ROME, piazza Eugenio Biffi 3: chiuso; nello stesso spazio ora c'è Inferno Pizza Bar. Confermato da Matteo l'11 novembre 2026."
 }
