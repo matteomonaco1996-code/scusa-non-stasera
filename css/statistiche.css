@@ -37,6 +37,16 @@ body:has(.mon) { background: var(--panel-2); }
 .mon-filtri .seg button:focus-visible { outline: 3px solid var(--ocra); outline-offset: 2px; }
 .mon-periodo { color: var(--g-testo2); font-size: 15px; flex: 1 1 auto; }
 
+/* Donazioni: la scheda in evidenza, con il numero che conta di più scritto grande */
+.mon-dona { box-shadow: 0 0 0 4px var(--ocra); margin: 4px; gap: 18px; }
+.mon-eroe { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 16px 32px; align-items: end; }
+.mon-grande { display: grid; gap: 2px; }
+.mon-grande .eti { font-size: 16px; color: var(--g-testo2); }
+.mon-grande .val { font: 600 clamp(48px, 11vw, 68px)/1.05 var(--f-text); color: var(--g-testo); }
+.mon-grande .delta { font-size: 15px; color: var(--g-testo2); }
+@media (max-width: 760px) { .mon-eroe { grid-template-columns: minmax(0, 1fr); } }
+.mon-titolo { margin: 10px 0 -6px; }
+
 /* Numeri in evidenza */
 .mon-numeri { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
 .mon-numero { background: var(--g-scheda); padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
@@ -84,11 +94,11 @@ body:has(.mon) { background: var(--panel-2); }
 .mon-tabella td:last-child, .mon-tabella th:last-child { text-align: right; padding-right: 8px; }
 
 /* Donazioni segnate a mano */
-.mon-totali { margin: 0 0 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mon-totali { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; }
 .mon-totali div { background: var(--g-fondo); padding: 8px 10px; }
 .mon-totali dt { font-size: 13px; color: var(--g-testo2); }
 .mon-totali dd { margin: 0; font: 600 20px/1.3 var(--f-text); }
-.mon-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 14px; margin-top: 14px; padding: 4px; }
+.mon-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 14px; padding: 4px; }
 .mon-form input { width: 100%; box-sizing: border-box; }
 .mon-form input[type="date"] {
   color-scheme: dark; min-height: 44px; padding: 8px 12px; border: 0; background: var(--panel); color: var(--ink); font: inherit; font-size: 16px;
@@ -98,9 +108,10 @@ body:has(.mon) { background: var(--panel-2); }
 .mon-form .errore, .mon-form small { grid-column: 1 / -1; margin: 0; }
 .mon-form .btn { min-height: 44px; }
 @media (max-width: 420px) { .mon-form { grid-template-columns: minmax(0, 1fr); } }
-.mon-elenco { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 2px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.mon-elenco { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 15px; font-variant-numeric: tabular-nums; }
 .mon-elenco li { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 5px 6px; border-bottom: 1px solid var(--g-griglia); }
 .mon-elenco b { font-weight: 600; }
+.mon-elenco .niente { display: block; border: 0; color: var(--g-testo2); }
 
 .mon-come ul { margin: 0; padding-left: 22px; display: grid; gap: 8px; color: var(--g-testo2); font-size: 15px; }
 .mon-come b { color: var(--g-testo); font-weight: 600; }

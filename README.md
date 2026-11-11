@@ -113,9 +113,14 @@ Le regole e il giro completo sono in `strumenti/DESCRIZIONI.md`. I posti cercati
 
 ### Monitoraggio: visite, clic e donazioni
 
-`statistiche.html` (non è collegata dal gioco e non va nei motori di ricerca) mostra quante volte il sito viene
-aperto, da dove arrivano le visite, quali pulsanti si toccano, i tocchi sulle monete e le donazioni che Matteo
-segna a mano copiandole da PayPal. Con `?esempio` in fondo all'indirizzo mostra numeri inventati.
+`statistiche.html` (non è collegata dal gioco e non va nei motori di ricerca) mostra per prime le donazioni che
+Matteo segna a mano copiandole da PayPal, con i tocchi sulle monete; sotto, quante volte il sito viene aperto, da
+dove arrivano le visite e quali pulsanti si toccano. A chi non è entrato con l'email di chi gestisce il sito la
+pagina mostra solo la richiesta di accesso: nessun numero e nessuna descrizione di che cosa c'è dentro.
+L'esempio con numeri inventati (`?esempio`) funziona solo in prova sul proprio computer (localhost).
+
+Il codice della pagina è pubblico come il resto del sito (sta nello stesso archivio su GitHub): a essere privati
+sono i numeri, che il database consegna solo alle email nella tabella `amministratori`.
 
 - **Come conta**: `js/app.js` chiama la funzione `conta` del database a ogni apertura e ai clic principali. Si salva
   solo un numero per giorno e per tipo di azione (`supabase/statistiche.sql`): niente cookie, niente indirizzi,

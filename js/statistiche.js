@@ -1,7 +1,7 @@
 // Scusa, non stasera — pagina di monitoraggio (statistiche.html).
 // Legge i contatori anonimi dal database (supabase/statistiche.sql) e li mostra. I numeri li può leggere
 // solo chi è nella tabella "amministratori", dopo l'accesso: questa pagina da sola non contiene nessun dato.
-// Con ?esempio in fondo all'indirizzo mostra numeri inventati, per vedere com'è fatta.
+// Solo in prova sul proprio computer (localhost), con ?esempio mostra numeri inventati: sul sito vero no.
 (() => {
   "use strict";
   const C = window.SNS_CONFIG || {};
@@ -88,11 +88,9 @@
   }
   function disegnaNumeri(p) {
     const c = { conPrecedente: !!dati.primo && dati.primo < p.dal, fmt: (n) => fmtN.format(n) };
-    const cE = { conPrecedente: dati.donazioni.some((d) => d.g < p.dal), fmt: (n) => fmtEuro.format(n) };
     const voci = [
-      ["Visite", ["visita"]], ["Nuovi visitatori", ["termini_ok"]], ["Indicazioni aperte", ["vai"]], ["Tocchi sulle monete", ["dona_1", "dona_2", "dona_5", "dona_altro"]],
+      ["Visite", ["visita"]], ["Nuovi visitatori", ["termini_ok"]], ["Gettoni inseriti", ["gettone"]], ["Indicazioni aperte", ["vai"]],
     ].map(([nome, ev]) => [nome, fmtN.format(somma(ev, p.dal, p.al)), confronto(somma(ev, p.dal, p.al), somma(ev, p.dalPrima, p.alPrima), c)]);
-    voci.push(["Donazioni segnate", fmtEuro.format(euro(p.dal, p.al)), confronto(euro(p.dal, p.al), euro(p.dalPrima, p.alPrima), cE)]);
     const box = $("#numeri");
     box.textContent = "";
     for (const [nome, valore, delta] of voci) {
@@ -176,9 +174,14 @@
   // ---------- Donazioni segnate a mano ----------
   function disegnaDonazioni(p) {
     const anno = dati.oggi.slice(0, 4), tot = $("#totali");
+    const nelPeriodo = dati.donazioni.filter((d) => d.g >= p.dal && d.g <= p.al).length;
+    $("#e-eti").textContent = `Ricevuto negli ultimi ${giorni} giorni`;
+    $("#e-val").textContent = fmtEuro.format(euro(p.dal, p.al));
+    $("#e-delta").textContent = confronto(euro(p.dal, p.al), euro(p.dalPrima, p.alPrima), { conPrecedente: dati.donazioni.some((d) => d.g < p.dal), fmt: (n) => fmtEuro.format(n) });
     tot.textContent = "";
-    for (const [nome, v] of [[`Ultimi ${giorni} giorni`, euro(p.dal, p.al)], ["Nel " + anno, euro(anno + "-01-01", anno + "-12-31")], ["In tutto", euro("0000-00-00", "9999-99-99")]]) {
-      const d = el("div"); d.append(el("dt", "", nome), el("dd", "", fmtEuro.format(v))); tot.append(d);
+    for (const [nome, v] of [["Nel " + anno, fmtEuro.format(euro(anno + "-01-01", anno + "-12-31"))], ["In tutto", fmtEuro.format(euro("0000-00-00", "9999-99-99"))],
+      [`Donazioni in ${giorni} giorni`, fmtN.format(nelPeriodo)], [`Tocchi sulle monete in ${giorni} giorni`, fmtN.format(somma(["dona_1", "dona_2", "dona_5", "dona_altro"], p.dal, p.al))]]) {
+      const d = el("div"); d.append(el("dt", "", nome), el("dd", "", v)); tot.append(d);
     }
     const mesi = [];
     for (let k = 5; k >= 0; k--) { const d = data(dati.oggi); d.setDate(1); d.setMonth(d.getMonth() - k); const chiave = iso(d).slice(0, 7); mesi.push({ nome: fmtMese.format(d), n: euro(chiave + "-01", chiave + "-31") }); }
@@ -186,6 +189,7 @@
     if (!dati.donazioni.length) $("#b-mesi").firstChild.textContent = "Ancora nessuna donazione segnata.";
     const elenco = $("#elenco");
     elenco.textContent = "";
+    if (!dati.donazioni.length) elenco.append(el("li", "niente", "Quando ne ricevi una, segnala qui accanto."));
     for (const d of dati.donazioni.slice(0, 8)) {
       const li = el("li"), togli = el("button", "link", "Togli");
       togli.type = "button";
@@ -246,13 +250,10 @@
   // ---------- Stati della pagina ----------
   function stato(html) { $("#cruscotto").hidden = true; const s = $("#stato"); s.innerHTML = html; return s; }
   function spento() {
-    stato(`<h2>Il contatore non è ancora acceso</h2>
-      <p>Per contare le visite serve il database (Supabase). Finché non c’è, il sito non conta nulla e qui non ci sono numeri da mostrare.</p>
-      <p>Intanto puoi vedere com’è fatta la pagina, con numeri inventati.</p>
-      <div class="acts"><a class="btn" href="statistiche.html?esempio">GUARDA UN ESEMPIO</a></div>`);
+    stato(`<h2>Non ancora attiva</h2><p>Questa pagina si accende insieme al database del sito. Per ora non c’è niente da vedere.</p>`);
   }
   function accesso(email = "") {
-    const s = stato(`<h2>Entra</h2><p>Questa pagina è riservata a chi gestisce il sito. Scrivi la tua email: ti mandiamo un codice, niente password.</p>
+    const s = stato(`<h2>Entra</h2><p>Scrivi la tua email: ti mandiamo un codice, niente password.</p>
       <form class="form" id="f-email"><label class="riga">Email<input type="email" id="a-email" required autocomplete="email"></label>
       <p class="errore" id="a-err" hidden></p><div class="acts"><button class="btn" type="submit">MANDAMI IL CODICE</button></div></form>`);
     s.querySelector("#a-email").value = email;
@@ -277,7 +278,7 @@
     });
   }
   function riservata() {
-    const s = stato(`<h2>Pagina riservata</h2><p>Sei entrato, ma questa email non è tra quelle di chi gestisce il sito. Se è un errore, aggiungila alla tabella <code>amministratori</code> del database.</p>
+    const s = stato(`<h2>Pagina riservata</h2><p>Con questa email non c’è niente da vedere qui.</p>
       <div class="acts"><button class="btn alt" type="button" id="r-esci">ESCI</button></div>`);
     s.querySelector("#r-esci").addEventListener("click", () => sb.auth.signOut());
   }
@@ -295,7 +296,7 @@
       await carica();
       mostraCruscotto();
     } catch (e) {
-      stato(`<h2>Non riesco a leggere i numeri</h2><p>Il database non risponde, oppure manca la parte dei contatori (<code>supabase/statistiche.sql</code>). Riprova tra poco.</p>
+      stato(`<h2>Non riesco a caricare</h2><p>Il database non risponde. Riprova tra poco.</p>
         <div class="acts"><button class="btn" type="button" id="e-riprova">RIPROVA</button></div>`).querySelector("#e-riprova").addEventListener("click", () => { ultimo = undefined; entra(sessione); });
     }
   }
@@ -307,7 +308,8 @@
   let tRidim;
   addEventListener("resize", () => { clearTimeout(tRidim); tRidim = setTimeout(() => { if (!$("#cruscotto").hidden) disegna(); }, 150); });
 
-  if (new URLSearchParams(location.search).has("esempio")) { esempio = true; prepara(finti()); mostraCruscotto(); }
+  const inProva = ["localhost", "127.0.0.1"].includes(location.hostname);   // l'esempio non esiste sul sito pubblicato
+  if (inProva && new URLSearchParams(location.search).has("esempio")) { esempio = true; prepara(finti()); mostraCruscotto(); }
   else if (!C.supabaseUrl || !C.supabaseKey || !window.supabase) spento();
   else {
     sb = window.supabase.createClient(C.supabaseUrl, C.supabaseKey, {

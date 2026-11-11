@@ -17,13 +17,13 @@
 <main class="mon">
   <p><a href="index.html">◀ Torna al gioco</a></p>
   <h1>Monitoraggio</h1>
-  <p class="mon-sotto">Quante volte viene aperto il sito, che cosa si tocca e quanto arriva dalle donazioni. Pagina riservata a chi gestisce il sito.</p>
+  <p class="mon-sotto">Area riservata a chi gestisce il sito.</p>
 
   <!-- Avvisi: contatore spento, accesso, pagina riservata -->
   <section class="mon-stato" id="stato" aria-live="polite"></section>
 
   <div id="cruscotto" hidden>
-    <p class="mon-esempio" id="esempio" role="note" hidden><b>Esempio.</b> Questi numeri sono inventati: servono solo a mostrarti com’è fatta la pagina. Quelli veri arrivano quando il database è acceso.</p>
+    <p class="mon-esempio" id="esempio" role="note" hidden><b>Esempio.</b> Numeri inventati, visibili solo in prova sul computer di chi sviluppa il sito.</p>
 
     <div class="mon-filtri">
       <div class="seg" role="group" aria-label="Periodo">
@@ -35,7 +35,43 @@
       <button class="btn alt mini" type="button" id="esci" hidden>ESCI</button>
     </div>
 
-    <section class="mon-numeri" id="numeri" aria-label="Numeri del periodo"></section>
+    <section class="mon-scheda mon-dona" aria-labelledby="t-dona">
+      <header><h2 id="t-dona">Donazioni</h2><p>Il sito non vede i pagamenti: quelli esistono solo dentro PayPal. Le somme qui sotto le segni tu, copiandole da PayPal.</p></header>
+      <div class="mon-eroe">
+        <div class="mon-grande"><span class="eti" id="e-eti"></span><span class="val" id="e-val"></span><span class="delta" id="e-delta"></span></div>
+        <dl class="mon-totali" id="totali"></dl>
+      </div>
+      <div class="mon-due">
+        <div>
+          <h3>Mese per mese</h3>
+          <div class="mon-barre soldi" id="b-mesi"></div>
+        </div>
+        <div>
+          <h3>Tocchi sulle monete</h3>
+          <div class="mon-barre" id="b-monete"></div>
+          <p class="mon-nota">Un tocco apre PayPal: non vuol dire che la donazione sia stata fatta.</p>
+        </div>
+      </div>
+      <div class="mon-due">
+        <div>
+          <h3>Segna una donazione</h3>
+          <form class="form mon-form" id="f-dona">
+            <label class="riga">Giorno<input type="date" id="d-giorno" required></label>
+            <label class="riga">Euro ricevuti<input type="text" id="d-euro" required inputmode="decimal" autocomplete="off" placeholder="2,00" maxlength="9"></label>
+            <button class="btn" type="submit">SEGNA</button>
+            <p class="errore" id="d-err" hidden></p>
+            <small>Solo giorno e importo: non scrivere il nome di chi ha donato.</small>
+          </form>
+        </div>
+        <div>
+          <h3>Ultime segnate</h3>
+          <ul class="mon-elenco" id="elenco" aria-label="Ultime donazioni segnate"></ul>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="mon-titolo">Visite</h2>
+    <section class="mon-numeri" id="numeri" aria-label="Numeri delle visite nel periodo"></section>
 
     <section class="mon-scheda" aria-labelledby="t-visite">
       <header><h2 id="t-visite">Visite al giorno</h2><p>Una visita è un’apertura del sito. Ricaricare la pagina non conta di nuovo.</p></header>
@@ -53,30 +89,6 @@
         <div class="mon-barre" id="b-fonti"></div>
       </section>
     </div>
-
-    <section class="mon-scheda" aria-labelledby="t-dona">
-      <header><h2 id="t-dona">Donazioni</h2><p>Il sito non vede i pagamenti: quelli esistono solo dentro PayPal. Qui trovi i tocchi sulle monete, che il sito può contare, e le somme che segni tu copiandole da PayPal.</p></header>
-      <div class="mon-due">
-        <div>
-          <h3>Tocchi sulle monete</h3>
-          <div class="mon-barre" id="b-monete"></div>
-          <p class="mon-nota">Un tocco apre PayPal: non vuol dire che la donazione sia stata fatta.</p>
-        </div>
-        <div>
-          <h3>Donazioni ricevute</h3>
-          <dl class="mon-totali" id="totali"></dl>
-          <div class="mon-barre soldi" id="b-mesi"></div>
-          <form class="form mon-form" id="f-dona">
-            <label class="riga">Giorno<input type="date" id="d-giorno" required></label>
-            <label class="riga">Euro ricevuti<input type="text" id="d-euro" required inputmode="decimal" autocomplete="off" placeholder="2,00" maxlength="9"></label>
-            <button class="btn" type="submit">SEGNA</button>
-            <p class="errore" id="d-err" hidden></p>
-            <small>Solo giorno e importo: non scrivere il nome di chi ha donato.</small>
-          </form>
-          <ul class="mon-elenco" id="elenco" aria-label="Ultime donazioni segnate"></ul>
-        </div>
-      </div>
-    </section>
 
     <section class="mon-scheda mon-come" aria-labelledby="t-come">
       <header><h2 id="t-come">Come leggere questi numeri</h2></header>
