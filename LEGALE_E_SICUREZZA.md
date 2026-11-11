@@ -50,7 +50,7 @@
 4. **Database**: SQL Editor → incolla `supabase/schema.sql` → Run; poi `supabase/luoghi.sql` → Run.
 5. **Auth** (Authentication → Providers / URL Configuration / Email Templates):
    - lascia attivo solo il provider **Email**; disattiva gli altri;
-   - Site URL e Redirect URLs = l’indirizzo del sito (es. `https://<utente>.github.io/scusa-non-stasera/`);
+   - Site URL e Redirect URLs = l’indirizzo del sito (`https://ristomat.click/`);
    - template “Magic Link” in italiano con il codice `{{ .Token }}` (il sito chiede il codice);
    - scadenza OTP 10 minuti.
 6. **Email**: il servizio email incluso in Supabase è solo per prove (pochissimi invii l’ora).

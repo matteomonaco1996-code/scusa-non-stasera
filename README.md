@@ -89,6 +89,11 @@ e ogni lunedì riscarica la lista da Google Maps: se è cambiata aggiorna `local
 `supabase/luoghi.sql` e ripubblica. Con i segreti `SUPABASE_URL` e `SUPABASE_SERVICE_KEY`
 aggiorna anche i posti nel database. Serve *Settings → Pages → Source: GitHub Actions*.
 
+### Indirizzo del sito: https://ristomat.click
+
+Il dominio è registrato su Hostinger e collegato a GitHub Pages (Settings → Pages → Custom domain).
+Il vecchio indirizzo `matteomonaco1996-code.github.io/scusa-non-stasera/` rimanda a questo.
+
 ### Se cambia l'indirizzo del sito
 
 L'indirizzo compare per esteso in `index.html` (`og:url` e `og:image`, servono per l'anteprima dei link) e,
