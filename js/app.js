@@ -168,13 +168,13 @@
 
   // ---------- Moneta: donazione facoltativa. Compare solo se in config.js c'è un link https ----------
   const DONA = (() => { try { const u = new URL((window.SNS_CONFIG || {}).donazione || ""); return u.protocol === "https:" ? u.href : ""; } catch (e) { return ""; } })();
-  const moneta = () => DONA ? `<button class="moneta" type="button" data-moneta><img src="img/gettone.svg" width="24" height="24" alt="">Lascia una moneta</button>` : "";
+  const moneta = () => DONA ? `<button class="moneta" type="button" data-moneta><img src="img/gettone.svg" width="24" height="24" alt="">Dona una moneta</button>` : "";
   // Con un link PayPal.Me l'importo si può mettere nell'indirizzo (…/2EUR): la pagina di PayPal si apre già compilata
   const linkDona = (euro) => /^https:\/\/(www\.)?paypal\.me\//i.test(DONA) && euro ? DONA.replace(/\/+$/, "") + "/" + euro + "EUR" : DONA;
   function importiMoneta() {
     const importi = /^https:\/\/(www\.)?paypal\.me\//i.test(DONA) ? [1, 2, 5] : [];
-    return importi.map((n) => `<a class="moneta-importo px" href="${esc(linkDona(n))}" ${EXT}><img src="img/gettone.svg" width="48" height="48" alt=""><b>${n} €</b></a>`).join("") +
-      `<a class="moneta-importo px" href="${esc(DONA)}" ${EXT}><img src="img/gettone.svg" width="48" height="48" alt=""><b>${importi.length ? "Altro" : "Vai"}</b></a>`;
+    return importi.map((n) => `<a class="moneta-importo px" href="${esc(linkDona(n))}" ${EXT} aria-label="Dona ${n} euro con PayPal"><img src="img/gettone.svg" width="48" height="48" alt=""><b>${n} €</b></a>`).join("") +
+      `<a class="moneta-importo px" href="${esc(DONA)}" ${EXT} aria-label="Dona la cifra che vuoi"><img src="img/gettone.svg" width="48" height="48" alt=""><b>${importi.length ? "Altro" : "Dona"}</b></a>`;
   }
   function apriMoneta() {
     $("#monete").innerHTML = importiMoneta();
@@ -769,7 +769,7 @@
         ${via(x) ? `<div class="addr">${esc(via(x))}</div>` : ""}
         <div class="get-acts"><a class="btn" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><button class="btn alt" type="button" data-get="ancora" ${n < 2 ? "disabled" : ""}>Altro gettone</button></div>
         <div class="get-link"><button class="link" type="button" data-get="mappa">Vedi sulla mappa</button><button class="link" type="button" data-get="scheda">Apri la scheda</button></div>
-        ${DONA ? `<p class="moneta-riga">${moneta()}<small>Se ti è stato utile. È facoltativo.</small></p>` : ""}
+        ${DONA ? `<p class="moneta-riga">${moneta()}<small>Donazione facoltativa a Matteo, che cura il sito.</small></p>` : ""}
         <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? "È l’unico posto in gioco: cambia livello o power-up per pescarne altri." : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
         <small>Gli orari non li conosciamo: prima di partire controlla su Maps che sia aperto.</small>`;
       rispondi(x);

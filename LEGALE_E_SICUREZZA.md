@@ -87,7 +87,7 @@ la possibilità che qualcun altro agganci un proprio sito al tuo dominio.
 7. **Nel sito**: aggiorna `og:url` e `og:image` in `index.html` e, in Supabase, Site URL e Redirect URLs.
 8. **Se un giorno lasci scadere il dominio**: prima togli il dominio da GitHub Pages e le righe DNS.
 
-### Donazioni: la moneta “Lascia una moneta” (attiva dall’11 novembre 2026)
+### Donazioni: la moneta “Dona una moneta” (attiva dall’11 novembre 2026)
 
 Il link in `config.js` (`donazione`) porta a PayPal.Me. Il sito non tratta pagamenti né dati di pagamento:
 la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagina di PayPal in una nuova scheda.

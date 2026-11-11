@@ -8,7 +8,7 @@
 window.SNS_CONFIG = {
   supabaseUrl: "",
   supabaseKey: "",
-  // Donazione facoltativa ("Lascia una moneta"): incolla qui il link della tua pagina per ricevere denaro
+  // Donazione facoltativa ("Dona una moneta"): incolla qui il link della tua pagina per ricevere denaro
   // (per esempio PayPal.me, Ko-fi, Satispay). Deve iniziare con https://
   // Finché resta vuoto la moneta non compare da nessuna parte. Prima di attivarla leggi LEGALE_E_SICUREZZA.md.
   donazione: "https://www.paypal.me/MatteoMonaco01",
