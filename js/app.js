@@ -277,6 +277,19 @@
       : stato.mondo === "fuori" ? "Gite, mare e borghi: ogni località è un livello." : "Un mondo, un livello: tutta la città.";
   }
   // ---------- Mappa del mondo (Roma): disegnata qui, senza servizi esterni ----------
+  // Sotto le caselle, le strade principali di Roma: un file leggero (mappa/quartieri.js) che si carica dopo il resto della pagina.
+  let stradeChieste = false, stradeDisegnate = null;
+  function chiediStrade() {
+    if (stradeChieste) return;
+    stradeChieste = true;
+    const carica = () => {
+      const sc = document.createElement("script");
+      sc.src = "mappa/quartieri.js";
+      sc.onload = () => { if (stato.mondo === "roma" && !$("#ow-svg").contains(document.activeElement)) disegnaOverworld(); };   // se stai usando la mappa con la tastiera, le strade arrivano al prossimo ridisegno
+      document.body.appendChild(sc);
+    };
+    if (window.requestIdleCallback) requestIdleCallback(carica, { timeout: 3000 }); else setTimeout(carica, 600);
+  }
   function disegnaOverworld() {
     const fig = $("#overworld");
     if (stato.mondo !== "roma" || !(META.quartieri || []).length) { fig.hidden = true; return; }
@@ -296,6 +309,22 @@
     const W = 600, s = W / (maxX - minX), H = Math.round((maxY - minY) * s), G = 6;
     const xy = ([x, y]) => [(x - minX) * s, (y - minY) * s];
     const snap = (v) => Math.round(v / G) * G;
+    // Strade: stessa proiezione delle caselle; il tracciato si calcola una volta sola
+    const strade = window.SNS_MAPPA && window.SNS_MAPPA.strade;
+    let vie = "";
+    if (!strade) chiediStrade();
+    else {
+      const firma = [minX, minY, s].join();
+      if (!stradeDisegnate || stradeDisegnate.firma !== firma) {
+        const traccia = (linee) => linee.map((a) => {
+          let la = 0, lo = 0, t = "";
+          for (let i = 0; i < a.length; i += 2) { la += a[i]; lo += a[i + 1]; const [x, y] = xy(proietta(la / 1e5, lo / 1e5)); t += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
+          return t;
+        }).join("");
+        stradeDisegnate = { firma, html: `<path class="ow-via" d="${traccia(strade.medie)}"/><path class="ow-via grande" d="${traccia(strade.grandi)}"/>` };
+      }
+      vie = stradeDisegnate.html;
+    }
     // Fiume a quadretti (Bresenham sulla griglia)
     const celle = new Set();
     const fp = fiume.map(xy).map(([x, y]) => [Math.round(x / G), Math.round(y / G)]);
@@ -334,7 +363,7 @@
       if (px > 0 && px < W && py > 0 && py < H) io = `<g class="ow-io" aria-hidden="true"><rect x="${snap(px) - 7}" y="${snap(py) - 7}" width="14" height="14"/></g>`;
     }
     $("#ow-svg").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="group" aria-label="Mappa dei quartieri di Roma" shape-rendering="crispEdges">
-      <path class="ow-fiume" d="${d}"/>
+      ${vie}<path class="ow-fiume" d="${d}"/>
       ${nodi.map((n) => { const { z, p } = n;
         const x = snap(p[0]) - 12, y = snap(p[1]) - 12;
         const cls = stato.livello === z.n ? "on" : visti.has(z.n) ? "fatto" : "";
@@ -352,7 +381,7 @@
       g.insertBefore(r, g.firstChild);
     });
     const z = stato.livello && livelli.find((l) => l.n === stato.livello);
-    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${z.conta} posti` : "Tocca un quartiere per giocare quel livello. Le caselle verdi sono quartieri dove hai già fatto check-in. Mappa disegnata a mano, non in scala.";
+    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${z.conta} posti` : "Tocca un quartiere per giocare quel livello. Le caselle verdi sono quartieri dove hai già fatto check-in. Mappa non in scala: il centro è ingrandito.";
   }
 
   function disegnaPowerup() {

@@ -88,6 +88,7 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | `statistiche.html`, `js/statistiche.js`, `css/statistiche.css` | Pagina di monitoraggio, riservata a chi gestisce il sito |
 | `vendor/`, `fonts/` | Leaflet, supabase-js e caratteri ospitati sul sito, con licenze |
 | `mappa/roma.js` | Strade e fiumi di Roma (© OpenStreetMap, ODbL), generati da `strumenti/mappa_osm.py` |
+| `mappa/quartieri.js` | Le strade principali disegnate sotto la mappa dei quartieri: una versione leggera di `roma.js`, generata da `strumenti/strade_quartieri.py` (da rilanciare solo se cambiano `roma.js` o i quartieri) |
 | `locali.js` | Dati **generati**: non modificarli a mano |
 | `tipi.json` | Tipo di locale per i posti il cui nome non lo dice |
 | `in_breve.json` | Descrizioni brevi (etichetta IN BREVE) per i posti senza una nota di Matteo: bozze da rileggere |

@@ -414,6 +414,8 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .overworld { background: var(--panel); padding: 12px; margin-top: 14px; margin-bottom: 4px; }
 .overworld svg { display: block; width: 100%; height: auto; max-height: 76vh; }
 .overworld figcaption { margin-top: 8px; font-size: 15px; color: var(--dim); }
+.ow-via { fill: none; stroke: #E6D9BF; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; shape-rendering: geometricPrecision; }   /* strade sotto le caselle: chiare, così i nomi restano leggibili */
+.ow-via.grande { stroke: #D3C0A0; stroke-width: 2.8; }
 .ow-fiume { fill: var(--fiume); }
 .ow-nome { fill: var(--dim); font: 400 14px var(--f-title) !important; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
 .ow-nodo.on .ow-nome { fill: var(--ocra) !important; }
