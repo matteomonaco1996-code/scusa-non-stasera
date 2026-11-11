@@ -11,7 +11,7 @@ poi un contorno scuro tutto intorno. Per cambiarli basta toccare le due righe GA
 from pathlib import Path
 
 GAIA = dict(capelli="lunghi", col_capelli="#6B3A1E", maglia="#B3263A", guance=True)
-TU = dict(capelli="corti", col_capelli="#5E2A12", maglia="#22507A", barba=True, occhiali=True)
+TU = dict(capelli="corti", col_capelli="#5E2A12", maglia="#22507A", barba=True)
 
 
 L, A = 18, 22   # griglia: larghezza e altezza in "pixel"
