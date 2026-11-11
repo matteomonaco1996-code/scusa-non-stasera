@@ -361,7 +361,7 @@
     { da: 15, a: 18, nome: "merenda o aperitivo", domanda: "Aperitivo dopo?", tipi: ["dolce", "bottega", "street", "vino", "bar"] },
     { da: 18, a: 23, nome: "sera", domanda: "Usciamo stasera?", tipi: ["trattoria", "ristorante", "pizza", "pesce", "carne", "mondo", "vino", "bar", "street"] },
   ];
-  const NOTTE = { nome: "dopocena", domanda: "Ultimo giro?", tipi: ["bar", "vino", "street", "dolce"] };
+  const NOTTE = { nome: "dopocena", domanda: "Un ultimo bicchiere?", tipi: ["bar", "vino", "street", "dolce"] };
   const momento = () => { const h = new Date().getHours(); return MOMENTI.find((m) => h >= m.da && h < m.a) || NOTTE; };
   function rispondi(x) {
     const b = $("#bolla");
