@@ -9,6 +9,10 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
 
 ## Come si gioca
 
+- **LA VIGNETTA**: in cima c'è solo il marchio (gettone e RISTOMAT). La battuta che dà il nome al sito la
+  raccontano una volta sola i due fumetti: Gaia a sinistra fa la domanda dell'ora, tu a destra rispondi
+  “Scusa, non stasera…” (barrato) e poi “Anzi sì! Portami fuori.”, che si tocca. Dopo una ricerca lo stesso
+  fumetto dà il consiglio (“Anzi sì: … Ci vediamo lì?”). Prima il titolo grande e il dialogo dicevano la stessa cosa.
 - **DA DOVE PARTIAMO?**: la prima scelta, in cima alla pagina e nella finestra che compare alla prima visita, è
   tra due strade ben distinte: **VICINO A ME** (usa la posizione) e **SCELGO LA ZONA** (quartiere, città o fuori
   porta, senza posizione). Anche la battuta “Anzi sì! Portami fuori.” apre questa scelta.

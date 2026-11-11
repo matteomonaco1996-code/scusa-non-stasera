@@ -82,26 +82,28 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .title { padding-block: 30px 34px; }
 .title .wrap { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 34px 48px; align-items: start; }
 h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-spacing: .005em; text-wrap: balance; }
-/* L'insegna: il logo di Matteo ricomposto con testo vero. Le proporzioni vengono dalla sua tavola
-   (titolo 52, "Anzi sì!" 28, RISTOMAT 30, ombra 6): qui tutto è in rapporto a --c, il corpo del titolo. */
-.insegna { --c: clamp(24px, 3.3vw, 48px); display: flex; align-items: center; gap: calc(var(--c) * .9); }
-.insegna-gettone { width: calc(var(--c) * 3.6); height: auto; flex: none; image-rendering: pixelated; }
-.insegna h1 { font: 400 var(--c)/1.5 var(--f-logo); letter-spacing: 0; text-transform: uppercase; text-wrap: nowrap; color: var(--ocra); text-shadow: .115em .115em 0 var(--pompei); }
-.insegna .scusa { display: block; }
-.insegna .anzi { display: inline-block; margin-top: .9em; font-size: .54em; line-height: 1; padding: .5em .57em .43em; color: var(--bg); background: var(--ink); text-shadow: none; }
-.sottotitolo { --c: clamp(24px, 3.3vw, 48px); margin: calc(var(--c) * .9) 0 0; font: 400 calc(var(--c) * .58)/1 var(--f-logo); color: var(--ink); letter-spacing: .2em; text-transform: uppercase; }
-.lede { margin: 22px 0 0; max-width: 32em; font-size: 20px; line-height: 1.45; }
+/* In alto solo il marchio: la battuta del titolo la raccontano i due fumetti qui sotto, una volta sola */
+.marchio { display: flex; align-items: center; gap: 16px; }
+.marchio-gettone { width: 64px; height: 64px; flex: none; image-rendering: pixelated; }
+.marchio h1 { font: 400 clamp(22px, 2.6vw, 34px)/1 var(--f-logo); letter-spacing: .2em; text-transform: uppercase; color: var(--ink); text-wrap: nowrap; }
+.lede { margin: 16px 0 0; max-width: 32em; font-size: 20px; line-height: 1.45; }
 
-.dialog { background: var(--panel); padding: 16px 18px 14px; position: relative; display: grid; gap: 10px; }
-.dialog .riga { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 4px 12px; align-items: baseline; }
-.dialog .chi { font: 400 18px/1.4 var(--f-title); color: var(--pompei-txt); letter-spacing: .04em; }
-.dialog .chi.tu { color: var(--cielo); }
-.dialog .cosa { font-size: 19px; line-height: 1.35; overflow-wrap: anywhere; }
-.dialog .barrato { color: var(--dim); text-decoration: line-through; text-decoration-color: var(--pompei-txt); text-decoration-thickness: 2px; }
-.dialog button.cosa { all: unset; cursor: pointer; font-size: 19px; line-height: 1.35; color: var(--ocra); overflow-wrap: anywhere; padding-right: 22px; }
-.dialog button.cosa:focus-visible { outline: 3px solid var(--ocra); outline-offset: 3px; }
-.dialog .cosa b { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.dialog .next { position: absolute; right: 14px; bottom: 6px; color: var(--ocra); font-size: 14px; animation: lampeggia 1s steps(2) infinite; }
+/* La vignetta: Gaia a sinistra, tu a destra, fumetti chiari */
+.vignetta { margin-top: 22px; display: grid; gap: 6px; max-width: 34em; }
+.battuta { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: end; padding-right: 10%; }
+.battuta.io { grid-template-columns: minmax(0, 1fr) auto; padding: 0 0 0 10%; }
+.battuta.io .chi { order: 2; color: var(--cielo); }
+.battuta .chi { display: grid; justify-items: center; gap: 5px; margin-bottom: 4px; font: 400 16px/1 var(--f-title); letter-spacing: .05em; color: var(--pompei-txt); }
+.faccia { display: block; width: 48px; height: 48px; box-shadow: 0 0 0 3px var(--edge); }
+.fumetto { position: relative; justify-self: start; margin: 0 0 14px; padding: 11px 14px; background: var(--ink); color: var(--scuro); font-size: 20px; line-height: 1.3; display: grid; gap: 8px; justify-items: start; box-shadow: 0 0 0 4px var(--edge); overflow-wrap: anywhere; }
+.battuta.io .fumetto { justify-self: end; }
+.fumetto::after { content: ""; position: absolute; bottom: 10px; left: -12px; width: 12px; height: 12px; background: var(--ink); box-shadow: -4px 0 0 0 var(--edge), 0 -4px 0 0 var(--edge), 0 4px 0 0 var(--edge); }   /* la punta, a pixel */
+.battuta.io .fumetto::after { left: auto; right: -12px; box-shadow: 4px 0 0 0 var(--edge), 0 -4px 0 0 var(--edge), 0 4px 0 0 var(--edge); }
+.fumetto .barrato { color: #8B4A52; text-decoration: line-through; text-decoration-color: var(--bg); text-decoration-thickness: 2px; }
+.fumetto button { all: unset; cursor: pointer; padding: 7px 12px; background: var(--ocra); color: var(--scuro); font-weight: 600; box-shadow: 0 3px 0 0 #A8700B; overflow-wrap: anywhere; }
+.fumetto button:hover { background: #FFC94A; }
+.fumetto button:focus-visible { outline: 3px solid var(--bg); outline-offset: 3px; }
+.fumetto button b { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
 @keyframes lampeggia { 50% { opacity: 0; } }
 
 /* La prima scelta: due strade, ben distinte */
@@ -119,8 +121,12 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
 .partenza-scelte .primo .pxi, .partenza-scelte .primo small { color: var(--scuro); }
 /* Sul telefono restano una accanto all'altra, così si vedono insieme: icona sopra, testo più corto */
 @media (max-width: 560px) {
-  .title .wrap { row-gap: 22px; }            /* meno aria sopra, così le due scelte stanno nella prima schermata */
-  .partenza { margin-top: 12px; gap: 8px; }
+  .title .wrap { row-gap: 10px; }            /* meno aria sopra, così le due scelte stanno nella prima schermata */
+  .marchio-gettone { width: 52px; height: 52px; }
+  .lede { margin-top: 12px; }
+  .vignetta { margin-top: 16px; gap: 2px; }
+  .fumetto { margin-bottom: 12px; font-size: 19px; }
+  .partenza { margin-top: 0; gap: 8px; }
   .partenza h2 { font-size: 24px; }
   .partenza-scelte { gap: 14px; }
   .partenza-scelte button { grid-template-columns: minmax(0, 1fr); align-content: start; gap: 4px; padding: 10px; }
@@ -335,9 +341,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 
 @media (max-width: 960px) {
   .title .wrap { grid-template-columns: minmax(0, 1fr); }
-  .insegna, .sottotitolo { --c: clamp(18px, 6.5vw, 40px); }
-  .insegna { gap: calc(var(--c) * .7); }
-  .insegna-gettone { width: calc(var(--c) * 3); }
+  .marchio h1 { font-size: clamp(20px, 6vw, 30px); }
   .powerups { flex-wrap: nowrap; }
   .seg { display: inline-flex; }
   .main .wrap { grid-template-columns: minmax(0, 1fr); }
