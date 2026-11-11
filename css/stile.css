@@ -2,6 +2,7 @@
    Layout: HUD in alto, schermata del titolo con dialogo e menu; poi Seleziona mondo → livelli (quartieri)
    → power-up; risultati con HUD adesivo e mappa a lato (su telefono: Lista/Mappa). Un solo tema: bordeaux, con l'oro per ciò che si tocca. */
 
+@font-face { font-family: "Press Start 2P"; font-weight: 400; font-display: swap; src: url("../fonts/press-start-2p-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "Jersey 10"; font-weight: 400; font-display: swap; src: url("../fonts/jersey-10-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "Figtree"; font-weight: 400; font-display: swap; src: url("../fonts/figtree-latin-400-normal.woff2") format("woff2"); }
 @font-face { font-family: "Figtree"; font-weight: 500; font-display: swap; src: url("../fonts/figtree-latin-500-normal.woff2") format("woff2"); }
@@ -17,15 +18,16 @@
   --edge: #2B040A;        /* bordo a pixel */
   --scuro: #220307;       /* testo sopra l'oro, contorni sulla mappa */
   --mappa: #22040A;       /* fondo della mappa: scuro, così strade, parchi e fiume si leggono */
-  --ink: #FFF4E8;         /* travertino */
+  --ink: #FFF3D6;         /* crema, come nel logo */
   --dim: #F1CFC6;
-  --ocra: #FFC233;        /* oro: titoli e pulsanti */
-  --pompei: #3A0610;      /* vino scuro: ombre, barrato, avvisi */
+  --ocra: #F2B632;        /* oro del logo: titoli e pulsanti */
+  --pompei: #3D0711;      /* vino scuro: ombra del titolo, avvisi */
   --pompei-txt: #FFB9AE;  /* etichette */
   --pino: #2F6B3A;        /* verde pino */
   --pino-txt: #C8F0B6;
   --cielo: #B9D9F5;
 
+  --f-logo: "Press Start 2P", "Jersey 10", monospace;   /* solo per il logo: titolo e RISTOMAT */
   --f-title: "Jersey 10", "Arial Narrow", "Trebuchet MS", system-ui, sans-serif;
   --f-text: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --px: 4px;
@@ -75,21 +77,19 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .hud b { color: var(--ink); font-weight: 600; }
 .hud .g { color: var(--pino-txt); }
 .hud .btn { font-size: 13px; padding: 6px 12px; }
-.hud .marchio { width: 24px; height: 24px; vertical-align: -6px; margin-right: 8px; }
 
 /* ---------- Titolo ---------- */
 .title { padding-block: 30px 34px; }
 .title .wrap { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 34px 48px; align-items: start; }
 h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-spacing: .005em; text-wrap: balance; }
-h1 .scusa {
-  color: var(--dim);
-  background: linear-gradient(var(--pompei), var(--pompei)) no-repeat 0 58% / 100% .11em;
-  -webkit-box-decoration-break: clone; box-decoration-break: clone;
-  animation: barra .6s .4s steps(8) both;
-}
-@keyframes barra { from { background-size: 0% .11em; } }
-h1 .anzi { display: block; margin-top: .18em; color: var(--ocra); text-shadow: .06em .06em 0 var(--pompei); }
-.sottotitolo { margin: 16px 0 0; font: 400 clamp(30px, 4vw, 46px)/1 var(--f-title); color: var(--ink); letter-spacing: .06em; text-transform: uppercase; }
+/* L'insegna: il logo di Matteo ricomposto con testo vero. Le proporzioni vengono dalla sua tavola
+   (titolo 52, "Anzi sì!" 28, RISTOMAT 30, ombra 6): qui tutto è in rapporto a --c, il corpo del titolo. */
+.insegna { --c: clamp(24px, 3.3vw, 48px); display: flex; align-items: center; gap: calc(var(--c) * .9); }
+.insegna-gettone { width: calc(var(--c) * 3.6); height: auto; flex: none; image-rendering: pixelated; }
+.insegna h1 { font: 400 var(--c)/1.5 var(--f-logo); letter-spacing: 0; text-transform: uppercase; text-wrap: nowrap; color: var(--ocra); text-shadow: .115em .115em 0 var(--pompei); }
+.insegna .scusa { display: block; }
+.insegna .anzi { display: inline-block; margin-top: .9em; font-size: .54em; line-height: 1; padding: .5em .57em .43em; color: var(--bg); background: var(--ink); text-shadow: none; }
+.sottotitolo { --c: clamp(24px, 3.3vw, 48px); margin: calc(var(--c) * .9) 0 0; font: 400 calc(var(--c) * .58)/1 var(--f-logo); color: var(--ink); letter-spacing: .2em; text-transform: uppercase; }
 .lede { margin: 22px 0 0; max-width: 32em; font-size: 20px; line-height: 1.45; }
 
 .dialog { background: var(--panel); padding: 16px 18px 14px; position: relative; display: grid; gap: 10px; }
@@ -98,7 +98,7 @@ h1 .anzi { display: block; margin-top: .18em; color: var(--ocra); text-shadow: .
 .dialog .chi.tu { color: var(--cielo); }
 .dialog .cosa { font-size: 19px; line-height: 1.35; overflow-wrap: anywhere; }
 .dialog .barrato { color: var(--dim); text-decoration: line-through; text-decoration-color: var(--pompei-txt); text-decoration-thickness: 2px; }
-.dialog button.cosa { all: unset; cursor: pointer; font-size: 19px; line-height: 1.35; color: var(--ocra); overflow-wrap: anywhere; }
+.dialog button.cosa { all: unset; cursor: pointer; font-size: 19px; line-height: 1.35; color: var(--ocra); overflow-wrap: anywhere; padding-right: 22px; }
 .dialog button.cosa:focus-visible { outline: 3px solid var(--ocra); outline-offset: 3px; }
 .dialog .cosa b { color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .dialog .next { position: absolute; right: 14px; bottom: 6px; color: var(--ocra); font-size: 14px; animation: lampeggia 1s steps(2) infinite; }
@@ -304,6 +304,9 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 
 @media (max-width: 960px) {
   .title .wrap { grid-template-columns: minmax(0, 1fr); }
+  .insegna, .sottotitolo { --c: clamp(18px, 6.5vw, 40px); }
+  .insegna { gap: calc(var(--c) * .7); }
+  .insegna-gettone { width: calc(var(--c) * 3); }
   .powerups { flex-wrap: nowrap; }
   .seg { display: inline-flex; }
   .main .wrap { grid-template-columns: minmax(0, 1fr); }

@@ -71,8 +71,8 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | `correzioni.json` | Correzioni manuali (tipo `t`, quartiere `q`, città `c`, nota `nt`): vincono su tutto |
 | `strumenti/aggiorna_lista.py` | Scarica la lista da Google Maps e rigenera `locali.js` |
 | `strumenti/quartieri.py` | I quartieri di Roma: centro, area e sponda del Tevere |
-| `img/` | Logo e icone: `logo.svg` (con fondo), `logo-trasparente.svg`, `gettone.svg`, `icona.svg`, i PNG per schede del browser e schermata Home, `anteprima.png` per i link condivisi |
-| `strumenti/logo.py` | Ridisegna gli SVG del logo (gettone a pixel + scritta in Jersey 10 convertita in tracciati). I PNG sono esportazioni di quegli SVG |
+| `img/` | Il logo disegnato da Matteo: `logo.svg` e `logo-chiaro.svg` (1200×630), `gettone.svg`, `icona.svg`, i PNG per schede del browser e schermata Home, `anteprima.png` per i link condivisi, `logo.png` e `logo-chiaro.png` da usare altrove |
+| `strumenti/logo.py` | Ridisegna gli SVG del logo con le misure del progetto di Matteo (gettone a pixel con segnaposto + scritte in Press Start 2P convertite in tracciati). I PNG sono esportazioni di quegli SVG |
 | `manifest.webmanifest` | Nome e icone per "Aggiungi a schermata Home" |
 
 Dopo aver aggiunto posti su Google Maps o modificato un file `.json`:

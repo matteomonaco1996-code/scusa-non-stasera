@@ -6,6 +6,7 @@
 | supabase-js | 2.118.0 | MIT | `vendor/supabase/LICENSE` |
 | Dati della mappa (`mappa/roma.js`) | estratto 2026-11 | ODbL 1.0, © OpenStreetMap contributors | https://www.openstreetmap.org/copyright |
 | Jersey 10 (via Fontsource 5.3.0) | — | SIL Open Font License 1.1 | `fonts/OFL-Jersey10.txt` |
+| Press Start 2P (via Fontsource 5.3.0), usato per il logo | — | SIL Open Font License 1.1 | `fonts/OFL-PressStart2P.txt` |
 | Figtree (via Fontsource 5.3.0) | — | SIL Open Font License 1.1 | `fonts/OFL-Figtree.txt` |
 
 Sono copiati qui (invece di caricarli da CDN o da Google Fonts) per non trasmettere l’IP
