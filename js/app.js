@@ -438,14 +438,15 @@
   function segnaInCorso() { const si = inCorso(); document.querySelectorAll(".restart").forEach((b) => { b.hidden = !si; }); }
 
   // ---------- Dialogo ----------
-  // I momenti della giornata: la domanda di Gaia e i tipi di posto che hanno senso a quell'ora (per il gettone)
+  // I momenti della giornata: la domanda di Gaia, il "no" che le risponde a tono (di sera è il nome del sito)
+  // e i tipi di posto che hanno senso a quell'ora (per il gettone)
   const MOMENTI = [
-    { da: 6, a: 11, nome: "colazione", domanda: "Colazione insieme?", tipi: ["dolce", "bottega"] },
-    { da: 11, a: 15, nome: "pranzo", domanda: "Pranziamo fuori?", tipi: ["trattoria", "ristorante", "pizza", "street", "pesce", "carne", "mondo"] },
-    { da: 15, a: 18, nome: "merenda o aperitivo", domanda: "Aperitivo dopo?", tipi: ["dolce", "bottega", "street", "vino", "bar"] },
-    { da: 18, a: 23, nome: "sera", domanda: "Usciamo stasera?", tipi: ["trattoria", "ristorante", "pizza", "pesce", "carne", "mondo", "vino", "bar", "street"] },
+    { da: 6, a: 11, nome: "colazione", domanda: "Colazione insieme?", no: "Scusa, non stamattina…", tipi: ["dolce", "bottega"] },
+    { da: 11, a: 15, nome: "pranzo", domanda: "Pranziamo fuori?", no: "Scusa, non oggi…", tipi: ["trattoria", "ristorante", "pizza", "street", "pesce", "carne", "mondo"] },
+    { da: 15, a: 18, nome: "merenda o aperitivo", domanda: "Aperitivo dopo?", no: "Scusa, non stasera…", tipi: ["dolce", "bottega", "street", "vino", "bar"] },
+    { da: 18, a: 23, nome: "sera", domanda: "Usciamo stasera?", no: "Scusa, non stasera…", tipi: ["trattoria", "ristorante", "pizza", "pesce", "carne", "mondo", "vino", "bar", "street"] },
   ];
-  const NOTTE = { nome: "dopocena", domanda: "Un ultimo bicchiere?", tipi: ["bar", "vino", "street", "dolce"] };
+  const NOTTE = { nome: "dopocena", domanda: "Un ultimo bicchiere?", no: "Scusa, non stasera…", tipi: ["bar", "vino", "street", "dolce"] };
   const momento = () => { const h = new Date().getHours(); return MOMENTI.find((m) => h >= m.da && h < m.a) || NOTTE; };
   function rispondi(x) {
     const b = $("#bolla");
@@ -734,7 +735,7 @@
     mappa.posizione(null); mappa.chiudi();
     impostaVista("lista");
     aggiorna();
-    $("#domanda").textContent = momento().domanda;
+    $("#domanda").textContent = momento().domanda; $("#risposta").textContent = momento().no;
     scrollTo({ top: 0, behavior: ridotto() ? "auto" : "smooth" });
     $("#m-start").focus({ preventScroll: true });
     toast("Si riparte da capo.");
@@ -910,7 +911,7 @@
 
   // ---------- Avvio ----------
   $("#hi").textContent = String(DATA.length).padStart(6, "0");
-  $("#domanda").textContent = momento().domanda;
+  $("#domanda").textContent = momento().domanda; $("#risposta").textContent = momento().no;
   $("#fonte").href = META.fonte || "https://www.google.com/maps";
   $("#agg").textContent = META.aggiornato ? fmtGiorno.format(new Date(META.aggiornato + "T12:00:00")) : "";
   document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });
