@@ -451,7 +451,7 @@
   function rispondi(x) {
     const b = $("#bolla");
     let t;
-    if (!x && !stato.vicino && !stato.livello) t = "Anzi sì! Premi start e dimmi dove sono.";
+    if (!x && !stato.vicino && !stato.livello) t = "Anzi sì! Vediamo cosa c’è qui vicino.";
     else {
       x = x || ultimi[0];
       if (!x) t = "Anzi sì… ma qui non trovo niente. Cambiamo livello?";
