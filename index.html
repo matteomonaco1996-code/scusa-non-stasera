@@ -126,6 +126,7 @@
       <a href="termini.html">Termini d’uso</a>
       <a href="termini.html#segnalazioni">Segnala un contenuto</a>
       <button class="link" type="button" id="spegni-mappa" hidden>Spegni lo sfondo della mappa</button>
+      <span id="moneta-fondo"></span>
     </nav>
     <p>I posti vengono dalla lista Google Maps <a id="fonte" href="#" target="_blank" rel="noopener noreferrer">“RistoMat”</a> di Matteo, aggiornata il <span id="agg"></span>. Le note firmate MATTEO sono sue; le recensioni sono degli utenti che hanno fatto check-in nel posto. Le righe IN BREVE sono descrizioni scritte con l’aiuto dell’intelligenza artificiale a partire da informazioni di dominio pubblico: possono essere imprecise o non aggiornate.</p>
     <p>Quartieri e minuti a piedi sono stime dalla posizione. Il tipo di locale viene dal nome o, in parte, da © OpenStreetMap. Mappa: dati © OpenStreetMap (ODbL) ospitati sul sito; nomi delle vie © CARTO solo se li accendi. Punti, livelli e badge sono solo un gioco: non danno premi.</p>
@@ -133,6 +134,11 @@
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<div class="moneta-avviso" id="moneta-avviso" role="status" hidden>
+  <span>Ti è stato utile? Se vuoi, lascia una moneta a Matteo. È facoltativo.</span>
+  <span class="moneta-qui"></span>
+  <button class="btn alt mini" type="button">NO, GRAZIE</button>
+</div>
 
 <dialog class="finestra" id="player" aria-labelledby="player-t">
   <div class="testa"><h2 id="player-t">PLAYER 1</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>

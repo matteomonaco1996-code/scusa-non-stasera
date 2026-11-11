@@ -89,6 +89,12 @@ e ogni lunedì riscarica la lista da Google Maps: se è cambiata aggiorna `local
 `supabase/luoghi.sql` e ripubblica. Con i segreti `SUPABASE_URL` e `SUPABASE_SERVICE_KEY`
 aggiorna anche i posti nel database. Serve *Settings → Pages → Source: GitHub Actions*.
 
+### Donazioni (spente)
+
+In `config.js`, `donazione` è il link della pagina dove ricevere una moneta. Finché è vuoto non compare
+nulla. Quando c'è, “Lascia una moneta” compare nel fumetto di ogni posto sulla mappa, nel risultato del
+gettone, in fondo alla pagina e, una volta per visita, al ritorno da “Portami lì”. Vedi `LEGALE_E_SICUREZZA.md`.
+
 ### Indirizzo del sito: https://ristomat.click
 
 Il dominio è registrato su Hostinger e collegato a GitHub Pages (Settings → Pages → Custom domain).

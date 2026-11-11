@@ -87,6 +87,22 @@ la possibilità che qualcun altro agganci un proprio sito al tuo dominio.
 7. **Nel sito**: aggiorna `og:url` e `og:image` in `index.html` e, in Supabase, Site URL e Redirect URLs.
 8. **Se un giorno lasci scadere il dominio**: prima togli il dominio da GitHub Pages e le righe DNS.
 
+### Donazioni: la moneta “Lascia una moneta” (se la attivi)
+
+Nel codice è pronta ma spenta: compare solo quando in `config.js` scrivi il link in `donazione`.
+Il sito non tratta pagamenti né dati di pagamento: la moneta è un semplice link alla pagina del
+servizio che scegli, che si apre in una nuova scheda. Prima di accenderla:
+
+1. **Fisco**: ricevere denaro dal pubblico può essere reddito da dichiarare. Conta la sostanza: una
+   somma data senza nulla in cambio è una cosa, un compenso “per il servizio” un’altra; se diventa
+   abituale può servire la partita IVA. **Chiedi a un commercialista prima di attivarla** e tieni
+   traccia di quanto ricevi.
+2. **Volontarietà**: la moneta non deve mai essere una condizione per usare il sito, né dare vantaggi
+   nel gioco (punti, livelli, posti in più). Così resta una liberalità e non un acquisto.
+3. **Termini e privacy**: vanno aggiornati con una riga sulle donazioni e con il nome del servizio
+   usato, che tratta i dati di chi dona come titolare autonomo.
+4. **Costi**: sui piccoli importi la commissione fissa del servizio pesa molto; controlla le tariffe.
+
 ## 3. Da fare nel tempo
 
 - **Segnalazioni**: almeno una volta a settimana guarda Table Editor → `segnalazioni` con

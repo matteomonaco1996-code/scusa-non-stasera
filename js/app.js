@@ -2,6 +2,12 @@
 // Espone window.SNS per js/conto.js (account, punti, recensioni).
 (() => {
   "use strict";
+  // Chi arriva in http passa a https. La regola vera è "Enforce HTTPS" nelle impostazioni di GitHub Pages:
+  // questo è solo un paracadute, e non vale per le pagine senza script (privacy, termini).
+  if (location.protocol === "http:" && !/^(localhost|127\.|\[::1\])/.test(location.hostname)) {
+    location.replace("https://" + location.host + location.pathname + location.search + location.hash);
+    return;
+  }
   const DATA = window.RISTOMAT || [];
   const META = window.RISTOMAT_META || {};
 
@@ -159,6 +165,10 @@
   const luogo = (x) => x.m === "roma" ? (x.l === "Periferia" ? "Roma" : x.l) : x.c === "Altre località" ? (x.r || "") : x.c;
   const via = (x) => (x.a || "").replace(/,\s*\d{5}.*$/, "");
   const EXT = 'target="_blank" rel="noopener noreferrer"';
+
+  // ---------- Moneta: donazione facoltativa. Compare solo se in config.js c'è un link https ----------
+  const DONA = (() => { try { const u = new URL((window.SNS_CONFIG || {}).donazione || ""); return u.protocol === "https:" ? u.href : ""; } catch (e) { return ""; } })();
+  const moneta = () => DONA ? `<a class="moneta" href="${esc(DONA)}" ${EXT}><img src="img/gettone.svg" width="24" height="24" alt="">Lascia una moneta</a>` : "";
 
   // ---------- Filtri ----------
   function passa(x, salta) {
@@ -467,7 +477,7 @@
     function popup(x) {
       return `<strong>${esc(x.n)}</strong><div>${esc(PW[x.t][0])} · ${esc(luogo(x))}${stato.pos ? " · " + distTesto(x) : ""}</div>` +
         nota(x) +
-        `<div class="popup-acts"><a href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><a href="${linkMaps(x)}" ${EXT}>Apri su Maps</a><a href="#p${x.i}" data-scheda="${x.i}">Scheda</a></div>`;
+        `<div class="popup-acts"><a href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><a href="${linkMaps(x)}" ${EXT}>Apri su Maps</a><a href="#p${x.i}" data-scheda="${x.i}">Scheda</a></div>` + moneta();
     }
     const nascosta = () => el.offsetParent === null || !el.clientWidth;
     function adattaA(lista) {
@@ -665,6 +675,7 @@
         ${via(x) ? `<div class="addr">${esc(via(x))}</div>` : ""}
         <div class="get-acts"><a class="btn" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><button class="btn alt" type="button" data-get="ancora" ${n < 2 ? "disabled" : ""}>Altro gettone</button></div>
         <div class="get-link"><button class="link" type="button" data-get="mappa">Vedi sulla mappa</button><button class="link" type="button" data-get="scheda">Apri la scheda</button></div>
+        ${DONA ? `<p class="moneta-riga">${moneta()}<small>Se ti è stato utile. È facoltativo.</small></p>` : ""}
         <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? "È l’unico posto in gioco: cambia livello o power-up per pescarne altri." : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
         <small>Gli orari non li conosciamo: prima di partire controlla su Maps che sia aperto.</small>`;
       rispondi(x);
@@ -726,6 +737,20 @@
   $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else start(); });
   document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => impostaVista(b.dataset.view)));
   document.querySelectorAll("dialog [data-chiudi]").forEach((b) => b.addEventListener("click", () => b.closest("dialog").close()));
+
+  // Moneta: nel fondo pagina sempre; dopo "Portami lì", al ritorno sulla pagina, un avviso che non blocca nulla.
+  // Al massimo una volta per visita, e senza salvare niente nel browser.
+  if (DONA) {
+    $("#moneta-fondo").innerHTML = moneta();
+    $("#moneta-avviso .moneta-qui").innerHTML = moneta();
+    let inAttesa = false, giaMostrato = false;
+    document.addEventListener("click", (e) => { if (!giaMostrato && e.target.closest('a[href^="https://www.google.com/maps/dir/"]')) inAttesa = true; });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible" || !inAttesa) return;
+      inAttesa = false; giaMostrato = true; $("#toast").hidden = true; $("#moneta-avviso").hidden = false;
+    });
+    $("#moneta-avviso").addEventListener("click", (e) => { if (e.target.closest("button, a")) $("#moneta-avviso").hidden = true; });
+  }
 
   // ---------- Avvio ----------
   $("#hi").textContent = String(DATA.length).padStart(6, "0");
