@@ -171,12 +171,27 @@
   const moneta = () => DONA ? `<button class="moneta" type="button" data-moneta><img src="img/gettone.svg" width="24" height="24" alt="">Lascia una moneta</button>` : "";
   // Con un link PayPal.Me l'importo si può mettere nell'indirizzo (…/2EUR): la pagina di PayPal si apre già compilata
   const linkDona = (euro) => /^https:\/\/(www\.)?paypal\.me\//i.test(DONA) && euro ? DONA.replace(/\/+$/, "") + "/" + euro + "EUR" : DONA;
-  function apriMoneta() {
+  function importiMoneta() {
     const importi = /^https:\/\/(www\.)?paypal\.me\//i.test(DONA) ? [1, 2, 5] : [];
-    $("#monete").innerHTML = importi.map((n) => `<a class="moneta-importo px" href="${esc(linkDona(n))}" ${EXT}><img src="img/gettone.svg" width="48" height="48" alt=""><b>${n} €</b></a>`).join("") +
+    return importi.map((n) => `<a class="moneta-importo px" href="${esc(linkDona(n))}" ${EXT}><img src="img/gettone.svg" width="48" height="48" alt=""><b>${n} €</b></a>`).join("") +
       `<a class="moneta-importo px" href="${esc(DONA)}" ${EXT}><img src="img/gettone.svg" width="48" height="48" alt=""><b>${importi.length ? "Altro" : "Vai"}</b></a>`;
-    $("#moneta-avviso").hidden = true;
+  }
+  function apriMoneta() {
+    $("#monete").innerHTML = importiMoneta();
     const d = $("#dlg-moneta"); if (!d.open) d.showModal();
+  }
+  // Prima di aprire le indicazioni verso un posto: una finestra con "Vai al posto" in cima e, sotto, la moneta.
+  // In config.js, monetaPrima = "sempre" (ogni volta), "una" (una volta per visita) oppure "mai".
+  const PRIMA = (window.SNS_CONFIG || {}).monetaPrima || "sempre";
+  let giaChiesto = false;
+  function primaDiAndare(e) {
+    const a = e.target.closest('a[href^="https://www.google.com/maps/dir/"]');
+    if (!a || !DONA || a.id === "vai-ora" || PRIMA === "mai" || (PRIMA === "una" && giaChiesto)) return;
+    giaChiesto = true;
+    e.preventDefault();
+    $("#vai-ora").href = a.href;
+    $("#monete-vai").innerHTML = importiMoneta();
+    const d = $("#dlg-vai"); if (!d.open) d.showModal();
   }
 
   // ---------- Filtri ----------
@@ -523,6 +538,7 @@
       const el = e.popup.getElement(), a = el.querySelector("[data-scheda]"), mo = el.querySelector("[data-moneta]");
       if (a) a.addEventListener("click", (ev) => { ev.preventDefault(); mostraScheda(+a.dataset.scheda); });
       if (mo) mo.addEventListener("click", apriMoneta);   // i clic dentro i fumetti non arrivano al documento
+      el.querySelectorAll('a[href^="https://www.google.com/maps/dir/"]').forEach((v) => v.addEventListener("click", primaDiAndare));
     });
     addEventListener("resize", () => m.invalidateSize());
     return { aggiorna, vai, posizione, mostra, chiudi: () => m.closePopup(), ridisegna: () => aggiorna(ultima, false) };
@@ -755,15 +771,8 @@
   // Al massimo una volta per visita, e senza salvare niente nel browser.
   if (DONA) {
     $("#moneta-fondo").innerHTML = moneta();
-    $("#moneta-avviso .moneta-qui").innerHTML = moneta();
-    let inAttesa = false, giaMostrato = false;
-    document.addEventListener("click", (e) => { if (!giaMostrato && e.target.closest('a[href^="https://www.google.com/maps/dir/"]')) inAttesa = true; });
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState !== "visible" || !inAttesa) return;
-      inAttesa = false; giaMostrato = true; $("#toast").hidden = true; $("#moneta-avviso").hidden = false;
-    });
-    $("#moneta-avviso").addEventListener("click", (e) => { if (e.target.closest("button")) $("#moneta-avviso").hidden = true; });
-    document.addEventListener("click", (e) => { if (e.target.closest("[data-moneta]")) apriMoneta(); });
+    document.addEventListener("click", (e) => { if (e.target.closest("[data-moneta]")) apriMoneta(); else primaDiAndare(e); });
+    $("#vai-ora").addEventListener("click", () => $("#dlg-vai").close());
   }
 
   // Termini: alla prima visita, e ogni volta che cambiano, vanno accettati prima di giocare.

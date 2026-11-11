@@ -1,3 +1,4 @@
 {
- "_istruzioni": "Posti che hanno chiuso e non vanno mostrati sul sito, anche se restano nella lista di Google Maps. Chiave = id del locale (o nome esatto). Valore = perché e da quale fonte. Per rimetterne uno, cancella la sua riga."
+ "_istruzioni": "Posti che hanno chiuso e non vanno mostrati sul sito, anche se restano nella lista di Google Maps. Chiave = id del locale (o nome esatto). Valore = perché e da quale fonte. Per rimetterne uno, cancella la sua riga.",
+ "14116146777627576109": "Circoletto Roma, via dei Cerchi 55: chiuso secondo Gambero Rosso del 2 gennaio 2025 (titolo: «Chiude Circoletto…», al suo posto una pizza al taglio). Articolo non letto per intero: https://www.gamberorosso.it/notizie/chiude-circoletto-roma-pizza-taglio-pantera/"
 }

@@ -12,6 +12,9 @@ window.SNS_CONFIG = {
   // (per esempio PayPal.me, Ko-fi, Satispay). Deve iniziare con https://
   // Finché resta vuoto la moneta non compare da nessuna parte. Prima di attivarla leggi LEGALE_E_SICUREZZA.md.
   donazione: "https://www.paypal.me/MatteoMonaco01",
+  // Quando ricordare la moneta prima di aprire le indicazioni ("Portami lì"):
+  // "sempre" = ogni volta, "una" = una volta sola per visita, "mai" = mai (la moneta resta negli altri punti).
+  monetaPrima: "sempre",
   // Versioni dei documenti accettati alla registrazione: aggiornale se cambi privacy.html o termini.html.
   versioneTermini: "1.1",
   versionePrivacy: "1.1",

@@ -97,11 +97,19 @@ proprie, niente giudizi, prezzi, orari o nomi di persone, campo vuoto se il loca
 `tipi.json` (per id) corregge il tipo quando la ricerca lo ha accertato. `chiusi.json` elenca i posti che hanno chiuso:
 restano nella lista di Google ma non compaiono sul sito.
 
-### Donazioni (spente)
+**Il lunedì.** L'aggiornamento automatico di GitHub riscarica la lista e ci riattacca le descrizioni che ci sono già:
+non se ne perde nessuna. Non sa però scriverne di nuove. Per i posti appena aggiunti c'è `strumenti/descrizioni.py`
+(`stato`, `da-cercare`, `applica`): elenca chi è senza descrizione, controlla gli esiti di una ricerca e li salva.
+Le regole e il giro completo sono in `strumenti/DESCRIZIONI.md`. I posti cercati senza trovare nulla sono segnati in
+`descrizioni_tentate.json` e si riprovano dopo 120 giorni. Le chiusure non vengono mai applicate da sole.
 
-In `config.js`, `donazione` è il link della pagina dove ricevere una moneta. Finché è vuoto non compare
+### Donazioni
+
+In `config.js`, `donazione` è il link della pagina dove ricevere una moneta (PayPal.Me). Se è vuoto non compare
 nulla. Quando c'è, “Lascia una moneta” compare nel fumetto di ogni posto sulla mappa, nel risultato del
-gettone, in fondo alla pagina e, una volta per visita, al ritorno da “Portami lì”. Vedi `LEGALE_E_SICUREZZA.md`.
+gettone e in fondo alla pagina. In più, toccando “Portami lì” si apre prima la finestra **Prima di andare**:
+in cima il pulsante “Vai al posto” (che apre le indicazioni), sotto le monete. `monetaPrima` in `config.js`
+decide quando: `"sempre"` (ogni volta), `"una"` (una volta per visita), `"mai"`. Vedi `LEGALE_E_SICUREZZA.md`.
 
 ### Indirizzo del sito: https://ristomat.click
 
@@ -120,8 +128,9 @@ una volta attivato Supabase, tra gli indirizzi consentiti per l'accesso. Vanno a
   quartiere nel nome (50 su 53 coincidono; i 3 diversi citano un quartiere
   confinante). Ai confini può sbagliare: si corregge con `"q"` in `correzioni.json`.
 - **Minuti a piedi**: stima in linea d’aria (+30% per le strade), non un percorso.
-- **Tipo di locale**: dal nome o da `tipi.json`; 100 posti restano “Da scoprire”.
+- **Tipo di locale**: dal nome o da `tipi.json`; 35 posti restano “Da scoprire”.
 - **Niente orari di apertura**: la lista Google Maps non li fornisce.
-- **IN BREVE**: 201 descrizioni scritte con l’aiuto dell’AI da informazioni di dominio pubblico, solo per
-  i posti più noti. Non sono opinioni di Matteo e possono essere superate: vanno rilette. Gli altri posti
-  restano senza descrizione finché Matteo non scrive una nota su Google Maps o in `correzioni.json`.
+- **IN BREVE**: 596 descrizioni scritte con l’aiuto dell’AI da informazioni pubbliche in rete. Circa 200
+  (i posti più noti) sono state scritte a memoria e poi ricontrollate con una ricerca; le altre vengono da una
+  ricerca con fonte. Non sono opinioni di Matteo e possono essere superate: vanno rilette. 57 posti restano senza
+  descrizione perché in rete non si è trovato abbastanza: basta una nota di Matteo su Google Maps.

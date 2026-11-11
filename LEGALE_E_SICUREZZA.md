@@ -97,7 +97,12 @@ la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagi
   nulla in cambio, che non siamo un ente benefico, che serve la maggiore età.
 - `termini.html` (punto 8) e `privacy.html` aggiornati alla versione 1.1; i dati che arrivano da PayPal
   (nome, email, importo, messaggio) sono nel registro dei trattamenti dell’informativa.
-- Nessun vantaggio nel gioco per chi dona; nessuna richiesta che blocca l’uso del sito.
+- Nessun vantaggio nel gioco per chi dona.
+- **Prima di andare** (dall’11 novembre 2026): toccando “Portami lì” si apre una finestra che ricorda la moneta.
+  Il primo pulsante è “Vai al posto”, quindi nessuno resta bloccato e si prosegue senza donare; Esc e “Chiudi”
+  funzionano. Resta però un passaggio in più a ogni posto: se dà fastidio, in `config.js` metti
+  `monetaPrima: "una"` (una volta per visita) oppure `"mai"`. Non renderlo mai obbligatorio e non nascondere
+  “Vai al posto”: un invito a donare che ostacola il servizio diventa una pratica scorretta verso chi usa il sito.
 
 **Da fare tu (non si risolve dal codice)**
 1. **Fisco**: ricevere denaro dal pubblico può essere reddito da dichiarare. Conta la sostanza: una somma data
