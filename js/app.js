@@ -168,10 +168,10 @@
     [41.8328, 12.4242], [41.8321, 12.4231], [41.8312, 12.4221], [41.8305, 12.4216], [41.8286, 12.4210],
   ];
 
-  const INIZIO = { mondo: "roma", livello: "", vicino: false, pos: null, posLv: "", voglia: "", consigli: false, q: "", mostrati: PAGINA, vista: "lista", pescato: null };
+  const INIZIO = { mondo: "roma", livello: "", vicino: false, pos: null, posLv: "", voglia: "", q: "", mostrati: PAGINA, vista: "lista", pescato: null };
   const stato = { ...INIZIO };
   // C'è qualcosa da azzerare? Serve a mostrare RESTART solo quando ha senso.
-  const inCorso = () => stato.vicino || !!stato.pos || !!stato.livello || stato.mondo !== INIZIO.mondo || !!stato.voglia || stato.consigli || !!stato.q || stato.pescato !== null;
+  const inCorso = () => stato.vicino || !!stato.pos || !!stato.livello || stato.mondo !== INIZIO.mondo || !!stato.voglia || !!stato.q || stato.pescato !== null;
 
   // ---------- Distanze e link ----------
   function km(a, b) {
@@ -249,7 +249,6 @@
     if (!stato.vicino && x.m !== stato.mondo) return false;
     if (stato.livello && x.l !== stato.livello) return false;
     if (salta !== "voglia" && stato.voglia && x.t !== stato.voglia) return false;
-    if (salta !== "consigli" && stato.consigli && !x.nt) return false;
     if (stato.q) for (const p of stato.q.split(/\s+/)) if (p && !x.h.includes(p)) return false;
     return true;
   }
@@ -360,9 +359,6 @@
     const ordine = Object.keys(PW).filter((k) => k !== "altro").sort((a, b) => (c[b] || 0) - (c[a] || 0)).concat("altro");
     $("#powerups").innerHTML = `<button type="button" class="pw px" data-voglia="" aria-pressed="${!stato.voglia}">${svg("stella")}Tutto <span class="n">${base.length}</span></button>` +
       ordine.map((k) => `<button type="button" class="pw px" data-voglia="${k}" aria-pressed="${stato.voglia === k}" ${!c[k] && stato.voglia !== k ? "disabled" : ""}>${svg(PW[k][1])}${esc(PW[k][0])} <span class="n">${c[k] || 0}</span></button>`).join("");
-    const b = $("#consigli");
-    b.innerHTML = `${svg("stella")}Solo i consigli di Matteo <span class="n">${DATA.filter((x) => passa(x, "consigli") && x.nt).length}</span>`;
-    b.setAttribute("aria-pressed", stato.consigli);
   }
 
   // ---------- Disegno: risultati ----------
@@ -442,7 +438,7 @@
   // e i tipi di posto che hanno senso a quell'ora (per il gettone)
   const MOMENTI = [
     { da: 6, a: 11, nome: "colazione", domanda: "Colazione insieme?", no: "Scusa, non stamattina…", tipi: ["dolce", "bottega"] },
-    { da: 11, a: 15, nome: "pranzo", domanda: "Pranziamo fuori?", no: "Scusa, non oggi…", tipi: ["trattoria", "ristorante", "pizza", "street", "pesce", "carne", "mondo"] },
+    { da: 11, a: 15, nome: "pranzo", domanda: "Pranziamo insieme?", no: "Scusa, non oggi…", tipi: ["trattoria", "ristorante", "pizza", "street", "pesce", "carne", "mondo"] },
     { da: 15, a: 18, nome: "merenda o aperitivo", domanda: "Aperitivo dopo?", no: "Scusa, non stasera…", tipi: ["dolce", "bottega", "street", "vino", "bar"] },
     { da: 18, a: 23, nome: "sera", domanda: "Usciamo stasera?", no: "Scusa, non stasera…", tipi: ["trattoria", "ristorante", "pizza", "pesce", "carne", "mondo", "vino", "bar", "street"] },
   ];
@@ -717,7 +713,7 @@
   function mostraScheda(i) {
     impostaVista("lista");
     let idx = ultimi.findIndex((x) => x.i === i);
-    if (idx === -1) { const x = DATA[i]; Object.assign(stato, { mondo: x.m, livello: "", vicino: false, voglia: "", consigli: false, q: "" }); $("#q").value = ""; aggiorna({ adatta: false }); idx = ultimi.findIndex((y) => y.i === i); }
+    if (idx === -1) { const x = DATA[i]; Object.assign(stato, { mondo: x.m, livello: "", vicino: false, voglia: "", q: "" }); $("#q").value = ""; aggiorna({ adatta: false }); idx = ultimi.findIndex((y) => y.i === i); }
     if (idx >= stato.mostrati) { stato.mostrati = idx + 1; disegnaLista(); }
     const el = document.getElementById("p" + i);
     if (el) { scorri(el, "center"); lampeggia(el); }
@@ -882,7 +878,6 @@
     if (b) mostraSuMappa(+b.dataset.mappa);
   });
   $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (!b) return; stato.voglia = stato.voglia === b.dataset.voglia ? "" : b.dataset.voglia; aggiorna(); });
-  $("#consigli").addEventListener("click", () => { stato.consigli = !stato.consigli; aggiorna(); });
   $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); }, 160); });
   $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); });
   $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else start(); });

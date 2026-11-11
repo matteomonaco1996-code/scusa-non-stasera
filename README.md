@@ -23,7 +23,7 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   livelli sono le località con almeno 3 posti; le altre sono raggruppate per regione.
 - **POWER-UP**: Come a casa · A tavola · Pizza, ovvio · Un calice · Due drink ·
   Dolce & caffè · Giro del mondo · Al volo · Sapore di mare · Brace & carne ·
-  Spesa golosa · Da scoprire. In più c'è il filtro *Solo i consigli di Matteo*.
+  Spesa golosa · Da scoprire.
 - **GETTONE**: pesca un posto a caso, in una finestra in primo piano. Lo spiegano il menu, una riga sopra la
   lista (finché non lo si usa) e la finestra stessa, che dice anche che è gratis: la moneta delle donazioni
   ha lo stesso disegno e qualcuno le confondeva. Con la posizione sceglie tra i posti
