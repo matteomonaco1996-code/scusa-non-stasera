@@ -381,7 +381,8 @@
     const el = $("#mappa");
     if (!window.L) { el.innerHTML = `<div class="map-gate"><b>Mappa non disponibile</b>La lista funziona lo stesso.</div>`; return { aggiorna() {}, vai() {}, posizione() {}, mostra() {}, ridisegna() {} }; }
     const nascostaSubito = () => el.offsetParent === null || !el.clientWidth;
-    const m = L.map(el, { zoomControl: true, attributionControl: true }).setView([41.9, 12.49], 12);
+    const m = L.map(el, { zoomControl: false, attributionControl: true }).setView([41.9, 12.49], 12);
+    L.control.zoom({ position: "bottomleft" }).addTo(m);   // in basso: in alto si aprono i fumetti dei posti
     m.attributionControl.setPrefix(false);
     m.attributionControl.addAttribution('© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>');
     // Mappa ospitata sul sito (mappa/roma.js, dati OpenStreetMap): strade, Tevere, parchi. Sempre visibile, nessun server esterno.
@@ -393,11 +394,11 @@
       if (!D || disegnata) return;
       disegnata = true;
       const op = { renderer: tela, interactive: false, smoothFactor: 1.2 };
-      if (D.parchi.length) L.polygon(D.parchi.map(dec), { ...op, stroke: false, fillColor: "#3B5330", fillOpacity: 1 }).addTo(m);
+      if (D.parchi.length) L.polygon(D.parchi.map(dec), { ...op, stroke: false, fillColor: "#3E6638", fillOpacity: 1 }).addTo(m);
       strati.fiume = L.polyline(D.fiumi.map(dec), { ...op, color: "#3E6A8C", lineCap: "round" }).addTo(m);
-      vie = L.polyline(D.vie.map(dec), { ...op, color: "#4F3A29" });
-      strati.medie = L.polyline(D.medie.map(dec), { ...op, color: "#6E4D33" }).addTo(m);
-      strati.grandi = L.polyline(D.grandi.map(dec), { ...op, color: "#8E6840" }).addTo(m);
+      vie = L.polyline(D.vie.map(dec), { ...op, color: "#6B1622" });
+      strati.medie = L.polyline(D.medie.map(dec), { ...op, color: "#8C2231" }).addTo(m);
+      strati.grandi = L.polyline(D.grandi.map(dec), { ...op, color: "#B03A48" }).addTo(m);
       mostraVie();
       if (fiumeDisegnato) { m.removeLayer(fiumeDisegnato); fiumeDisegnato = null; }
       base.forEach((l) => l.bringToFront && l.bringToFront());
@@ -483,7 +484,7 @@
       for (const x of lista) {
         const ic = visti.has(x.id) ? I.visto : x.nt ? I.nota : x.dr ? I.breve : I.base;
         const mk = L.marker([x.la, x.lo], { icon: ic, title: x.n, alt: x.n, riseOnHover: true, zIndexOffset: x.nt ? 200 : x.dr ? 100 : 0 })
-          .bindPopup(() => popup(x), { maxWidth: 290, minWidth: 200, autoPanPadding: [24, 24] }).addTo(strato);
+          .bindPopup(() => popup(x), { maxWidth: 290, minWidth: 200, autoPanPaddingTopLeft: [16, 56], autoPanPaddingBottomRight: [16, 24] }).addTo(strato);
         L.marker([x.la, x.lo], { icon: AREA, pane: "aree", keyboard: false, title: x.n }).on("click", () => mk.openPopup()).addTo(strato);
         punti.set(x.i, mk);
       }
