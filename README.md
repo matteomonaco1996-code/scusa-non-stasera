@@ -89,6 +89,14 @@ e ogni lunedì riscarica la lista da Google Maps: se è cambiata aggiorna `local
 `supabase/luoghi.sql` e ripubblica. Con i segreti `SUPABASE_URL` e `SUPABASE_SERVICE_KEY`
 aggiorna anche i posti nel database. Serve *Settings → Pages → Source: GitHub Actions*.
 
+### Descrizioni IN BREVE e posti chiusi
+
+`in_breve.json` contiene le descrizioni brevi (chiave: nome del locale oppure il suo id). Quelle con l'id vengono da
+una ricerca in rete fatta con assistenti automatici, con regole strette: una fonte per ogni descrizione, parole
+proprie, niente giudizi, prezzi, orari o nomi di persone, campo vuoto se il locale non è identificato con certezza.
+`tipi.json` (per id) corregge il tipo quando la ricerca lo ha accertato. `chiusi.json` elenca i posti che hanno chiuso:
+restano nella lista di Google ma non compaiono sul sito.
+
 ### Donazioni (spente)
 
 In `config.js`, `donazione` è il link della pagina dove ricevere una moneta. Finché è vuoto non compare

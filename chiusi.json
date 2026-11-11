@@ -1,0 +1,3 @@
+{
+ "_istruzioni": "Posti che hanno chiuso e non vanno mostrati sul sito, anche se restano nella lista di Google Maps. Chiave = id del locale (o nome esatto). Valore = perché e da quale fonte. Per rimetterne uno, cancella la sua riga."
+}

@@ -9,7 +9,9 @@ La lista deve essere condivisa pubblicamente (link "Chiunque abbia il link").
 Il tipo di locale è dedotto dal nome (e dall'eventuale nota): per correggerlo,
 o per cambiare città/zona/nota, aggiungi una voce in correzioni.json.
 Il tipo dei posti con nomi poco chiari sta in tipi.json; i quartieri di Roma in strumenti/quartieri.py;
-le descrizioni "IN BREVE" in in_breve.json.
+le descrizioni "IN BREVE" in in_breve.json; i posti che hanno chiuso, da non mostrare, in chiusi.json.
+In tipi.json, in_breve.json e chiusi.json la chiave è il nome del locale oppure il suo id (più sicuro quando
+due locali hanno lo stesso nome).
 Solo libreria standard: nessuna dipendenza da installare.
 """
 import argparse
@@ -35,6 +37,7 @@ SQL_LUOGHI = ROOT / "supabase" / "luoghi.sql"
 CORREZIONI = ROOT / "correzioni.json"
 TIPI_EXTRA = ROOT / "tipi.json"
 IN_BREVE = ROOT / "in_breve.json"
+CHIUSI = ROOT / "chiusi.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from quartieri import AREE, QUARTIERI, quartiere  # noqa: E402
@@ -191,6 +194,8 @@ def main():
     correzioni = {k: v for k, v in correzioni.items() if not k.startswith("_")}
     tipi_extra = json.loads(TIPI_EXTRA.read_text("utf-8")) if TIPI_EXTRA.exists() else {}
     in_breve = json.loads(IN_BREVE.read_text("utf-8")) if IN_BREVE.exists() else {}
+    chiusi = json.loads(CHIUSI.read_text("utf-8")) if CHIUSI.exists() else {}
+    chiusi = {k: v for k, v in chiusi.items() if not k.startswith("_")}
 
     locali = []
     for it in voci:
@@ -225,18 +230,25 @@ def main():
         if not x["c"] and d < 3:
             x["c"], x["cap"] = vicino["c"], x["cap"] or vicino["cap"]
 
+    # Posti che hanno chiuso: restano nella lista di Google ma non vanno mostrati
+    tolti = [x for x in locali if x["id"] in chiusi or x["n"] in chiusi]
+    locali = [x for x in locali if x not in tolti]
+
     for x in locali:
         x["r"] = PROV2REG.get(x["p"], "Altro")
         x["c"] = x["c"] or "Altre località"
-        if x["t"] == "altro":  # il nome non dice che locale è
+        if x["id"] in tipi_extra:  # tipo accertato con una ricerca: vale più di quello dedotto dal nome
+            x["t"] = tipi_extra[x["id"]]
+        elif x["t"] == "altro":  # il nome non dice che locale è
             x["t"] = tipi_extra.get(x["n"], "altro")
         fix = correzioni.get(x["n"]) or {}
         x.update({k: v for k, v in fix.items() if k in ("c", "la", "lo", "r")})  # prima del quartiere
         if x["c"] == "Roma":
             x["q"] = quartiere(x["la"], x["lo"])
         x.update({k: v for k, v in fix.items() if k in ("t", "q", "nt")})
-        if not x["nt"] and in_breve.get(x["n"]):
-            x["dr"] = in_breve[x["n"]]  # descrizione breve, mostrata solo se Matteo non ha scritto una nota
+        breve = in_breve.get(x["id"]) or in_breve.get(x["n"])
+        if not x["nt"] and breve:
+            x["dr"] = breve  # descrizione breve, mostrata solo se Matteo non ha scritto una nota
         del x["cap"]
 
     locali.sort(key=lambda x: -(x["d"] or 0))  # più recenti prima
@@ -260,7 +272,7 @@ def main():
     scrivi_sql(locali)
     sincronizza_supabase(locali)
 
-    print(f"{len(locali)} locali scritti in {OUT.name}")
+    print(f"{len(locali)} locali scritti in {OUT.name}" + (f" ({len(tolti)} chiusi esclusi)" if tolti else ""))
     print("Tipi:", dict(Counter(x["t"] for x in locali).most_common()))
     print("Città:", dict(Counter(x["c"] for x in locali).most_common(8)))
     print("Quartieri di Roma:", dict(Counter(x.get("q") for x in locali if x.get("q")).most_common()))
