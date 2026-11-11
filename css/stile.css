@@ -75,6 +75,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .hud b { color: var(--ink); font-weight: 600; }
 .hud .g { color: var(--pino-txt); }
 .hud .btn { font-size: 13px; padding: 6px 12px; }
+.hud .marchio { width: 24px; height: 24px; vertical-align: -6px; margin-right: 8px; }
 
 /* ---------- Titolo ---------- */
 .title { padding-block: 30px 34px; }

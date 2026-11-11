@@ -9,6 +9,23 @@
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="Il gioco per uscire senza programmare: premi start o scegli il quartiere, scopri i posti della lista di Matteo e fai punti visitandoli.">
 <meta name="theme-color" content="#7A1022">
+<link rel="icon" type="image/svg+xml" href="img/gettone.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="img/icona-32.png">
+<link rel="apple-touch-icon" href="img/icona-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Non stasera">
+<!-- Anteprima quando il link viene condiviso. Se l'indirizzo del sito cambia, aggiornare og:url e og:image. -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="it_IT">
+<meta property="og:site_name" content="Scusa, non stasera">
+<meta property="og:title" content="Scusa, non stasera. Anzi sì!">
+<meta property="og:description" content="Il gioco per uscire senza programmare: premi start o scegli il quartiere e scopri i posti buoni a pochi passi.">
+<meta property="og:url" content="https://matteomonaco1996-code.github.io/scusa-non-stasera/">
+<meta property="og:image" content="https://matteomonaco1996-code.github.io/scusa-non-stasera/img/anteprima.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Un gettone d’oro con una forchetta e la scritta: Scusa, non stasera. Anzi sì!">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="css/stile.css">
 </head>
@@ -16,7 +33,7 @@
 
 <div class="hud">
   <div class="wrap">
-    <span>1UP <b id="nick">OSPITE</b></span>
+    <span><img class="marchio" src="img/gettone.svg" width="24" height="24" alt="">1UP <b id="nick">OSPITE</b></span>
     <span class="solo-conto">PUNTI <b class="g num" id="punti">000000</b></span>
     <span class="opz">POSTI <b class="g num" id="hi">000000</b></span>
     <button class="btn solo-conto" type="button" id="apri-player">ACCEDI</button>

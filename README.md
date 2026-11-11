@@ -71,6 +71,9 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | `correzioni.json` | Correzioni manuali (tipo `t`, quartiere `q`, città `c`, nota `nt`): vincono su tutto |
 | `strumenti/aggiorna_lista.py` | Scarica la lista da Google Maps e rigenera `locali.js` |
 | `strumenti/quartieri.py` | I quartieri di Roma: centro, area e sponda del Tevere |
+| `img/` | Logo e icone: `logo.svg` (con fondo), `logo-trasparente.svg`, `gettone.svg`, `icona.svg`, i PNG per schede del browser e schermata Home, `anteprima.png` per i link condivisi |
+| `strumenti/logo.py` | Ridisegna gli SVG del logo (gettone a pixel + scritta in Jersey 10 convertita in tracciati). I PNG sono esportazioni di quegli SVG |
+| `manifest.webmanifest` | Nome e icone per "Aggiungi a schermata Home" |
 
 Dopo aver aggiunto posti su Google Maps o modificato un file `.json`:
 
@@ -85,6 +88,11 @@ Il workflow `.github/workflows/pubblica.yml` pubblica su GitHub Pages a ogni pus
 e ogni lunedì riscarica la lista da Google Maps: se è cambiata aggiorna `locali.js` e
 `supabase/luoghi.sql` e ripubblica. Con i segreti `SUPABASE_URL` e `SUPABASE_SERVICE_KEY`
 aggiorna anche i posti nel database. Serve *Settings → Pages → Source: GitHub Actions*.
+
+### Se cambia l'indirizzo del sito
+
+L'indirizzo compare per esteso in `index.html` (`og:url` e `og:image`, servono per l'anteprima dei link) e,
+una volta attivato Supabase, tra gli indirizzi consentiti per l'accesso. Vanno aggiornati insieme.
 
 ## Limiti da sapere
 
