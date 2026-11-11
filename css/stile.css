@@ -89,7 +89,7 @@ h1 .scusa {
 }
 @keyframes barra { from { background-size: 0% .11em; } }
 h1 .anzi { display: block; margin-top: .18em; color: var(--ocra); text-shadow: .06em .06em 0 var(--pompei); }
-.sottotitolo { margin: 16px 0 0; font: 400 clamp(30px, 4vw, 46px)/1 var(--f-title); color: var(--ink); letter-spacing: .06em; }
+.sottotitolo { margin: 16px 0 0; font: 400 clamp(30px, 4vw, 46px)/1 var(--f-title); color: var(--ink); letter-spacing: .06em; text-transform: uppercase; }
 .lede { margin: 22px 0 0; max-width: 32em; font-size: 20px; line-height: 1.45; }
 
 .dialog { background: var(--panel); padding: 16px 18px 14px; position: relative; display: grid; gap: 10px; }
