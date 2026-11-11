@@ -9,12 +9,14 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
 
 ## Come si gioca
 
-- **LA CHAT**: in cima c'è solo il marchio (gettone e RISTOMAT). La battuta che dà il nome al sito la racconta
-  una volta sola una chat come quelle del telefono: il messaggio di Gaia a sinistra con la domanda dell'ora, i
-  tuoi a destra, “Scusa, non stasera…” (barrato) e poi “Anzi sì! Portami fuori.”, che si tocca. Ora e spunte sono
-  quelle del momento. Dopo una ricerca l'ultimo messaggio diventa il consiglio (“Anzi sì: … Ci vediamo lì?”).
-  È una chat nello stile delle app di messaggi, senza loghi né nomi di prodotti.
-- **DA DOVE PARTIAMO?**: la prima scelta, in cima alla pagina e nella finestra che compare alla prima visita, è
+- **LA VIGNETTA**: in cima c'è solo la scritta RISTOMAT. Sotto, tre battute: Gaia (personaggetto a sinistra)
+  fa la domanda dell'ora; tu (personaggetto a destra) rispondi “Scusa, non stasera…” (barrato) e poi
+  “Anzi sì! Portami fuori.”, che si tocca; infine il gettone, a nome di Ristomat, dice che cosa fa il sito e
+  chiede “Da dove partiamo?”, proprio sopra le due scelte. Così l'intento si capisce dalla conversazione, senza
+  un testo a parte. Dopo una ricerca il tuo fumetto dà il consiglio (“Anzi sì: … Ci vediamo lì?”).
+  I due personaggi sono in `img/gaia.svg` e `img/tu.svg` e si ridisegnano con `strumenti/personaggi.py`
+  (capelli, barba, occhiali e colori sono due righe in cima al file).
+- **DA DOVE PARTIAMO?**: la prima scelta, subito sotto la vignetta e nella finestra che compare alla prima visita, è
   tra due strade ben distinte: **VICINO A ME** (usa la posizione) e **SCELGO LA ZONA** (quartiere, città o fuori
   porta, senza posizione). Anche la battuta “Anzi sì! Portami fuori.” apre questa scelta.
 - **VICINO A ME**: usa il GPS del telefono (la posizione non esce dal browser) e

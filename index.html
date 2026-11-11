@@ -47,25 +47,25 @@
   <div class="wrap">
     <div>
       <div class="marchio">
-        <img class="marchio-gettone" src="img/gettone.svg" width="64" height="64" alt="">
         <h1>Ristomat<span class="sr"> · Scusa, non stasera</span></h1>
       </div>
-      <p class="lede">Il gioco per uscire senza programmare: ti dico cosa c’è di buono, vicino a te o nella zona che scegli. <span class="solo-conto">Se vuoi, fai punti visitando e recensendo i posti.</span></p>
-      <div class="chat" aria-live="polite">
-        <div class="chat-testa">
-          <svg class="chat-foto" viewBox="0 0 36 36" width="36" height="36" aria-hidden="true"><circle cx="18" cy="18" r="18" fill="#DFE5E7"/><circle cx="18" cy="14" r="6" fill="#fff"/><path fill="#fff" d="M6.5 30.5c1.6-5.6 6.2-8.5 11.5-8.5s9.900 2.900 11.500 8.500a18 18 0 0 1-23 0z"/></svg>
-          <div><b>Gaia</b><small>online</small></div>
+      <div class="scena" aria-live="polite">
+        <div class="battuta lei">
+          <img class="tipo" src="img/gaia.svg" width="72" height="88" alt="">
+          <div class="voce-di"><span class="nome">GAIA</span><p class="fumetto"><span id="domanda">Usciamo stasera?</span></p></div>
         </div>
-        <div class="chat-corpo">
-          <p class="msg lei"><span class="sr">Gaia: </span><span id="domanda">Usciamo stasera?</span><span class="meta"><span class="ora" data-prima="1">20:29</span></span></p>
-          <p class="msg io"><span class="sr">Tu: </span><span class="barrato" id="risposta">Scusa, non stasera…</span><span class="meta"><span class="ora">20:30</span><span class="spunte" aria-hidden="true">✓✓</span></span></p>
-          <p class="msg io seguito azione"><span class="sr">Tu: </span><button type="button" id="bolla">Anzi sì! Portami fuori.</button><span class="meta"><span class="ora">20:30</span><span class="spunte" aria-hidden="true">✓✓</span></span></p>
+        <div class="battuta io">
+          <div class="voce-di"><span class="nome">TU</span><p class="fumetto"><span class="barrato" id="risposta">Scusa, non stasera…</span><button type="button" id="bolla">Anzi sì! Portami fuori.</button></p></div>
+          <img class="tipo" src="img/tu.svg" width="72" height="88" alt="">
+        </div>
+        <div class="battuta gioco">
+          <img class="tipo gettone" src="img/gettone.svg" width="64" height="64" alt="">
+          <div class="voce-di"><span class="nome">RISTOMAT</span><p class="fumetto"><span id="spiega">Ci penso io: ti dico cosa c’è di buono, vicino a te o in una zona che scegli. <span class="solo-conto">Se vuoi, fai anche punti. </span><b>Da dove partiamo?</b></span></p></div>
         </div>
       </div>
     </div>
     <div>
-      <section class="partenza" aria-labelledby="partenza-t">
-        <h2 id="partenza-t">Da dove partiamo?</h2>
+      <section class="partenza" aria-label="Da dove partiamo?">
         <div class="partenza-scelte">
           <button type="button" class="px primo" id="m-start"><svg class="pxi" data-ico="pin" aria-hidden="true"></svg><span><b class="voce">VICINO A ME</b><small>Uso la posizione<span class="lungo"> del telefono: i posti a pochi minuti a piedi</span></small></span></button>
           <button type="button" class="px" id="m-livelli"><svg class="pxi" data-ico="zona" aria-hidden="true"></svg><span><b class="voce">SCELGO LA ZONA</b><small>Quartiere<span class="lungo"> di Roma</span>, città o fuori porta</small></span></button>

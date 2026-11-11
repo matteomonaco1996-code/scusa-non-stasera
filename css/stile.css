@@ -83,39 +83,32 @@ button, input, select, textarea { font: inherit; color: inherit; }
 h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-spacing: .005em; text-wrap: balance; }
 /* In alto solo il marchio: la battuta del titolo la racconta la chat qui sotto, una volta sola */
 .marchio { display: flex; align-items: center; gap: 16px; }
-.marchio-gettone { width: 64px; height: 64px; flex: none; image-rendering: pixelated; }
 .marchio h1 { font: 400 clamp(22px, 2.6vw, 34px)/1 var(--f-logo); letter-spacing: .2em; text-transform: uppercase; color: var(--ink); text-wrap: nowrap; }
-.lede { margin: 16px 0 0; max-width: 32em; font-size: 20px; line-height: 1.45; }
 
-/* La chat: come sul telefono. I messaggi di Gaia a sinistra, i tuoi a destra, con ora e spunte.
-   I colori qui sono quelli di una chat, apposta diversi dal resto del sito. */
-.chat { --c-fondo: #ECE5DD; --c-testa: #075E54; --c-lei: #FFFFFF; --c-io: #D9FDD3; --c-testo: #111B21; --c-meta: #667781; --c-spunte: #34B7F1;
-  margin-top: 22px; max-width: 34em; background: var(--c-fondo); color: var(--c-testo); border-radius: 14px; overflow: hidden; box-shadow: 0 0 0 4px var(--edge); }
-.chat-testa { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--c-testa); color: #fff; }
-.chat-foto { flex: none; width: 36px; height: 36px; border-radius: 50%; }
-.chat-testa b { display: block; font: 600 17px/1.2 var(--f-text); }
-.chat-testa small { display: block; font-size: 13px; line-height: 1.2; opacity: .85; }
-.chat-corpo { display: grid; gap: 8px; padding: 12px 12px 14px; }
-.msg { position: relative; margin: 0; max-width: 84%; padding: 6px 9px 7px; border-radius: 9px; font-size: 18px; line-height: 1.3; overflow-wrap: anywhere; box-shadow: 0 1px 0 rgb(0 0 0 / .13); }
-.msg.lei { justify-self: start; background: var(--c-lei); border-top-left-radius: 0; }
-.msg.io { justify-self: end; background: var(--c-io); border-top-right-radius: 0; }
-.msg.io.seguito { margin-top: -4px; border-top-right-radius: 9px; }   /* secondo messaggio di fila: niente punta */
-.msg.lei::before, .msg.io:not(.seguito)::before { content: ""; position: absolute; top: 0; border: 8px solid transparent; border-top-color: var(--c-lei); border-bottom: 0; }
-.msg.lei::before { left: -8px; border-left: 0; border-right-width: 9px; }
-.msg.io:not(.seguito)::before { right: -8px; border-top-color: var(--c-io); border-right: 0; border-left-width: 9px; }
-.msg .barrato { color: var(--c-meta); text-decoration: line-through; text-decoration-thickness: 2px; }
-.msg .meta { float: right; margin: 7px 0 -3px 12px; display: inline-flex; align-items: center; gap: 3px; font-size: 12px; line-height: 1; color: var(--c-meta); white-space: nowrap; }
-.msg .spunte { color: var(--c-spunte); font-size: 13px; letter-spacing: -3px; padding-right: 3px; }
-.msg button { all: unset; cursor: pointer; font-weight: 600; }
-.msg button::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }   /* tutto il messaggio si tocca */
-.msg.azione:hover { background: #C8F5C0; }
-.msg button:focus-visible::after { outline: 3px solid var(--c-testa); outline-offset: 2px; }
-.msg button b { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+/* La vignetta: Gaia a sinistra, tu a destra, poi il gettone che spiega che cosa fa il sito e chiede da dove partire */
+.scena { margin-top: 18px; display: grid; gap: 12px; max-width: 36em; }
+.battuta { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: end; }
+.battuta.io { grid-template-columns: minmax(0, 1fr) auto; }
+.tipo { display: block; width: 72px; height: 88px; flex: none; image-rendering: pixelated; }
+.tipo.gettone { width: 60px; height: 60px; margin: 0 6px 6px; }
+.voce-di { display: grid; gap: 4px; justify-items: start; min-width: 0; margin-bottom: 14px; }
+.battuta.io .voce-di { justify-items: end; }
+.voce-di .nome { font: 400 16px/1 var(--f-title); letter-spacing: .05em; color: var(--pompei-txt); }
+.battuta.io .nome { color: var(--cielo); }
+.battuta.gioco .nome { color: var(--ocra); }
+.fumetto { position: relative; margin: 0; padding: 10px 14px; background: var(--ink); color: var(--scuro); font-size: 19px; line-height: 1.3; display: grid; gap: 8px; justify-items: start; box-shadow: 0 0 0 4px var(--edge); overflow-wrap: anywhere; }
+.fumetto::after { content: ""; position: absolute; bottom: 10px; left: -12px; width: 12px; height: 12px; background: var(--ink); box-shadow: -4px 0 0 0 var(--edge), 0 -4px 0 0 var(--edge), 0 4px 0 0 var(--edge); }   /* la punta, a pixel */
+.battuta.io .fumetto::after { left: auto; right: -12px; box-shadow: 4px 0 0 0 var(--edge), 0 -4px 0 0 var(--edge), 0 4px 0 0 var(--edge); }
+.fumetto .barrato { color: #8B4A52; text-decoration: line-through; text-decoration-color: var(--bg); text-decoration-thickness: 2px; }
+.fumetto button { all: unset; cursor: pointer; padding: 7px 12px; background: var(--ocra); color: var(--scuro); font-weight: 600; box-shadow: 0 3px 0 0 #A8700B; overflow-wrap: anywhere; }
+.fumetto button:hover { background: #FFC94A; }
+.fumetto button:focus-visible { outline: 3px solid var(--bg); outline-offset: 3px; }
+.fumetto button b { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.fumetto b { font-weight: 700; }
 @keyframes lampeggia { 50% { opacity: 0; } }
 
 /* La prima scelta: due strade, ben distinte */
 .partenza { margin-top: 20px; display: grid; gap: 12px; max-width: 36em; }
-.partenza h2 { font-size: 28px; }
 .partenza-scelte { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 2px; }
 .partenza-scelte button { cursor: pointer; border: 0; text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 12px; padding: 14px; background: var(--panel-2); color: var(--ink); font: inherit; }
 .partenza-scelte button:hover { background: var(--edge); }
@@ -129,12 +122,13 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
 /* Sul telefono restano una accanto all'altra, così si vedono insieme: icona sopra, testo più corto */
 @media (max-width: 560px) {
   .title .wrap { row-gap: 10px; }            /* meno aria sopra, così le due scelte stanno nella prima schermata */
-  .marchio-gettone { width: 52px; height: 52px; }
-  .lede { margin-top: 12px; }
-  .chat { margin-top: 16px; }
-  .msg { font-size: 17px; }
+  .scena { margin-top: 12px; gap: 8px; }
+  .battuta { gap: 12px; }
+  .tipo { width: 54px; height: 66px; }
+  .tipo.gettone { width: 46px; height: 46px; margin: 0 4px 6px; }
+  .voce-di { margin-bottom: 10px; }
+  .fumetto { padding: 8px 11px; font-size: 17px; }
   .partenza { margin-top: 0; gap: 8px; }
-  .partenza h2 { font-size: 24px; }
   .partenza-scelte { gap: 14px; }
   .partenza-scelte button { grid-template-columns: minmax(0, 1fr); align-content: start; gap: 4px; padding: 10px; }
   .partenza-scelte .pxi { font-size: 24px; margin-top: 0; }
@@ -375,7 +369,6 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 @media (max-width: 520px) {
   body { font-size: 16px; }
   .title { padding-block: 20px 26px; }
-  .lede { font-size: 18px; }
   .hud .wrap > .opz { display: none; }
   .levels { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .level .nm { font-size: 16px; }
