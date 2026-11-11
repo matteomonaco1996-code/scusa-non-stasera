@@ -61,7 +61,7 @@
       <nav class="menu" aria-label="Menu principale">
         <button type="button" class="primo" id="m-start"><span><span class="voce press">PREMI START</span><small>Usa la posizione e trova i posti vicini</small></span></button>
         <button type="button" id="m-livelli"><span><span class="voce">SELEZIONA LIVELLO</span><small>Scegli tu il quartiere</small></span></button>
-        <button type="button" id="m-gettone"><span><span class="voce">INSERISCI GETTONE</span><small>Un posto solo: vicino e adatto all’ora</small></span></button>
+        <button type="button" id="m-gettone"><span><span class="voce">INSERISCI GETTONE</span><small>Indeciso? Ti pesco io un posto a caso. È gratis</small></span></button>
         <button type="button" class="solo-conto" id="m-player"><span><span class="voce">PLAYER 1</span><small>Accedi, fai punti, scala la classifica</small></span></button>
       </nav>
       <p class="privacy">La posizione resta sul tuo telefono: la inviamo solo quando fai un check-in, e non la salviamo.</p>
@@ -97,7 +97,7 @@
     <div class="dove-sei"><span class="lv" id="lv">MONDO 1</span><b id="titolo-ris">Tutta Roma</b><span id="conteggio"></span></div>
     <div class="bar-actions">
       <button class="btn alt restart" type="button" data-restart title="Ricomincia da capo" aria-label="Restart: ricomincia da capo" hidden><svg class="pxi" data-ico="restart" aria-hidden="true"></svg><span>RESTART</span></button>
-      <button class="btn" type="button" id="gettone" title="Gettone: ti pesco un posto" aria-label="Gettone: ti pesco un posto"><svg class="pxi" data-ico="moneta" aria-hidden="true"></svg><span>GETTONE</span></button>
+      <button class="btn" type="button" id="gettone" title="Gettone: ti pesco un posto a caso tra questi. È gratis" aria-label="Gettone: ti pesco un posto a caso tra questi. È gratis"><svg class="pxi" data-ico="moneta" aria-hidden="true"></svg><span>GETTONE</span></button>
       <div class="seg" role="group" aria-label="Vista">
         <button type="button" data-view="lista" aria-pressed="true">LISTA</button>
         <button type="button" data-view="mappa" aria-pressed="false">MAPPA</button>
@@ -109,6 +109,7 @@
 <main class="main" data-view="lista">
   <div class="wrap">
     <div class="list-col">
+      <p class="suggerimento" id="hint-gettone">Indeciso? Tocca <b>GETTONE</b> qui sopra: pesco io un posto a caso tra questi. È gratis.</p>
       <div class="cards" id="cards"></div>
       <button class="btn alt more" type="button" id="more" hidden></button>
       <div class="next-lv" id="next-lv" hidden></div>
@@ -148,6 +149,11 @@
 <dialog class="finestra gettone" id="dlg-gettone" aria-labelledby="get-t">
   <div class="testa"><h2 id="get-t">GETTONE</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
   <div class="corpo" id="get-corpo"></div>
+</dialog>
+
+<dialog class="finestra" id="dlg-posizione" aria-labelledby="pos-t">
+  <div class="testa"><h2 id="pos-t">ATTIVA LA POSIZIONE</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
+  <div class="corpo" id="pos-corpo"></div>
 </dialog>
 
 <dialog class="finestra premio" id="dlg-premio" aria-labelledby="premio-t">

@@ -553,10 +553,12 @@
   }
 
   // ---------- Azioni ----------
-  // Chiede la posizione al browser e aggiorna il gioco. Risolve con "" se va bene, altrimenti con il motivo.
+  // Chiede la posizione al browser e aggiorna il gioco. Risolve con "" se va bene, altrimenti con il motivo:
+  // "assente" (il browser non la offre), "bloccata" (permesso negato o posizione spenta), "errore" (non ti trova).
+  const POS_ERR = { assente: "Questo browser non sa dirmi dove sei.", bloccata: "La posizione è bloccata o spenta.", errore: "Non riesco a trovarti in questo momento." };
   function trovami() {
     return new Promise((fatto) => {
-      if (!navigator.geolocation) return fatto("Qui non c’è il GPS.");
+      if (!navigator.geolocation) return fatto("assente");
       navigator.geolocation.getCurrentPosition((p) => {
         stato.pos = { la: p.coords.latitude, lo: p.coords.longitude };
         DATA.forEach((x) => { x.km = km(stato.pos, x); });
@@ -567,9 +569,70 @@
         mappa.posizione(stato.pos);
         aggiorna();
         fatto("");
-      }, (e) => fatto(e && e.code === 1 ? "Posizione non consentita: attivala nelle impostazioni del browser." : "Non riesco a trovarti in questo momento."),
+      }, (e) => fatto(e && e.code === 1 ? "bloccata" : "errore"),
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 });
     });
+  }
+
+  // ---------- Posizione: la finestra che la chiede e, se è bloccata, spiega come riaccenderla ----------
+  // Un sito non può accendere la posizione da solo: può solo far comparire la richiesta del browser (se non è
+  // già stata rifiutata) oppure spiegare dove si riattiva. I passi cambiano da telefono a telefono.
+  function guidaPosizione() {
+    const ua = navigator.userAgent || "";
+    const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const passi = ios ? [
+      "Apri le <b>Impostazioni</b> del telefono → <b>Privacy e sicurezza</b> → <b>Localizzazione</b>: deve essere accesa.",
+      "Nella stessa pagina tocca <b>Siti web di Safari</b> (o il nome del browser che usi) e scegli <b>Mentre usi l’app</b>.",
+      "Torna qui e tocca <b>Riprova</b>: quando il telefono lo chiede, scegli <b>Consenti</b>.",
+    ] : /Android/.test(ua) ? [
+      "Accendi la <b>Posizione</b> del telefono, dal menu rapido che scende dall’alto.",
+      "Tocca l’icona a sinistra dell’indirizzo del sito (lucchetto o cursori) → <b>Autorizzazioni</b> → <b>Posizione</b> → <b>Consenti</b>.",
+      "Torna qui e tocca <b>Riprova</b>.",
+    ] : [
+      "Clicca l’icona a sinistra dell’indirizzo del sito (lucchetto o cursori) → <b>Posizione</b> → <b>Consenti</b>.",
+      "Controlla che la posizione sia accesa per il browser anche nelle impostazioni del computer.",
+      "Poi clicca <b>Riprova</b>.",
+    ];
+    const dentroApp = /Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|musical_ly/i.test(ua);
+    return (dentroApp ? `<p>Stai guardando il sito dentro un’altra app: lì la posizione spesso non funziona. Dal menu (⋯) scegli <b>Apri nel browser</b>.</p>` : "") +
+      `<ol class="passi">${passi.map((p) => `<li>${p}</li>`).join("")}</ol>`;
+  }
+  function finestraPosizione(fase) {
+    const d = $("#dlg-posizione"), c = $("#pos-corpo");
+    const cosa = /Android|iPhone|iPad|iPod/.test(navigator.userAgent || "") || mobile() ? "telefono" : "computer";
+    const scelte = (si, no) => `<div class="get-acts in-colonna">${si ? `<button class="btn" type="button" data-pos="attiva">${si}</button>` : ""}<button class="btn alt" type="button" data-pos="no">${no}</button></div>`;
+    if (fase === "chiedi") c.innerHTML = `<p>Con la posizione ti mostro i posti più vicini a te e quanti minuti a piedi ci vogliono.</p>
+      <p>Tocca il pulsante: il ${cosa} ti chiede il permesso, scegli <b>Consenti</b>.</p>
+      ${scelte("▶ Attiva la posizione", "Non ora: scelgo io la zona")}
+      <small>La posizione resta sul tuo ${cosa}: la inviamo solo quando fai un check-in, e non la salviamo.</small>`;
+    else if (fase === "cerco") c.innerHTML = `<p class="get-dom">Ti cerco…</p><p>Se il ${cosa} te lo chiede, scegli <b>Consenti</b>.</p>`;
+    else if (fase === "bloccata") c.innerHTML = `<p class="errore" role="alert">La posizione è bloccata per questo sito, oppure è spenta sul ${cosa}.</p>
+      <p>Il sito non può riaccenderla da solo. Si fa così:</p>${guidaPosizione()}${scelte("Riprova", "Scelgo io la zona")}`;
+    else c.innerHTML = `<p class="errore" role="alert">${POS_ERR[fase] || POS_ERR.errore}</p>
+      <p>${fase === "assente" ? "Puoi comunque scegliere tu il quartiere." : `Controlla che la posizione del ${cosa} sia accesa, poi riprova. Oppure scegli tu la zona.`}</p>
+      ${scelte(fase === "assente" ? "" : "Riprova", "Scelgo io la zona")}`;
+    if (!d.open) d.showModal();
+    const primo = c.querySelector("[data-pos]");   // il fuoco sul pulsante principale, non su "Chiudi"
+    if (primo) primo.focus();
+  }
+  async function azionePosizione(cosa) {
+    const d = $("#dlg-posizione");
+    if (cosa === "no") { d.close(); if (!$("#dlg-gettone").open) scorri($("#sez-mondi")); return; }
+    finestraPosizione("cerco");
+    const err = await trovami();
+    if (!d.open) return;
+    if (err) return finestraPosizione(err);
+    d.close();
+    if ($("#dlg-gettone").open) gettone(); else scorri($(".bar"));
+  }
+  // All'apertura del sito: se la posizione non è già consentita, la finestra che la propone.
+  // Chi risponde "non ora" (o chiude) non se la ritrova alla visita dopo: PREMI START resta lì.
+  async function proponiPosizione() {
+    if (!navigator.geolocation || stato.pos || memoria.get("sns-posizione") === "no") return;
+    let permesso = "prompt";
+    try { permesso = (await navigator.permissions.query({ name: "geolocation" })).state; } catch (e) { /* browser senza questa domanda: si chiede e basta */ }
+    if (permesso === "granted" || stato.pos || document.querySelector("dialog[open]")) return;
+    finestraPosizione("chiedi");
   }
   let cerco = false;
   async function start() {
@@ -579,8 +642,8 @@
     voce.textContent = "TI CERCO…"; toast("Ti cerco…");
     const err = await trovami();
     cerco = false; voce.textContent = prima;
-    if (err) { toast(`${err} Intanto scegli il quartiere a mano.`); scorri($("#sez-mondi")); return; }
     $("#toast").hidden = true;
+    if (err) return finestraPosizione(err);
     scorri($(".bar"));
   }
   function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false; aggiorna(); }
@@ -676,8 +739,9 @@
   function chiediDove(errore) {
     const m = MONDI.find((m) => m.id === stato.mondo);
     const haLivelli = (LIVELLI[stato.mondo] || []).length > 0;
-    $("#get-corpo").innerHTML = `<p class="get-dom">Dove te lo pesco?</p>
-      ${errore ? `<p class="errore" role="alert">${esc(errore)}</p>` : ""}
+    $("#get-corpo").innerHTML = `<p class="get-cosa">Il gettone sceglie al posto tuo: pesca <b>un posto a caso</b> dalla lista. È gratis, puoi rimetterlo quante volte vuoi.</p>
+      <p class="get-dom">Dove te lo pesco?</p>
+      ${errore ? `<p class="errore" role="alert">${esc(POS_ERR[errore] || errore)} <button class="link" type="button" data-get="guida" data-fase="${esc(errore)}">Come si attiva?</button></p>` : ""}
       <div class="get-scelte">
         <button type="button" class="px primo" data-get="vicino"><b>▶ Vicino a me</b><small>Uso la posizione: solo posti a pochi minuti a piedi</small></button>
         ${haLivelli ? `<button type="button" class="px" data-get="livello"><b>${stato.mondo === "roma" ? "Scelgo il quartiere" : "Scelgo la località"}</b><small>Poi rimetti il gettone: pesco solo lì</small></button>` : ""}
@@ -689,7 +753,8 @@
     const { x, nuovoGiro } = pesca(g.pool);
     gt.x = x; stato.pescato = x.i;
     const n = g.pool.length;
-    $("#get-corpo").innerHTML = `<span class="eti">GETTONE INSERITO · ${n === 1 ? "1 POSTO" : n + " POSTI"} IN GIOCO</span>
+    $("#hint-gettone").hidden = true;   // l'ha usato: il suggerimento sopra la lista non serve più
+    $("#get-corpo").innerHTML = `<span class="eti">GETTONE INSERITO · ${n === 1 ? "1 POSTO IN GIOCO" : "UNO A CASO TRA " + n + " POSTI"}</span>
       <div class="rullo gira" id="rullo" aria-hidden="true">…</div>
       <div class="get-esito" id="get-esito" aria-live="polite"></div>`;
     const rullo = $("#rullo");
@@ -717,8 +782,9 @@
       if (++k >= 12) { clearInterval(gt.timer); fine(); }
     }, 70);
   }
-  async function azioneGettone(cosa) {
+  async function azioneGettone(cosa, b) {
     const d = $("#dlg-gettone");
+    if (cosa === "guida") return finestraPosizione(b.dataset.fase);
     if (cosa === "ancora") return gettone();
     if (cosa === "ovunque") { gt.ovunque = true; return gettone(); }
     if (cosa === "ora") { gt.ora = !gt.ora; return gettone(); }
@@ -750,7 +816,10 @@
   $("#gettone").addEventListener("click", gettone);
   $("#mondi").addEventListener("click", (e) => { const b = e.target.closest("[data-mondo]"); if (b) scegliMondo(b.dataset.mondo); });
   $("#ow-svg").addEventListener("keydown", (e) => { const n = e.target.closest("[data-livello]"); if (n && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); scegliLivello(n.dataset.livello); } });
-  $("#get-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-get]"); if (b) azioneGettone(b.dataset.get); });
+  $("#get-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-get]"); if (b) azioneGettone(b.dataset.get, b); });
+  $("#pos-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-pos]"); if (b) azionePosizione(b.dataset.pos); });
+  // Chiusa senza posizione (non ora, Chiudi, Esc): si ricorda, così alla prossima visita non viene riproposta
+  $("#dlg-posizione").addEventListener("close", () => { if (!stato.pos) memoria.set("sns-posizione", "no"); });
   $("#dlg-gettone").addEventListener("close", () => clearInterval(gt.timer));
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-restart]")) return restart();
@@ -781,7 +850,7 @@
   if (memoria.get("sns-termini") !== VER_TERMINI) {
     const d = $("#dlg-termini");
     d.addEventListener("cancel", (e) => e.preventDefault());   // Esc non basta: serve una scelta esplicita
-    $("#termini-ok").addEventListener("click", () => { memoria.set("sns-termini", VER_TERMINI); d.close(); });
+    $("#termini-ok").addEventListener("click", () => { memoria.set("sns-termini", VER_TERMINI); d.close(); proponiPosizione(); });
     d.showModal();
   }
 
@@ -792,4 +861,5 @@
   $("#agg").textContent = META.aggiornato ? fmtGiorno.format(new Date(META.aggiornato + "T12:00:00")) : "";
   document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });
   aggiorna();
+  proponiPosizione();
 })();

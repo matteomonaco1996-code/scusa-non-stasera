@@ -95,7 +95,7 @@ la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagi
 **Già fatto nel sito**
 - Finestra con le informazioni prima di uscire verso PayPal: a chi va la somma, che è facoltativa, che non dà
   nulla in cambio, che non siamo un ente benefico, che serve la maggiore età.
-- `termini.html` (punto 8) e `privacy.html` aggiornati alla versione 1.1; i dati che arrivano da PayPal
+- `termini.html` (punto 8, versione 1.1) e `privacy.html` (ora versione 1.2) aggiornati; i dati che arrivano da PayPal
   (nome, email, importo, messaggio) sono nel registro dei trattamenti dell’informativa.
 - Nessun vantaggio nel gioco per chi dona.
 - **Prima di andare** (dall’11 novembre 2026): toccando “Portami lì” si apre una finestra che ricorda la moneta.

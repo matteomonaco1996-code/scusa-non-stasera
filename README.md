@@ -12,6 +12,10 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
 - **PREMI START**: usa il GPS del telefono (la posizione non esce dal browser) e
   mostra i posti in ordine di distanza, a fasce: *Sotto casa* (EASY, fino a 10
   minuti a piedi), *Due passi* (NORMAL, 10–25), *Vale il viaggio* (HARD).
+- **ATTIVA LA POSIZIONE**: all’apertura, se la posizione non è già consentita, una finestra spiega a cosa
+  serve e la chiede (dopo i termini, mai insieme). Se è bloccata o spenta il sito non può riaccenderla:
+  la finestra mostra i passi per iPhone, Android o computer, e la stessa guida compare da PREMI START e dal
+  gettone. Chi risponde “non ora” non se la ritrova alla visita dopo (`sns-posizione` nel browser).
 - **SELEZIONA IL MONDO**: Roma, Firenze, Venezia, Milano, Bologna, Fuori porta.
 - **LIVELLI**: a Roma ogni **quartiere** è un livello (38 quartieri in 5 aree:
   Centro, Sponda ovest, Nord, Est, Sud, più la Periferia). In fondo a ogni
@@ -20,7 +24,9 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
 - **POWER-UP**: Come a casa · A tavola · Pizza, ovvio · Un calice · Due drink ·
   Dolce & caffè · Giro del mondo · Al volo · Sapore di mare · Brace & carne ·
   Spesa golosa · Da scoprire. In più c'è il filtro *Solo i consigli di Matteo*.
-- **GETTONE**: pesca un posto solo, in una finestra in primo piano. Con la posizione sceglie tra i posti
+- **GETTONE**: pesca un posto a caso, in una finestra in primo piano. Lo spiegano il menu, una riga sopra la
+  lista (finché non lo si usa) e la finestra stessa, che dice anche che è gratis: la moneta delle donazioni
+  ha lo stesso disegno e qualcuno le confondeva. Con la posizione sceglie tra i posti
   a portata di piedi (12, poi 25, poi 45 minuti; altrimenti i 6 più vicini); dentro un livello pesca lì;
   senza posizione né livello chiede prima dove. Se non hai scelto un power-up tiene solo i tipi adatti
   all’ora (si può togliere). Non ripete un posto finché non sono usciti tutti; chi ha un commento esce
