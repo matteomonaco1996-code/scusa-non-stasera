@@ -196,6 +196,8 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .dove-sei b { display: block; font: 400 28px/1.15 var(--f-title); overflow-wrap: anywhere; }
 .dove-sei span { font-size: 15px; color: var(--pino-txt); }
 .bar-actions { display: flex; gap: 10px; align-items: center; flex: none; }
+.bar .indietro { flex: none; gap: 8px; }
+.bar .indietro[hidden] { display: none; }
 .seg { display: none; }
 .seg button { cursor: pointer; border: 0; padding: 9px 12px; background: var(--panel); color: var(--ink); font: 400 18px/1.2 var(--f-title); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--scuro); }
@@ -354,6 +356,9 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
   .bar-actions { flex: 1 1 100%; align-items: stretch; }
   .bar-actions #gettone { flex: 1 1 auto; }
   .bar-actions .restart span { display: none; }
+  .bar .indietro { align-self: center; padding: 9px 12px; }
+  .bar .indietro span { display: none; }
+  .bar .indietro:not([hidden]) + .dove-sei { flex: 1 1 0; }   /* ◀ e titolo sulla stessa riga, i pulsanti sotto */
   #mappa { height: calc(100dvh - 150px); }
 }
 @media (max-width: 520px) {

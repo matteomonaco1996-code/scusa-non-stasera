@@ -34,6 +34,11 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   senza posizione né livello chiede prima dove. Se non hai scelto un power-up tiene solo i tipi adatti
   all’ora (si può togliere). Non ripete un posto finché non sono usciti tutti; chi ha un commento esce
   più spesso. Gli orari di apertura non sono noti: il sito lo dice.
+- **INDIETRO**: ogni passo (posti vicini, zona scelta, mappa, scheda aperta da gettone o mappa, finestra aperta,
+  restart) è una voce nella cronologia della scheda. Il tasto Indietro del telefono e il pulsante ◀ nella barra
+  tornano al passo prima, alla stessa altezza della pagina, invece di uscire dal sito; le finestre si chiudono con
+  Indietro (tranne i termini). Se la pagina si ricarica, per esempio tornando da Maps nei browser dentro le app,
+  si riprende da dove si era. Nella cronologia c'è solo il punto del sito, mai le coordinate.
 - **RESTART**: compare nella barra, nella HUD e a lista vuota quando c’è qualcosa da azzerare; riporta
   tutto com’era all’apertura (mondo, livello, power-up, ricerca, posizione). L’accesso all’account resta.
 - **MAPPA DEL MONDO**: Roma disegnata come la mappa dei livelli di un videogioco (Tevere a pixel,

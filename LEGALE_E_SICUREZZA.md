@@ -97,7 +97,7 @@ la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagi
   non siamo un ente benefico, che serve la maggiore età. Che non si riceve nulla in cambio (né punti né altri
   vantaggi) non è più ripetuto nella finestra: resta scritto nei termini, punto 8, a cui la finestra rimanda.
   Se un giorno si accendono account e punti, conviene rimetterlo in una riga, perché lì il dubbio può nascere.
-- `termini.html` (punto 8, versione 1.1) e `privacy.html` (ora versione 1.3) aggiornati; i dati che arrivano da PayPal
+- `termini.html` (punto 8, versione 1.1) e `privacy.html` (ora versione 1.4) aggiornati; i dati che arrivano da PayPal
   (nome, email, importo, messaggio) sono nel registro dei trattamenti dell’informativa.
 - Nessun vantaggio nel gioco per chi dona.
 - **Prima di andare** (dall’11 novembre 2026): toccando “Portami lì” si apre una finestra che ricorda la moneta.

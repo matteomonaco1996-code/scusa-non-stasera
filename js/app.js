@@ -675,7 +675,7 @@
     if (!d.open) return;
     if (err) return finestraPosizione(err);
     d.close();
-    if ($("#dlg-gettone").open) gettone(); else scorri($(".bar"));
+    if ($("#dlg-gettone").open) gettone(); else { scorri($(".bar")); percorso.avanza(); }
   }
   // All'apertura del sito: se la posizione non è già consentita, la finestra che la propone.
   // Chi sceglie la zona (o chiude) non se la ritrova alla visita dopo: le due scelte restano in cima alla pagina.
@@ -698,9 +698,10 @@
     $("#toast").hidden = true;
     if (err) return finestraPosizione(err);
     scorri($(".bar"));
+    percorso.avanza();
   }
-  function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false; aggiorna(); }
-  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); }
+  function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false; aggiorna(); percorso.avanza(); }
+  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); percorso.avanza(); }
   // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
   // dopo aver scorso la lista, la mappa restava quasi tutta fuori schermo. Porta l'inizio subito sotto la barra.
   function allinea() {
@@ -722,8 +723,9 @@
     if (idx >= stato.mostrati) { stato.mostrati = idx + 1; disegnaLista(); }
     const el = document.getElementById("p" + i);
     if (el) { scorri(el, "center"); lampeggia(el); }
+    percorso.avanza({ p: i });
   }
-  function mostraSuMappa(i) { if (mobile()) { impostaVista("mappa"); allinea(); } mappa.vai(i); const el = document.getElementById("p" + i); if (el && !mobile()) lampeggia(el); }
+  function mostraSuMappa(i) { if (mobile()) { impostaVista("mappa"); allinea(); } mappa.vai(i); const el = document.getElementById("p" + i); if (el && !mobile()) lampeggia(el); if (mobile()) percorso.avanza({ p: i }); }   // sul computer la mappa è già lì: non è un passo
 
   // Restart: torna alla schermata del titolo come appena aperto il sito. L'accesso all'account resta.
   let tCerca;
@@ -740,6 +742,7 @@
     scrollTo({ top: 0, behavior: ridotto() ? "auto" : "smooth" });
     $("#m-start").focus({ preventScroll: true });
     toast("Si riparte da capo.");
+    percorso.avanza();   // così "Indietro" annulla anche un restart fatto per sbaglio
   }
 
   // ---------- Gettone: un posto solo, pescato tra quelli che puoi raggiungere davvero ----------
@@ -863,6 +866,111 @@
     mostraScheda: (id) => { const x = perId.get(id); if (x) mostraScheda(x.i); },
   };
 
+  // ---------- Percorso: "Indietro" fa un passo indietro nel sito, e ricaricando si ritrova il punto ----------
+  // Ogni passo (posti vicini, zona scelta, mappa, scheda aperta, finestra aperta, restart) è una voce nella
+  // cronologia della scheda del browser. Dentro c'è solo dove sei nel sito (zona, filtri, altezza della pagina):
+  // mai le coordinate. Il tasto Indietro del telefono e il pulsante ◀ della barra tornano al passo prima;
+  // se la pagina viene ricaricata (capita tornando da Maps) si riparte da lì e non dall'inizio.
+  const percorso = (() => {
+    const ok = !!(window.history && history.pushState);
+    let n = 0, muto = false, soloChiusura = false, tSegna, giro = 0;
+    const BASE = { sns: 1, n: 0, mondo: INIZIO.mondo, livello: "", vicino: false, voglia: "", q: "", vista: "lista", mostrati: PAGINA, y: 0 };
+    const foto = (extra) => ({ sns: 1, n, mondo: stato.mondo, livello: stato.livello, vicino: stato.vicino, voglia: stato.voglia, q: $("#q").value,
+      vista: stato.vista, mostrati: stato.mostrati, y: Math.round(scrollY), ...extra });
+    const bottone = () => { $("#indietro").hidden = !(n > 0); };
+    const scrivi = (come, s) => { try { history[come](s, ""); } catch (e) { /* cronologia non disponibile: il sito funziona lo stesso */ } bottone(); };
+    const finestraDi = (s) => (s && s.dlg ? document.getElementById(s.dlg) : null);
+    const corrente = () => { try { return history.state; } catch (e) { return null; } };
+    // Aggiorna la voce corrente (filtri, altezza a cui sei arrivato) senza aggiungerne una
+    function segna() {
+      if (!ok || muto) return;
+      const s = corrente(), d = finestraDi(s);
+      scrivi("replaceState", foto(d && d.open ? { dlg: s.dlg } : {}));
+    }
+    // Solo l'altezza della pagina, nella voce corrente. Serve PRIMA che un tocco cambi qualcosa: quando arriva
+    // "avanza" lo stato è già quello nuovo, e la voce vecchia deve restare com'era.
+    function segnaAltezza(e) {
+      if (e && e.type !== "scroll" && e.type !== "pagehide") giro++;   // hai toccato qualcosa: basta riposizionare la pagina
+      if (!ok || muto) return;
+      const s = corrente();
+      if (s && s.sns) scrivi("replaceState", { ...s, y: Math.round(scrollY), mostrati: stato.mostrati });
+    }
+    // Un passo nuovo
+    function avanza(extra = {}) {
+      if (!ok || muto) return;
+      const d = finestraDi(corrente());
+      if (d && !d.open) return scrivi("replaceState", foto(extra));   // la finestra di prima è già chiusa: il passo nuovo prende il suo posto
+      n++; scrivi("pushState", foto(extra));
+    }
+    // Riporta il sito a come era in quel passo
+    async function applica(s, soloFinestra) {
+      const diverso = stato.mondo !== s.mondo || stato.livello !== s.livello || stato.vicino !== s.vicino || stato.voglia !== s.voglia || $("#q").value !== (s.q || "");
+      if (diverso) {
+        if (s.vicino && !stato.pos) {   // i posti vicini dopo una ricarica: la posizione va richiesta di nuovo, non è scritta da nessuna parte
+          toast("Ti cerco…");
+          const err = await trovami();
+          $("#toast").hidden = true;
+          if (err) finestraPosizione(err);
+        }
+        Object.assign(stato, { mondo: s.mondo, livello: s.livello, vicino: !!s.vicino && !!stato.pos, voglia: s.voglia, q: norm((s.q || "").trim()) });
+        $("#q").value = s.q || "";
+        aggiorna();
+      }
+      if (s.mostrati > stato.mostrati) { stato.mostrati = s.mostrati; disegnaLista(); }
+      const stessaVista = stato.vista === s.vista;
+      if (!stessaVista) impostaVista(s.vista);
+      if (soloFinestra && !diverso && stessaVista) return;   // si è solo chiusa una finestra: la pagina non si muove
+      // L'altezza di prima. Appena ricaricata la pagina i caratteri non sono ancora arrivati e tutto è un po'
+      // più corto: per un paio di secondi, ogni volta che la pagina cambia altezza, si riprova. Se intanto
+      // tocchi qualcosa, si smette.
+      const io = ++giro, vai = () => { if (io === giro) scrollTo(0, s.y || 0); };
+      requestAnimationFrame(vai);
+      if (window.ResizeObserver) {
+        const oss = new ResizeObserver(() => (io === giro ? vai() : oss.disconnect()));
+        oss.observe(document.body);
+        setTimeout(() => oss.disconnect(), 2500);
+      } else if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(vai));
+    }
+    async function torna(s) {
+      s = s && s.sns ? s : BASE;   // la prima voce può non avere stato: è la pagina iniziale
+      n = s.n || 0;
+      bottone();
+      if (soloChiusura) { soloChiusura = false; return; }   // era solo una finestra che si chiudeva: la pagina è già a posto
+      muto = true;
+      let chiuse = 0;
+      document.querySelectorAll("dialog[open]").forEach((d) => { if (d.id !== "dlg-termini" && d.id !== s.dlg) { d.close(); chiuse++; } });
+      const d = finestraDi(s);
+      if (d && !d.open) { muto = false; history.back(); return; }   // una finestra che non c'è più: si salta
+      await applica(s, chiuse > 0);
+      muto = false;
+    }
+    function avvio() {
+      if (!ok) return false;
+      try { history.scrollRestoration = "manual"; } catch (e) { /* non indispensabile */ }
+      addEventListener("popstate", (e) => torna(e.state));
+      addEventListener("scroll", () => { clearTimeout(tSegna); tSegna = setTimeout(segnaAltezza, 300); }, { passive: true });
+      addEventListener("pointerdown", segnaAltezza, true);   // prima di ogni tocco
+      addEventListener("wheel", () => { giro++; }, { passive: true });
+      addEventListener("keydown", (e) => { giro++; if (e.key === "Enter" || e.key === " ") segnaAltezza(); }, true);
+      addEventListener("pagehide", segnaAltezza);
+      $("#indietro").addEventListener("click", () => history.back());
+      // Ogni finestra aperta è un passo: Indietro la chiude. I termini no: vanno accettati, non saltati.
+      document.querySelectorAll("dialog").forEach((d) => {
+        if (d.id === "dlg-termini") return;
+        const apri = d.showModal.bind(d);
+        d.showModal = () => { apri(); avanza({ dlg: d.id }); };
+        d.addEventListener("close", () => { const s = corrente(); if (ok && !muto && s && s.dlg === d.id) { soloChiusura = true; history.back(); } });
+      });
+      const s = corrente();
+      const daRiprendere = s && s.sns && (s.n > 0 || s.livello || s.vicino || s.mondo !== INIZIO.mondo || s.voglia || s.q || s.y > 0);
+      if (!daRiprendere) { scrivi("replaceState", foto()); return false; }
+      n = s.n || 0; muto = true;
+      applica(s).then(() => { muto = false; if (s.dlg) scrivi("replaceState", foto()); bottone(); });
+      return true;
+    }
+    return { avanza, segna, avvio };
+  })();
+
   // ---------- Eventi ----------
   $("#m-start").addEventListener("click", start);
   $("#m-livelli").addEventListener("click", () => scorri($("#sez-mondi")));
@@ -882,11 +990,11 @@
     const b = e.target.closest("[data-mappa]");
     if (b) mostraSuMappa(+b.dataset.mappa);
   });
-  $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (!b) return; stato.voglia = stato.voglia === b.dataset.voglia ? "" : b.dataset.voglia; aggiorna(); });
-  $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); }, 160); });
-  $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); });
+  $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (!b) return; stato.voglia = stato.voglia === b.dataset.voglia ? "" : b.dataset.voglia; aggiorna(); percorso.segna(); });
+  $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); percorso.segna(); }, 160); });
+  $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); percorso.segna(); });
   $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else finestraPosizione("chiedi"); });   // "Portami fuori" → da dove partiamo?
-  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => impostaVista(b.dataset.view)));
+  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => { const prima = stato.vista; impostaVista(b.dataset.view); if (prima !== stato.vista) percorso.avanza(); }));
   document.querySelectorAll("dialog [data-chiudi]").forEach((b) => b.addEventListener("click", () => b.closest("dialog").close()));
 
   // Moneta: nel fondo pagina sempre; dopo "Portami lì", al ritorno sulla pagina, un avviso che non blocca nulla.
@@ -895,7 +1003,9 @@
     $("#moneta-fondo").innerHTML = moneta();
     $("#dona-fondo").hidden = false;
     $("#m-dona").hidden = false;
-    $("#vai-ora").addEventListener("click", () => $("#dlg-vai").close());
+    // La finestra si chiude un attimo dopo, non subito: nei browser dentro le app Maps si apre nella stessa pagina,
+    // e chiudere la finestra (che fa un passo indietro nella cronologia) nello stesso istante potrebbe fermarlo.
+    $("#vai-ora").addEventListener("click", () => setTimeout(() => $("#dlg-vai").close(), 400));
   }
   document.addEventListener("click", suClic);
 
@@ -916,7 +1026,7 @@
   $("#agg").textContent = META.aggiornato ? fmtGiorno.format(new Date(META.aggiornato + "T12:00:00")) : "";
   document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });
   aggiorna();
-  proponiPosizione();
+  if (!percorso.avvio()) proponiPosizione();   // se si riprende da dove si era, niente finestra in mezzo
   // Una visita = un'apertura del sito. Ricaricare la pagina o tornare indietro non conta di nuovo.
   const arrivo = ((performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {}).type;
   if (arrivo !== "reload" && arrivo !== "back_forward") conta("visita", "da_" + provenienza());

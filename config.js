@@ -22,5 +22,5 @@ window.SNS_CONFIG = {
   monetaPrima: "sempre",
   // Versioni dei documenti accettati alla registrazione: aggiornale se cambi privacy.html o termini.html.
   versioneTermini: "1.1",
-  versionePrivacy: "1.3",
+  versionePrivacy: "1.4",
 };
