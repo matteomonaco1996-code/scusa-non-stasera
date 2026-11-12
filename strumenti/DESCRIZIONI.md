@@ -57,8 +57,9 @@ pesce · carne = griglieria, braceria · bottega = alimentari, gastronomia, forn
 che c’è.
 
 ### `breve`
-- In italiano, **una o due frasi, al massimo 150 caratteri**, tono asciutto e neutro, senza punto esclamativo.
-- Dice che posto è e che cosa lo distingue: cucina, specialità, ambiente, posizione (via, piazza, quartiere).
+- In italiano, **una o due frasi, al massimo 150 caratteri**, senza punto esclamativo.
+- **Tono vivo ma vero** (Matteo non vuole righe da elenco telefonico): si parte da ciò per cui ci si va — un piatto,
+  il posto, un dettaglio che resta in mente — e poi si dice che locale è. Il gancio deve essere un fatto, non un complimento.
 - **Parole proprie**: non copiare né parafrasare da vicino recensioni, guide o siti.
 - Niente giudizi (“il migliore”, “imperdibile”, “ottimo”), niente prezzi, niente orari, niente voti o stelle,
   niente nomi di persone, niente critiche.
@@ -66,9 +67,13 @@ che c’è.
 - Se non si trova abbastanza, o non è certo che sia quel locale: `"breve": ""`.
 
 Esempi di stile:
-- “Cucina romana a due passi da Campo de’ Fiori, con un menu degustazione dei classici.”
-- “Enoteca storica di via dei Banchi Vecchi: calici al bancone, taglieri e una lunga carta di etichette.”
-- “Forno di quartiere a Testaccio: pizza bianca, maritozzi e dolci da colazione.”
+- “Si mangia sotto un glicine secolare, accanto al tempio di Vesta e davanti alle cascate. In attività dal Settecento.”
+- “In un palazzo medievale con la scala a chiocciola: la cucina dei pastori riletta oggi, tra ravioli di ricotta di pecora e agnello.”
+- “Un calice nel centro storico: lunga carta dei vini, cocktail, taglieri di formaggi e focaccia.”
+- Da evitare: “Ristorante di Tivoli con prodotti del territorio.” (vero, ma non dice perché andarci).
+
+Quando Matteo detta lui una riga su un posto (“la numero 1 per la pizza romana”), quella **non** è un IN BREVE: è una
+sua nota, firmata MATTEO, e va in `correzioni.json` nel campo `nt`. I giudizi sono suoi e solo suoi.
 
 ### `chiuso`
 - `"si"` solo con una prova chiara e recente di **chiusura definitiva** (scheda che dice “chiuso definitivamente”,

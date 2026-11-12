@@ -1,5 +1,12 @@
 -- Generato da strumenti/aggiorna_lista.py: posti della lista, per verificare i check-in.
 insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
+('6331454842966528317', 'Confu - Fish Concept Sushi', 41.96155, 12.802318, null, 'Tivoli', 'mondo'),
+('8063598320706561703', 'Ristorante La Tenuta di Rocca Bruna Country Resort', 41.941486, 12.766626, null, 'Tivoli', 'ristorante'),
+('7823492162923725133', 'Ristorante Totarello', 41.95647, 12.757674, null, 'Tivoli', 'ristorante'),
+('8291944437663117339', 'Geppo Night Beer', 41.956982, 12.798172, null, 'Tivoli', 'bar'),
+('2212483927455400903', 'Vapoforno Zampaglioni', 41.962916, 12.799444, null, 'Tivoli', 'dolce'),
+('13611956053987652312', 'AL MADRIGALE | Nuova Cucina Rurale', 41.964741, 12.799152, null, 'Tivoli', 'ristorante'),
+('3887027455424425855', 'Pizzeria da Zazzi', 41.963573, 12.799495, null, 'Tivoli', 'pizza'),
 ('6683027554455904200', 'Bistrò "Irma"', 41.919597, 12.461884, 'Mazzini · Delle Vittorie', 'Roma', 'ristorante'),
 ('4491082343196625972', 'Vetro', 41.919372, 12.459925, 'Mazzini · Delle Vittorie', 'Roma', 'vino'),
 ('14363873147750625507', 'Love - Specialty Croissants', 41.909204, 12.452055, 'Trionfale', 'Roma', 'dolce'),

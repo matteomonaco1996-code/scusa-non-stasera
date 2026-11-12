@@ -7,7 +7,7 @@ Uso (dalla cartella del sito):
 
 La lista deve essere condivisa pubblicamente (link "Chiunque abbia il link").
 Il tipo di locale è dedotto dal nome (e dall'eventuale nota): per correggerlo,
-o per cambiare città/zona/nota, aggiungi una voce in correzioni.json.
+o per cambiare città/zona/nota/indirizzo, aggiungi una voce in correzioni.json.
 Il tipo dei posti con nomi poco chiari sta in tipi.json; i quartieri di Roma in strumenti/quartieri.py;
 le descrizioni "IN BREVE" in in_breve.json; i posti che hanno chiuso, da non mostrare, in chiusi.json.
 In tipi.json, in_breve.json e chiusi.json la chiave è il nome del locale oppure il suo id (più sicuro quando
@@ -21,6 +21,7 @@ import os
 import math
 import re
 import sys
+import time
 import urllib.request
 from collections import Counter
 from datetime import datetime, timezone
@@ -181,12 +182,24 @@ def main():
     ap.add_argument("--file", help="risposta getlist già scaricata (altrimenti scarica)")
     args = ap.parse_args()
 
-    raw = Path(args.file).read_text("utf-8") if args.file else scarica()
-    raw = raw[raw.index("\n") + 1:] if raw.startswith(")]}'") else raw
-    lista = json.loads(raw)[0]
+    # Ogni tanto Google risponde in modo incompleto (senza la lista dentro): si riprova un paio di volte, con calma.
+    lista, errore = None, ""
+    for tentativo in range(1 if args.file else 4):
+        if tentativo:
+            time.sleep(6 * tentativo)
+        try:
+            raw = Path(args.file).read_text("utf-8") if args.file else scarica()
+            raw = raw[raw.index("\n") + 1:] if raw.startswith(")]}'") else raw
+            lista = json.loads(raw)[0]
+        except Exception as e:  # rete, risposta non leggibile
+            lista, errore = None, f"{type(e).__name__}: {e}"
+        if lista and len(lista) > 12 and lista[8]:
+            break
+        lista = None
+    if not lista:
+        sys.exit("Errore: Google non ha restituito la lista" + (f" ({errore})" if errore else " (risposta incompleta)")
+                 + ". locali.js non è stato toccato: riprova più tardi.")
     titolo, attesi, voci = lista[4], lista[12], lista[8] or []
-    if not voci:
-        sys.exit("Errore: la lista è arrivata vuota. locali.js non è stato toccato.")
     if attesi and len(voci) < attesi:
         print(f"Attenzione: ricevuti {len(voci)} locali su {attesi}", file=sys.stderr)
 
@@ -242,7 +255,7 @@ def main():
         elif x["t"] == "altro":  # il nome non dice che locale è
             x["t"] = tipi_extra.get(x["n"], "altro")
         fix = correzioni.get(x["n"]) or {}
-        x.update({k: v for k, v in fix.items() if k in ("c", "la", "lo", "r")})  # prima del quartiere
+        x.update({k: v for k, v in fix.items() if k in ("c", "la", "lo", "r", "a")})  # prima del quartiere
         if x["c"] == "Roma":
             x["q"] = quartiere(x["la"], x["lo"])
         x.update({k: v for k, v in fix.items() if k in ("t", "q", "nt")})

@@ -1,5 +1,5 @@
 {
-  "_istruzioni": "Chiave = nome esatto del locale come appare su Google Maps. Campi: t (tipo: pizza, trattoria, ristorante, pesce, carne, mondo, vino, bar, dolce, street, bottega, altro), q (quartiere di Roma, come in strumenti/quartieri.py), c (città), nt (nota), la e lo (coordinate, se quelle della lista sono sbagliate). Dopo una modifica rilancia strumenti/aggiorna_lista.py.",
+  "_istruzioni": "Chiave = nome esatto del locale come appare su Google Maps. Campi: t (tipo: pizza, trattoria, ristorante, pesce, carne, mondo, vino, bar, dolce, street, bottega, altro), q (quartiere di Roma, come in strumenti/quartieri.py), c (città), nt (nota), a (indirizzo, se il posto si è spostato e la lista ha ancora quello vecchio), la e lo (coordinate, se quelle della lista sono sbagliate). Dopo una modifica rilancia strumenti/aggiorna_lista.py.",
   "Il Goccetto": {
     "t": "vino"
   },
@@ -55,5 +55,14 @@
   },
   "Enoteca Corsi": {
     "nt": "Il mio indirizzo in centro.\nOsteria-enoteca di una volta, a due passi dal Pantheon.\nIn tavola i primi romani: carbonara, gricia, amatriciana."
+  },
+  "Li Somari Trattoria Fuori Porta": {
+    "a": "Piazza Rivarola, 21, 00019 Tivoli RM"
+  },
+  "Il Cavallino Rosso": {
+    "nt": "Qui si viene per due cose: il pesce e la pizza napoletana."
+  },
+  "Ristorante Pizzeria Da Sandrina": {
+    "nt": "La numero 1 per la pizza romana: niente da invidiare a Roma."
   }
 }
