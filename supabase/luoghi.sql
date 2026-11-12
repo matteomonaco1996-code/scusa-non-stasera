@@ -1,5 +1,15 @@
 -- Generato da strumenti/aggiorna_lista.py: posti della lista, per verificare i check-in.
 insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
+('6683027554455904200', 'Bistrò "Irma"', 41.919597, 12.461884, 'Mazzini · Delle Vittorie', 'Roma', 'ristorante'),
+('4491082343196625972', 'Vetro', 41.919372, 12.459925, 'Mazzini · Delle Vittorie', 'Roma', 'vino'),
+('14363873147750625507', 'Love - Specialty Croissants', 41.909204, 12.452055, 'Trionfale', 'Roma', 'dolce'),
+('16917717717168428481', 'Madeleine Rome', 41.918814, 12.461147, 'Mazzini · Delle Vittorie', 'Roma', 'ristorante'),
+('3539104967485739171', 'Treebar', 41.92315, 12.471504, 'Flaminio', 'Roma', 'bar'),
+('15227083953815746484', 'Le Levain', 41.887143, 12.468721, 'Trastevere', 'Roma', 'dolce'),
+('13596531129490555682', 'Antica Latteria', 41.895581, 12.471226, 'Navona · Campo de'' Fiori', 'Roma', 'bar'),
+('13155624656042828481', 'Trattoria Da Cesare al Pellegrino', 41.897287, 12.468646, 'Navona · Campo de'' Fiori', 'Roma', 'trattoria'),
+('17952356164204367301', 'Gigi Rigolatto Roma', 41.897686, 12.477605, 'Pantheon', 'Roma', 'ristorante'),
+('7733355687545351631', 'Craft House 4Venti', 41.874015, 12.457969, 'Monteverde', 'Roma', 'bar'),
 ('1327815495698668467', 'Bar San Calisto', 41.889062, 12.470803, 'Trastevere', 'Roma', 'bar'),
 ('3935991939893424995', 'Enoteca Corsi', 41.896871, 12.478783, 'Pantheon', 'Roma', 'trattoria'),
 ('11144216186837032494', 'ViVi - Le Serre', 41.928278, 12.44563, 'Mazzini · Delle Vittorie', 'Roma', 'ristorante'),
@@ -265,7 +275,6 @@ insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
 ('4211634481392995676', 'Taverna Lucifero', 41.894891, 12.474983, 'Ghetto', 'Roma', 'ristorante'),
 ('8972430471988462610', 'Martello', 41.945006, 12.569174, 'Periferia', 'Roma', 'altro'),
 ('16612328555611867616', 'Forno Conti & Co.', 41.89236, 12.503133, 'Esquilino', 'Roma', 'dolce'),
-('1588240445031740897', 'Vecio', 41.897542, 12.46781, 'Navona · Campo de'' Fiori', 'Roma', 'vino'),
 ('4946427762937763361', 'Lento Hi-Fi Bar', 40.847313, 14.257097, null, 'Napoli', 'bar'),
 ('11294867010836197566', 'Insieme Restaurant', 45.467887, 9.162262, null, 'Milano', 'ristorante'),
 ('1701371495664514801', 'Il Pane di San Saba', 41.87848, 12.486596, 'Aventino · Circo Massimo', 'Roma', 'bottega'),

@@ -81,7 +81,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn.rosso { background: var(--pompei); color: var(--ink); }
 .btn.mini { padding: 7px 11px; font-size: 14px; }
 .btn[disabled] { opacity: .45; cursor: default; }
-.link { all: unset; cursor: pointer; color: var(--cielo); text-decoration: underline; text-underline-offset: 3px; font-size: 15px; }
+.link { all: unset; cursor: pointer; color: var(--cielo); text-decoration: underline; text-underline-offset: 3px; font-size: 15px; padding-block: 4px; }
 .link:focus-visible { outline: 3px solid var(--ocra); }
 
 /* ---------- HUD ---------- */
@@ -164,6 +164,9 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
 .menu .dona img { width: 22px; height: 22px; flex: none; image-rendering: pixelated; }
 .press { color: var(--ocra); animation: lampeggia 1.2s steps(2) infinite; }
 .privacy { margin: 10px 12px 0; font-size: 14px; color: var(--dim); }
+
+/* Se la lista dei posti non si carica resta solo la vignetta, con l'avviso e "Riprova" */
+.senza-lista .partenza, .senza-lista .menu, .senza-lista .privacy, .senza-lista .zona, .senza-lista .bar, .senza-lista .main, .senza-lista #bolla, .senza-lista .hud .opz { display: none; }
 
 /* ---------- Sezioni di gioco ---------- */
 .zona { padding-block: 26px 22px; border-top: var(--px) solid var(--panel-2); }
@@ -320,8 +323,10 @@ dialog.finestra::backdrop { background: transparent; }
 
 /* ---------- Pagine legali ---------- */
 body:has(.legale) { background: var(--carta); }   /* testi lunghi: tutta la pagina è carta */
-.legale { max-width: 760px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-right, 0px)) 60px max(16px, env(safe-area-inset-left, 0px)); }
+.legale { background: var(--carta); min-height: 100vh; max-width: 760px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-right, 0px)) 60px max(16px, env(safe-area-inset-left, 0px)); }
 .legale h1 { font-size: clamp(42px, 7vw, 60px); color: var(--ocra); }
+.legale > p:first-child a { display: inline-block; padding-block: 6px; }   /* "Torna al gioco": abbastanza alto da toccare */
+.legale .tab-wrap:focus-visible { outline: 3px solid var(--ocra); outline-offset: 2px; }
 .legale h2 { margin-top: 30px; }
 .legale p, .legale li { line-height: 1.6; }
 .legale table { width: 100%; border-collapse: collapse; font-size: 15px; }
@@ -426,6 +431,7 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .ow-nodo rect.ow-hit { fill: transparent; stroke: none; }
 .ow-nodo:hover rect:not(.ow-hit), .ow-nodo:focus-visible rect:not(.ow-hit) { fill: #E0CCA0; stroke: var(--ocra); }
 .ow-nodo:focus-visible { outline: none; }
+.ow-nodo:focus-visible .ow-hit { stroke: var(--ink); stroke-width: 2.5; stroke-dasharray: 5 3; }   /* tratteggio intorno a casella e nome */
 .ow-nodo.fatto rect:not(.ow-hit) { fill: var(--pino); stroke: var(--pino-txt); }
 .ow-nodo.fatto text { fill: var(--crema); }
 .ow-nodo.on rect:not(.ow-hit) { fill: var(--ocra); stroke: var(--ink); }
@@ -542,6 +548,7 @@ dialog.gettone { width: min(480px, calc(100vw - 24px)); margin-top: max(12px, 7v
 .posto { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 8px 4px 6px; background: var(--pozzo); text-align: center; font: 400 16px/1.15 var(--f-title); overflow-wrap: anywhere; min-width: 0; }
 .posto .faccia { width: 44px; height: 54px; }
 .posto.io { box-shadow: 0 0 0 2px var(--ocra); }
+.posto span { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .posto small { font: 400 12px/1.2 var(--f-text); color: var(--dim); }
 button.posto.libero { all: unset; cursor: pointer; display: grid; place-content: center; min-height: 84px; text-align: center; color: var(--ocra); font: 400 18px/1.2 var(--f-title); box-shadow: inset 0 0 0 2px var(--riga); }
 button.posto.libero:focus-visible { outline: 3px solid var(--ocra); outline-offset: 2px; }
@@ -563,21 +570,23 @@ button.posto.libero:focus-visible { outline: 3px solid var(--ocra); outline-offs
 .facce label { cursor: pointer; display: grid; place-items: center; padding: 4px 0; background: var(--pozzo); position: relative; }
 .facce input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .facce .faccia { width: 36px; height: 44px; }
-.facce label:has(input:checked) { box-shadow: 0 0 0 3px var(--ocra); }
-.facce label:has(input:focus-visible) { outline: 3px solid var(--ocra); outline-offset: 4px; }
+.facce input:checked ~ .faccia { box-shadow: 0 0 0 3px var(--panel), 0 0 0 6px var(--ocra); }
+.facce input:focus-visible ~ .faccia { outline: 3px solid var(--ink); outline-offset: 7px; }
 .gestisci { display: grid; gap: 10px; }
 .gestisci[open] > *:not(summary) { margin-top: 10px; }
-.gestisci .get-link { align-items: center; }
+.gestisci .get-link { align-items: center; min-width: 0; }
+.gestisci .get-link span { min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 420px) { .tavola { gap: 6px; } .posto { font-size: 15px; } }
 
 /* ---------- Moneta: donazione facoltativa (compare solo se configurata) ---------- */
 /* "Dona una moneta": un pulsante vero, con il bordo d'oro, perché si noti che donare è possibile */
 .moneta { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 7px 13px 7px 9px; background: var(--pozzo); box-shadow: 0 0 0 2px var(--ocra); font: 400 20px/1.2 var(--f-title); letter-spacing: .02em; color: var(--ocra); }
 .moneta:focus-visible { outline: 3px solid var(--ocra); outline-offset: 3px; }
-.monete { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 4px; }
+.monete { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; padding: 4px; }
 .moneta-importo { display: grid; justify-items: center; gap: 8px; padding: 12px 2px 10px; white-space: nowrap; background: var(--panel-2); color: var(--ocra); text-decoration: none; font: 400 28px/1 var(--f-title); }
 .moneta-importo img { width: 48px; height: 48px; image-rendering: pixelated; }
 @media (max-width: 420px) { .moneta-importo { font-size: 24px; } .moneta-importo img { width: 36px; height: 36px; } }
+@media (max-width: 340px) { .monete { gap: 6px; } .moneta-importo { font-size: 21px; } }
 .moneta-importo:hover { background: var(--ocra); color: var(--scuro); }
 /* Termini alla prima visita: finestra in basso, come un banner, ma va accettata per proseguire */
 dialog.termini { width: min(640px, 100vw); max-width: 100vw; margin: auto auto 0; }

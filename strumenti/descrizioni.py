@@ -34,7 +34,8 @@ TIPI_VALIDI = {"trattoria", "ristorante", "pizza", "vino", "bar", "dolce", "mond
 VIETATE = re.compile(r"\b(miglior[ei]?|imperdibil[ei]|ottim[oaie]|eccellent[ei]|eccezional[ei]|strepitos[oaie]|fantastic[oaihe]+|"
                      r"delizios[oaie]|buonissim[oaie]|top|stellat[oaie]|stell[ae] michelin|economic[oaihe]+|car[oaie]|prezz[oi]|euro)\b|€|!", re.I)
 ORARI = re.compile(r"\b(apert[oa] (di sera|da mezzogiorno|fino a|tutto il giorno|tutti i giorni|a pranzo|a cena|solo|giorno e notte)|"
-                   r"fino a tardi|prenotazion\w+|su prenotazione|chius[oa] (il|la|di)\b)", re.I)
+                   r"fino a tardi|prenotazion\w+|su prenotazione|chius[oa] (il|la|di)\b|"
+                   r"(dalle|alle|fino alle|ore) \d{1,2}\b(?!\d)|\d{1,2}[:.]\d{2}\b)", re.I)   # anche le ore scritte in cifre
 REGIONALE = re.compile(r"sicilian|puglies|sard[ao]|napoletan|abruzzes|venet|toscan|calabres|ligur|emilian|piemontes|romagnol|umbr[ao]|"
                        r"marchigian|lucan|campan|salentin|roman[ao]", re.I)
 STRANIERA = re.compile(r"cines|giappon|thai|corean|indian|messican|peruvian|brasilian|liban|grec|etiop|vietnam|asiatic|american|"

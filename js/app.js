@@ -10,6 +10,13 @@
   }
   const DATA = window.RISTOMAT || [];
   const META = window.RISTOMAT_META || {};
+  if (!DATA.length) {   // la lista dei posti non è arrivata (connessione che va e viene): lo si dice, e si offre di riprovare
+    document.body.classList.add("senza-lista");
+    const s = document.querySelector("#spiega"), b = document.createElement("button");
+    b.type = "button"; b.textContent = "Riprova"; b.addEventListener("click", () => location.reload());
+    if (s) { s.textContent = "Non riesco a caricare la lista dei posti: forse la connessione va e viene. "; s.after(b); }
+    return;
+  }
 
   // ---------- Icone a pixel (8x8) ----------
   const ICO = {
@@ -419,7 +426,7 @@
     const extra = SNS.extraScheda ? SNS.extraScheda(x) : "";
     return `<article class="card px" id="p${x.i}">
       <div class="card-top">
-        <h4><button type="button" data-mappa="${x.i}" title="Mostra sulla mappa">${esc(x.n)}</button></h4>
+        <h4${stato.pos ? "" : ' aria-level="3"'}><button type="button" data-mappa="${x.i}" title="Mostra sulla mappa">${esc(x.n)}</button></h4>
         ${stato.pos ? `<span class="dist">${distanza(x)}</span>` : ""}
       </div>
       <div class="meta"><span class="tipo">${svg(PW[x.t][1])}${esc(PW[x.t][0])}</span><span class="quart">${esc(luogo(x))}</span></div>
@@ -832,10 +839,10 @@
   // Chi è in gioco: prima i tipi adatti all'ora, poi i più vicini
   function inGioco() {
     const mom = momento();
-    let pool = ultimi, ora = false;
+    let pool = ultimi, ora = false, nessuno = false;
     if (gt.ora && !stato.voglia) {
       const adatti = pool.filter((x) => mom.tipi.includes(x.t));
-      if (adatti.length >= 3) { pool = adatti; ora = true; }
+      if (adatti.length) { pool = adatti; ora = true; } else nessuno = pool.length > 0;   // nessun posto adatto a quest'ora: si pesca tra tutti, e lo si dice
     }
     let dove = $("#titolo-ris").textContent;
     if (stato.pos && stato.vicino) {          // "ultimi" è già in ordine di distanza
@@ -843,7 +850,7 @@
       if (passo) { pool = pool.filter((x) => minuti(x.km) <= passo); dove = `entro ${passo} minuti a piedi`; }
       else { pool = pool.slice(0, 6); dove = "i più vicini a te"; }
     }
-    return { pool, dove, ora, mom };
+    return { pool, dove, ora, mom, nessuno };
   }
   // Non ripete un posto finché non sono usciti tutti; chi ha un commento esce più spesso, chi hai già visitato meno
   function pesca(pool) {
@@ -898,7 +905,7 @@
     const rullo = $("#rullo");
     const fine = () => {
       rullo.classList.remove("gira"); rullo.removeAttribute("aria-hidden"); rullo.textContent = x.n;
-      const filtro = stato.voglia ? ` · solo «${esc(PW[stato.voglia][0])}»` : g.ora ? ` · adatti all’ora (${esc(g.mom.nome)})` : !gt.ora ? " · di ogni tipo" : "";
+      const filtro = stato.voglia ? ` · solo «${esc(PW[stato.voglia][0])}»` : g.ora ? ` · adatti all’ora (${esc(g.mom.nome)})` : g.nessuno ? ` · di ogni tipo, perché qui non ne ho di adatti all’ora (${esc(g.mom.nome)})` : !gt.ora ? " · di ogni tipo" : "";
       const cambia = stato.voglia ? "" : g.ora ? `<button class="link" type="button" data-get="ora">Vanno bene tutti i tipi</button>`
         : !gt.ora ? `<button class="link" type="button" data-get="ora">Solo quelli adatti all’ora</button>` : "";
       $("#get-esito").innerHTML = `<span class="sr">È uscito ${esc(x.n)}.</span>
@@ -909,7 +916,7 @@
         ${INVITI ? `<div class="get-acts"><button class="btn alt" type="button" data-get="invita">Proponilo: ${esc(inv.rilancio ? "Meglio qui?" : g.mom.qui)}</button></div>` : ""}
         <div class="get-link"><button class="link" type="button" data-get="mappa">Vedi sulla mappa</button><button class="link" type="button" data-get="scheda">Apri la scheda</button>${SNS.pulsanteComitiva ? SNS.pulsanteComitiva(x, "link") : ""}</div>
         ${DONA ? `<p class="moneta-riga">${moneta()}<small>Donazione facoltativa a Matteo, che cura il sito.</small></p>` : ""}
-        <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? "È l’unico posto in gioco: cambia livello o power-up per pescarne altri." : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
+        <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? (g.ora ? `Qui è l’unico posto adatto all’ora (${esc(g.mom.nome)}).` : "È l’unico posto in gioco: cambia livello o power-up per pescarne altri.") : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
         <small>Gli orari non li conosciamo: prima di partire controlla su Maps che sia aperto.</small>`;
       rispondi(x);
       segnaInCorso();

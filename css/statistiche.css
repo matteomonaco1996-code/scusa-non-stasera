@@ -14,6 +14,7 @@ body:has(.mon) { background: var(--panel-2); }
   display: grid; gap: 18px;
 }
 .mon > p { margin: 0; }
+.mon > p:first-child a { display: inline-block; padding-block: 6px; }   /* "Torna al gioco": abbastanza alto da toccare */
 .mon h1 { font-size: clamp(42px, 7vw, 60px); color: var(--ocra); }
 .mon h3 { margin: 0 0 10px; font: 400 22px/1.2 var(--f-title); color: var(--ocra); letter-spacing: .02em; }
 .mon code { font-size: .92em; background: var(--pozzo); padding: 1px 5px; overflow-wrap: anywhere; }
@@ -87,7 +88,8 @@ body:has(.mon) { background: var(--panel-2); }
 @media (max-width: 420px) { .mon-barra { grid-template-columns: minmax(0, 8.2em) minmax(30px, 1fr) auto; gap: 8px; } }
 
 /* Tabella sotto il grafico */
-.mon-tabella summary { cursor: pointer; color: var(--cielo); font-size: 15px; width: fit-content; }
+.mon-tabella summary { cursor: pointer; color: var(--cielo); font-size: 15px; width: fit-content; padding-block: 4px; }
+.mon-tabella .tab-wrap:focus-visible { outline: 3px solid var(--ocra); outline-offset: 2px; }
 .mon-tabella .tab-wrap { max-height: 300px; overflow: auto; margin-top: 10px; }
 .mon-tabella table { border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
 .mon-tabella th, .mon-tabella td { text-align: left; padding: 5px 18px 5px 0; border-bottom: 1px solid var(--g-griglia); }
