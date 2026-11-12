@@ -80,6 +80,7 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | --- | --- |
 | `index.html` | La pagina (solo HTML: niente script inline, per la Content Security Policy) |
 | `css/stile.css`, `js/app.js`, `js/conto.js` | Stile, gioco, account e punti |
+| `js/comitiva.js`, `supabase/comitive.sql`, `img/facce/` | Comitive: tavoli di amici senza account (spente finché in `config.js` c’è `comitive: false`) |
 | `config.js` | Indirizzo e chiave pubblica di Supabase (vuoti = account disattivati), link per la moneta, inviti accesi o spenti (`inviti`) |
 | `privacy.html`, `termini.html` | Informativa privacy e termini d’uso (da completare con i tuoi dati) |
 | `supabase/schema.sql` | Tabelle, regole di sicurezza e funzioni del database |
@@ -167,6 +168,19 @@ Enoteca Corsi, Pantheon. Ci stai?” più un link) da mandare con la condivision
 Il link è `https://ristomat.click/?posto=<numero del posto>&m=<momento>&da=amici`: chi lo apre vede quel posto e può
 rispondere “Ci sto!”, dire di no, o pescare un altro posto nella stessa zona e rimandarlo (“Meglio qui?”, con `&r=1`).
 Il sito non riceve e non salva nulla: né messaggi né destinatari. `inviti: false` in `config.js` lo spegne.
+
+### Comitive (spente: `comitive: false`)
+
+Una comitiva è un tavolo di amici, fino a otto, **senza account**: un nome, chi è seduto (nome e faccia), i posti
+da provare con un voto a testa, i posti fatti, e un “gettone di comitiva” che pesca solo posti non ancora in lista.
+Si entra con un link (`?comitiva=<chiave>`); chi ha solo il link vede il nome e quanti sono a tavola. Sul telefono
+resta una sola nota, `sns-comitiva`: il segreto del proprio posto. Nomi di comitiva e nomi a tavola sono **testo
+libero** (corti, senza link, email o numeri): per questo nella pagina di monitoraggio c'è l'elenco dei nomi con il
+tasto “Cancella”.
+
+Per accenderle: database attivo, `supabase/comitive.sql` eseguito dopo `schema.sql` e `statistiche.sql`, privacy e
+termini aggiornati (vedi `LEGALE_E_SICUREZZA.md`), poi `comitive: true` in `config.js`. Il codice è in
+`js/comitiva.js`, che viene scaricato solo quando sono accese. Test: `strumenti/test_comitive.mjs`.
 
 ### Indirizzo del sito: https://ristomat.click
 

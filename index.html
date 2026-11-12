@@ -74,6 +74,7 @@
       <nav class="menu" aria-label="Altre voci">
         <button type="button" id="m-gettone"><span><span class="voce">INSERISCI GETTONE</span><small>Indeciso? Ti pesco io un posto a caso. È gratis</small></span></button>
         <button type="button" class="dona" id="m-dona" data-moneta hidden><span><span class="voce"><img src="img/gettone.svg" width="22" height="22" alt="">DONA UNA MONETA</span><small>Il sito è gratis. Se ti è utile, puoi offrire una moneta a Matteo</small></span></button>
+        <button type="button" id="m-comitiva" hidden><span><span class="voce">COMITIVA</span><small>Un tavolo di amici: scegliete insieme dove andare. Senza account</small></span></button>
         <button type="button" class="solo-conto" id="m-player"><span><span class="voce">PLAYER 1</span><small>Accedi, fai punti, scala la classifica</small></span></button>
       </nav>
       <p class="privacy">La posizione resta sul tuo telefono: la inviamo solo quando fai un check-in, e non la salviamo.</p>
@@ -169,6 +170,11 @@
 <dialog class="finestra gettone" id="dlg-invito" aria-labelledby="inv-t">
   <div class="testa"><h2 id="inv-t">PROPONILO</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
   <div class="corpo" id="inv-corpo"></div>
+</dialog>
+
+<dialog class="finestra gettone" id="dlg-comitiva" aria-labelledby="com-t">
+  <div class="testa"><h2 id="com-t">COMITIVA</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
+  <div class="corpo" id="com-corpo"></div>
 </dialog>
 
 <dialog class="finestra" id="dlg-posizione" aria-labelledby="pos-t">

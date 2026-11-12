@@ -23,6 +23,10 @@ window.SNS_CONFIG = {
   // "Proponilo": il pulsante per mandare un posto a qualcuno ("Stasera qui?") con un link al sito.
   // false = il pulsante non compare e i link di invito aprono il sito normale.
   inviti: true,
+  // Comitive: tavoli di amici senza account (lista dei posti da provare, voti, "fatto").
+  // Servono il database (supabaseUrl e supabaseKey qui sopra) e supabase/comitive.sql già eseguito.
+  // Resta false finché non lo accendi tu: prima vanno aggiornati privacy e termini (vedi LEGALE_E_SICUREZZA.md).
+  comitive: false,
   // Versioni dei documenti accettati alla registrazione: aggiornale se cambi privacy.html o termini.html.
   versioneTermini: "1.1",
   versionePrivacy: "1.5",

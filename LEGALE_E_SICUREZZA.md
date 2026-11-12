@@ -106,6 +106,25 @@ la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagi
   `monetaPrima: "una"` (una volta per visita) oppure `"mai"`. Non renderlo mai obbligatorio e non nascondere
   “Vai al posto”: un invito a donare che ostacola il servizio diventa una pratica scorretta verso chi usa il sito.
 
+### Comitive: pronte ma spente (`comitive: false`)
+
+Il codice c’è ed è provato, ma **non accenderle prima di aver fatto queste cose**:
+
+1. **Privacy** (`privacy.html`, nuova versione): aggiungere le comitive. Che cosa si salva: nome della comitiva,
+   nome e faccia di chi si siede, posti in lista, voti, giorno in cui un posto è “fatto”; niente email, IP,
+   posizione. Chi lo vede: chi è seduto a quella tavola; chi ha solo il link vede il nome e quanti sono; chi
+   gestisce il sito vede i nomi (per poterli moderare). Quanto dura: finché la comitiva è usata, poi si cancella
+   dopo 180 giorni ferma, o subito quando si alza l’ultimo. Nel browser: la chiave `sns-comitiva`.
+2. **Termini** (`termini.html`, nuova versione, quindi tutti li riaccettano una volta): regole sui nomi (niente
+   insulti, dati personali, link), diritto di cancellare una comitiva, come segnalare un nome.
+3. **Moderazione**: i nomi sono testo libero scritto dagli utenti, quindi il sito ospita contenuti di terzi.
+   Il database rifiuta link, email, numeri lunghi e simboli come `<` `>`, ma **non riconosce insulti o nomi di
+   persone**: quelli vanno guardati a mano nella pagina di monitoraggio (riquadro “Comitive”, tasto “Cancella”)
+   e rimossi quando arriva una segnalazione. Se questo impegno è troppo, si torna ai nomi pescati da un elenco.
+4. **Limiti voluti**: 8 posti per tavola, 60 posti in lista, 300 comitive nuove al giorno in tutto.
+5. Chi ha il link può sedersi finché c’è posto: se il link gira troppo, chi ha creato la comitiva lo cambia
+   (“Cambia il link di invito”) e libera i posti di chi non c’entra.
+
 ### Inviti: “Proponilo” (dal 12 novembre 2026)
 
 - Su ogni scheda e dopo il gettone c’è “Proponilo”: prepara un messaggio (“Stasera qui?”, il nome del posto, un link)

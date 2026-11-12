@@ -84,6 +84,24 @@
     if (/^eyJ/.test(CFG.supabaseKey)) testa.Authorization = "Bearer " + CFG.supabaseKey;   // chiavi del vecchio tipo
     try { fetch(CONTA_URL, { method: "POST", keepalive: true, headers: testa, body: JSON.stringify({ p_eventi: eventi }) }).catch(() => {}); } catch (e) { /* contare non deve mai rompere il gioco */ }
   }
+  // Una chiamata a una funzione del database aperta a tutti (le comitive). Restituisce il risultato, oppure lancia un
+  // errore con un messaggio da mostrare: quello scritto nella funzione se l'ha rifiutata lei, altrimenti uno generico.
+  async function rpc(nome, args) {
+    const testa = { "Content-Type": "application/json", apikey: CFG.supabaseKey };
+    if (/^eyJ/.test(CFG.supabaseKey)) testa.Authorization = "Bearer " + CFG.supabaseKey;
+    let r;
+    try { r = await fetch(String(CFG.supabaseUrl).replace(/\/+$/, "") + "/rest/v1/rpc/" + nome, { method: "POST", headers: testa, body: JSON.stringify(args || {}) }); }
+    catch (e) { throw new Error("Non riesco a collegarmi: controlla la connessione e riprova."); }
+    let j = null;
+    try { const t = await r.text(); j = t ? JSON.parse(t) : null; } catch (e) { /* risposta vuota o non leggibile */ }
+    if (r.ok) return j;
+    const voluto = j && (j.code === "P0001" || j.code === "P0002");   // "raise exception" delle nostre funzioni
+    const e = new Error(voluto ? j.message : "Qualcosa non ha funzionato: riprova tra poco.");
+    e.codice = j && j.code;
+    throw e;
+  }
+  // Comitive: accese solo se c'è il database e in config.js c'è  comitive: true
+  const COMITIVE = !!(CFG.supabaseUrl && CFG.supabaseKey && CFG.comitive === true);
   // Da dove arriva la visita: solo una categoria tra poche, mai l'indirizzo della pagina di provenienza.
   // Con ?da=instagram (o qr, volantino, amici…) in fondo al link che condividi la decidi tu.
   function provenienza() {
@@ -412,6 +430,7 @@
         <a class="vai" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a>
         <a href="${linkMaps(x)}" ${EXT}>Apri su Maps</a>
         ${INVITI ? `<button type="button" class="proponi" data-invita="${x.i}">Proponilo</button>` : ""}
+        ${SNS.pulsanteComitiva ? SNS.pulsanteComitiva(x) : ""}
       </div>
     </article>`;
   }
@@ -888,7 +907,7 @@
         ${via(x) ? `<div class="addr">${esc(via(x))}</div>` : ""}
         <div class="get-acts"><a class="btn" href="${linkVai(x)}" ${EXT}>▶ Portami lì</a><button class="btn alt" type="button" data-get="ancora" ${n < 2 ? "disabled" : ""}>Altro gettone</button></div>
         ${INVITI ? `<div class="get-acts"><button class="btn alt" type="button" data-get="invita">Proponilo: ${esc(inv.rilancio ? "Meglio qui?" : g.mom.qui)}</button></div>` : ""}
-        <div class="get-link"><button class="link" type="button" data-get="mappa">Vedi sulla mappa</button><button class="link" type="button" data-get="scheda">Apri la scheda</button></div>
+        <div class="get-link"><button class="link" type="button" data-get="mappa">Vedi sulla mappa</button><button class="link" type="button" data-get="scheda">Apri la scheda</button>${SNS.pulsanteComitiva ? SNS.pulsanteComitiva(x, "link") : ""}</div>
         ${DONA ? `<p class="moneta-riga">${moneta()}<small>Donazione facoltativa a Matteo, che cura il sito.</small></p>` : ""}
         <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? "È l’unico posto in gioco: cambia livello o power-up per pescarne altri." : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
         <small>Gli orari non li conosciamo: prima di partire controlla su Maps che sia aperto.</small>`;
@@ -965,6 +984,13 @@
       ${invio(`${contro ? "Meglio qui?" : quandoDi(k).qui} ${x.n}${doveSta(x)}. Ci stai?\n${linkInvito(x, k, contro)}`)}
       <p class="get-info">Chi lo riceve apre il sito su questo posto e ti risponde «Ci sto!», oppure te ne propone un altro. Il sito non salva il messaggio né a chi lo mandi.</p>`;
   }
+  // La stessa finestra per mandare un altro messaggio (per esempio il link di una comitiva)
+  function condividi({ titolo, eti, nome, testo, nota, evento }) {
+    Object.assign(inv, { fase: "altro", evento: evento || "" });
+    $("#inv-t").textContent = titolo;
+    $("#inv-corpo").innerHTML = `<span class="eti">${esc(eti)}</span>${nome ? `<div class="rullo">${esc(nome)}</div>` : ""}${invio(testo)}${nota ? `<p class="get-info">${esc(nota)}</p>` : ""}`;
+    const d = $("#dlg-invito"); if (!d.open) d.showModal();
+  }
   // Chi riceve
   function schermoInvito() {
     const { x, k, contro } = inv.da;
@@ -1016,7 +1042,7 @@
   }
   async function azioneInvito(cosa, b) {
     const d = $("#dlg-invito"), avviso = (t) => { const a = $("#inv-avviso"); if (a) { a.textContent = t; a.hidden = !t; } };
-    const manda = () => conta(inv.fase === "risposta" ? "invito_risposta" : "invito_manda");
+    const manda = () => { const ev = inv.fase === "risposta" ? "invito_risposta" : inv.fase === "altro" ? inv.evento : "invito_manda"; if (ev) conta(ev); };
     if (cosa === "quando") { inv.k = b.dataset.k; return schermoManda(); }
     if (cosa === "whatsapp") return manda();   // è un link: si apre da solo
     if (cosa === "condividi") {
@@ -1054,9 +1080,18 @@
     const id = p.get("posto");
     return id ? { x: perId.get(id) || null, k: (quandoDi(p.get("m")) || momento()).k, contro: p.get("r") === "1", visto: false } : null;
   })();
+  // Un link a una comitiva: ?comitiva=<chiave>. Se ne occupa js/comitiva.js, che può arrivare un attimo dopo.
+  let comitivaInArrivo = null;
+  if (COMITIVE) { try { comitivaInArrivo = new URLSearchParams(location.search).get("comitiva"); } catch (e) { /* indirizzo non leggibile */ } }
   // Che cosa mostrare per primo: l'invito, se sei arrivato da un invito; altrimenti la domanda sulla posizione
   function accogli() {
     if ($("#dlg-termini").open) return;            // prima i termini: poi si riparte da qui
+    if (comitivaInArrivo) {
+      const k = comitivaInArrivo; comitivaInArrivo = null;
+      try { const u = new URL(location.href); u.searchParams.delete("comitiva"); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* non indispensabile */ }
+      if (SNS.arrivoComitiva) SNS.arrivoComitiva(k); else SNS.comitivaInAttesa = k;
+      return;
+    }
     if (!arrivato || arrivato.visto) return proponiPosizione();
     arrivato.visto = true;
     // L'indirizzo torna pulito: ricaricando la pagina o tornando indietro l'invito non si riapre da solo
@@ -1070,7 +1105,9 @@
 
   // ---------- Interfaccia per js/conto.js ----------
   const SNS = window.SNS = {
-    DATA, perId, PW, esc, svg, luogo, toast, memoria,
+    DATA, perId, PW, esc, svg, luogo, toast, memoria, rpc, conta, nota, condividi, proponi,
+    zona: () => ({ mondo: stato.mondo, livello: stato.livello }),
+    pulsanteComitiva: null, comitivaAggiungi: null, arrivoComitiva: null, comitivaInAttesa: null,
     visitati: new Set(),
     extraScheda: null,
     ridisegna() { const m = stato.mostrati; disegnaLista(); if (m > PAGINA) { stato.mostrati = m; disegnaLista(); } disegnaOverworld(); mappa.ridisegna(); },
@@ -1202,6 +1239,8 @@
     if (lv) return scegliLivello(lv.dataset.livello);
     const pr = e.target.closest("[data-invita]");
     if (pr) return proponi(DATA[+pr.dataset.invita]);
+    const co = e.target.closest("[data-comitiva]");
+    if (co) return SNS.comitivaAggiungi && SNS.comitivaAggiungi(DATA[+co.dataset.comitiva], co);
     const b = e.target.closest("[data-mappa]");
     if (b) mostraSuMappa(+b.dataset.mappa);
   });
@@ -1231,6 +1270,7 @@
     const d = $("#dlg-termini");
     d.addEventListener("cancel", (e) => e.preventDefault());   // Esc non basta: serve una scelta esplicita
     if (arrivato && arrivato.x) $("#ter-invito").hidden = false;
+    if (comitivaInArrivo) { $("#ter-invito").innerHTML = "<b>Ti hanno invitato in una comitiva.</b> La vedi appena accetti."; $("#ter-invito").hidden = false; }
     $("#termini-ok").addEventListener("click", () => { memoria.set("sns-termini", VER_TERMINI); d.close(); conta("termini_ok"); accogli(); });
     d.showModal();
   }
@@ -1242,6 +1282,7 @@
   $("#agg").textContent = META.aggiornato ? fmtGiorno.format(new Date(META.aggiornato + "T12:00:00")) : "";
   document.querySelectorAll("svg[data-ico]").forEach((s) => { s.outerHTML = svg(s.dataset.ico); });
   aggiorna();
+  if (COMITIVE) { const sc = document.createElement("script"); sc.src = "js/comitiva.js"; document.body.appendChild(sc); }
   if (!percorso.avvio()) accogli();   // se si riprende da dove si era, niente finestra in mezzo
   // Una visita = un'apertura del sito. Ricaricare la pagina o tornare indietro non conta di nuovo.
   const arrivo = ((performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {}).type;

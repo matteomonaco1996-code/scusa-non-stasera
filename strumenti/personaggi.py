@@ -12,6 +12,16 @@ from pathlib import Path
 
 GAIA = dict(capelli="lunghi", col_capelli="#6B3A1E", maglia="#B3263A", guance=True)
 TU = dict(capelli="corti", col_capelli="#5E2A12", maglia="#22507A", barba=True)
+# Le facce tra cui scegliere quando ci si siede in una comitiva (img/facce/0.svg … 5.svg): l'ordine conta,
+# perché nel database c'è solo il numero.
+FACCE = [
+    dict(capelli="corti", col_capelli="#5E2A12", maglia="#22507A", barba=True),
+    dict(capelli="lunghi", col_capelli="#6B3A1E", maglia="#B3263A", guance=True),
+    dict(capelli="ricci", col_capelli="#2A1A12", maglia="#2F6B3A"),
+    dict(capelli="caschetto", col_capelli="#C98A2B", maglia="#7A4FA3", guance=True),
+    dict(capelli="rasato", col_capelli="#3A2A22", maglia="#C96F1E", occhiali=True),
+    dict(capelli="raccolti", col_capelli="#8A2B1E", maglia="#1F7A7A", guance=True),
+]
 
 
 L, A = 18, 22   # griglia: larghezza e altezza in "pixel"
@@ -106,7 +116,8 @@ def svg(g, classe="tipo", px=None, titolo=None):
 
 if __name__ == "__main__":
     img = Path(__file__).resolve().parent.parent / "img"
-    for nome, tratti in (("gaia", GAIA), ("tu", TU)):
+    (img / "facce").mkdir(exist_ok=True)
+    for nome, tratti in [("gaia", GAIA), ("tu", TU)] + [(f"facce/{k}", t) for k, t in enumerate(FACCE)]:
         testo = svg(personaggio(**tratti)).replace('<svg class="tipo" ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace(' aria-hidden="true"', "") + "\n"
         (img / f"{nome}.svg").write_text(testo, "utf-8")
         print(f"img/{nome}.svg", len(testo), "byte")

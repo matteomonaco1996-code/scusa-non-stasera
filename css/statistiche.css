@@ -113,6 +113,10 @@ body:has(.mon) { background: var(--panel-2); }
 .mon-elenco b { font-weight: 600; }
 .mon-elenco .niente { display: block; border: 0; color: var(--g-testo2); }
 
+.mon-comitive li { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.mon-comitive span { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.mon-comitive small { color: var(--g-testo2); font-size: 13px; }
+
 .mon-come ul { margin: 0; padding-left: 22px; display: grid; gap: 8px; color: var(--g-testo2); font-size: 15px; }
 .mon-come b { color: var(--g-testo); font-weight: 600; }
 

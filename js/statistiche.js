@@ -32,6 +32,9 @@
     da_diretto: "Link diretto", da_google: "Google", da_instagram: "Instagram", da_facebook: "Facebook", da_whatsapp: "WhatsApp",
     da_tiktok: "TikTok", da_telegram: "Telegram", da_qr: "Codice QR", da_volantino: "Volantino", da_amici: "Amici", da_altro: "Altri siti",
   };
+  // Comitive: i tavoli di amici (solo se in config.js c'è  comitive: true)
+  const COMITIVE_EV = [["comitiva_crea", "Comitive create"], ["comitiva_entra", "Persone che si sono sedute"], ["comitiva_invita", "Invito: invio toccato"],
+    ["comitiva_aggiungi", "Posti messi in lista"], ["comitiva_voto", "Voti"], ["comitiva_fatto", "“Fatto!”"]];
   const MONETE = [["dona_apri", "“Dona una moneta” aperto"], ["dona_1", "1 €"], ["dona_2", "2 €"], ["dona_5", "5 €"], ["dona_altro", "Altro"]];
 
   let sb = null, esempio = false, giorni = 30;
@@ -63,7 +66,8 @@
       const parte = (q) => Math.round(visite * q * (0.6 + caso() * 0.8));
       const r = { visita: visite, termini_ok: parte(0.55), start: parte(0.4), posizione_si: parte(0.27), posizione_no: parte(0.1), livello: parte(0.5),
         gettone: parte(0.45), portami: parte(0.3), vai: parte(0.27), maps: parte(0.12),
-        invito_apri: parte(0.08), invito_manda: parte(0.05), invito_arriva: parte(0.04), invito_si: parte(0.02), invito_altro: parte(0.008), invito_no: parte(0.004), invito_risposta: parte(0.022), dona_apri: parte(0.02), dona_1: parte(0.012), dona_2: parte(0.008), dona_5: parte(0.004), dona_altro: parte(0.003) };
+        invito_apri: parte(0.08), invito_manda: parte(0.05), invito_arriva: parte(0.04), invito_si: parte(0.02), invito_altro: parte(0.008), invito_no: parte(0.004), invito_risposta: parte(0.022),
+        comitiva_crea: parte(0.006), comitiva_entra: parte(0.012), comitiva_invita: parte(0.01), comitiva_aggiungi: parte(0.03), comitiva_voto: parte(0.025), comitiva_fatto: parte(0.008), dona_apri: parte(0.02), dona_1: parte(0.012), dona_2: parte(0.008), dona_5: parte(0.004), dona_altro: parte(0.003) };
       let resto = visite;
       for (const [f, q] of [["da_instagram", 0.34], ["da_qr", 0.12], ["da_google", 0.08], ["da_whatsapp", 0.07], ["da_altro", 0.03]]) { const n = Math.min(resto, parte(q)); r[f] = n; resto -= n; }
       r.da_diretto = resto;
@@ -205,6 +209,39 @@
       elenco.append(li);
     }
   }
+  // Comitive: i numeri che dicono se servono, e l'elenco dei nomi (testo libero) con il tasto per cancellarne una
+  let comitive = null;
+  function disegnaComitive(dal, al) {
+    $("#s-comitive").hidden = !comitive;
+    if (!comitive) return;
+    const tot = $("#c-totali"), elenco = $("#c-elenco");
+    tot.textContent = ""; elenco.textContent = "";
+    for (const [nome, v] of [["Comitive", comitive.totale], ["Con almeno 3 a tavola", comitive.da_tre], ["Con almeno un voto", comitive.con_voti], ["Con almeno un posto fatto", comitive.con_fatti]]) {
+      const d = el("div"); d.append(el("dt", "", nome), el("dd", "", fmtN.format(v))); tot.append(d);
+    }
+    disegnaBarre($("#b-comitive"), COMITIVE_EV.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "" }, 0);
+    if (!comitive.elenco.length) elenco.append(el("li", "niente", "Ancora nessuna comitiva."));
+    for (const k of comitive.elenco) {
+      const li = el("li"), testo = el("span"), togli = el("button", "link", "Cancella");
+      testo.append(el("b", "", k.nome), el("small", "", `${k.posti.join(", ")} · ${k.luoghi} ${k.luoghi === 1 ? "posto" : "posti"} in lista · usata il ${fmtCorto.format(data(k.usata))}`));
+      togli.type = "button";
+      togli.setAttribute("aria-label", `Cancella la comitiva ${k.nome}`);
+      togli.addEventListener("click", () => cancellaComitiva(k));
+      li.append(testo, togli);
+      elenco.append(li);
+    }
+  }
+  async function caricaComitive() {
+    if (C.comitive !== true) { comitive = null; return; }
+    const { data: j, error } = await sb.rpc("comitive_elenco");
+    comitive = error ? null : j;      // se le comitive non sono installate nel database, il riquadro non compare
+  }
+  async function cancellaComitiva(k) {
+    if (!confirm(`Cancello la comitiva «${k.nome}»? Chi è seduto la perde, con la lista e i voti.`)) return;
+    if (esempio) { comitive.elenco = comitive.elenco.filter((x) => x !== k); comitive.totale--; }
+    else { const { error } = await sb.rpc("comitiva_cancella", { p_id: k.id }); if (error) return alert("Non sono riuscito a cancellarla: riprova."); await caricaComitive(); }
+    disegna();
+  }
   async function togliDonazione(d) {
     if (!confirm(`Tolgo la donazione di ${fmtEuro.format(d.euro)} del ${fmtCorto.format(data(d.g))}?`)) return;
     if (esempio) dati.donazioni = dati.donazioni.filter((x) => x !== d);
@@ -237,6 +274,7 @@
     const fonti = Object.keys(FONTI).map((e) => ({ nome: FONTI[e], n: somma([e], dal, al) })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n);
     disegnaBarre($("#b-fonti"), fonti, { fmt: (n) => fmtN.format(n), di: "delle visite", quotaInRiga: true }, fonti.reduce((s, r) => s + r.n, 0));
     disegnaBarre($("#b-inviti"), INVITI.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "" }, 0);
+    disegnaComitive(dal, al);
     disegnaBarre($("#b-monete"), MONETE.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "" }, 0);
     disegnaDonazioni(p);
   }
@@ -252,6 +290,7 @@
     const { data: j, error } = await sb.rpc("statistiche", { p_giorni: 190 });
     if (error) throw error;
     prepara(j);
+    await caricaComitive();
   }
 
   // ---------- Stati della pagina ----------
@@ -316,7 +355,14 @@
   addEventListener("resize", () => { clearTimeout(tRidim); tRidim = setTimeout(() => { if (!$("#cruscotto").hidden) disegna(); }, 150); });
 
   const inProva = ["localhost", "127.0.0.1"].includes(location.hostname);   // l'esempio non esiste sul sito pubblicato
-  if (inProva && new URLSearchParams(location.search).has("esempio")) { esempio = true; prepara(finti()); mostraCruscotto(); }
+  if (inProva && new URLSearchParams(location.search).has("esempio")) {
+    esempio = true; prepara(finti());
+    comitive = { totale: 7, da_tre: 3, con_voti: 4, con_fatti: 2, elenco: [
+      { id: 3, nome: "I Supplì Volanti", posti: ["Matteo", "Gaia", "Sor Supplì", "Miss Maritozzo"], luoghi: 9, usata: dati.oggi },
+      { id: 2, nome: "Carbonara Club", posti: ["Ale", "Fra"], luoghi: 3, usata: piu(dati.oggi, -2) },
+      { id: 1, nome: "Quelli del giovedì", posti: ["Tizio"], luoghi: 0, usata: piu(dati.oggi, -9) }] };
+    mostraCruscotto();
+  }
   else if (!C.supabaseUrl || !C.supabaseKey || !window.supabase) spento();
   else {
     sb = window.supabase.createClient(C.supabaseUrl, C.supabaseKey, {

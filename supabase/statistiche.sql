@@ -49,7 +49,8 @@ language sql immutable as $$
     'start', 'posizione_si', 'posizione_no', 'livello', 'gettone',
     'portami', 'vai', 'maps',
     'dona_apri', 'dona_1', 'dona_2', 'dona_5', 'dona_altro',
-    'invito_apri', 'invito_manda', 'invito_arriva', 'invito_si', 'invito_no', 'invito_altro', 'invito_risposta'
+    'invito_apri', 'invito_manda', 'invito_arriva', 'invito_si', 'invito_no', 'invito_altro', 'invito_risposta',
+    'comitiva_crea', 'comitiva_entra', 'comitiva_invita', 'comitiva_aggiungi', 'comitiva_voto', 'comitiva_fatto'
   ]
 $$;
 
