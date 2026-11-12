@@ -152,9 +152,10 @@
     const w = MONDI.find((m) => m.id === "fuori");
     const somma = (o) => Object.values(o).reduce((s, v) => s + v, 0);
     let j = 0;
-    LIVELLI.fuori = Object.entries(reg).sort((a, b) => somma(b[1]) - somma(a[1])).map(([r, cs]) => ({
+    const PRIMO = "Tivoli";   // sempre il primo livello di Fuori porta, anche se un'altra località avesse più posti
+    LIVELLI.fuori = Object.entries(reg).sort((a, b) => (PRIMO in b[1]) - (PRIMO in a[1]) || somma(b[1]) - somma(a[1])).map(([r, cs]) => ({
       nome: r,
-      livelli: Object.entries(cs).sort((a, b) => a[0].startsWith("Altro") - b[0].startsWith("Altro") || b[1] - a[1] || a[0].localeCompare(b[0], "it"))
+      livelli: Object.entries(cs).sort((a, b) => (b[0] === PRIMO) - (a[0] === PRIMO) || a[0].startsWith("Altro") - b[0].startsWith("Altro") || b[1] - a[1] || a[0].localeCompare(b[0], "it"))
         .map(([c, n]) => ({ n: c, conta: n, cod: `${w ? w.w : 6}-${String(++j).padStart(2, "0")}` })),
     }));
   }
