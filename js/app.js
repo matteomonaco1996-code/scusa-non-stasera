@@ -136,7 +136,7 @@
     x.h = norm([x.n, x.a, x.nt, x.dr, x.c, x.q, PW[x.t] && PW[x.t][0]].join(" "));
     perId.set(x.id, x);
   });
-  const MONDI = [{ id: "roma", nome: "Roma" }, ...CITTA.map((c) => ({ id: c.toLowerCase(), nome: c })), { id: "fuori", nome: "Fuori porta" }]
+  const MONDI = [{ id: "roma", nome: "Roma" }, { id: "fuori", nome: "Fuori porta" }, ...CITTA.map((c) => ({ id: c.toLowerCase(), nome: c }))]   // Fuori porta subito dopo Roma
     .map((m, k) => ({ ...m, w: k + 1, n: DATA.filter((x) => x.m === m.id).length })).filter((m) => m.n);
 
   const LIVELLI = {};
