@@ -217,8 +217,9 @@
   const fascia = (x) => FASCE.findIndex((f) => minuti(x.km) <= f.max);
   const sembraIndirizzo = (x) => !x.a || /^segnaposto/i.test(x.n) || /^(via|viale|piazza|piazzale|largo|vicolo)\b/i.test(x.n);
   const dest = (x) => sembraIndirizzo(x) ? `${x.la},${x.lo}` : `${x.n}, ${x.a}`;
-  const linkMaps = (x) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(dest(x));
-  const linkVai = (x) => "https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=" + encodeURIComponent(dest(x));
+  const STRADA = "https://www.google.com/maps/dir/", PAGINA_MAPS = "https://www.google.com/maps/search/";
+  const linkMaps = (x) => PAGINA_MAPS + "?api=1&query=" + encodeURIComponent(dest(x));
+  const linkVai = (x) => STRADA + "?api=1&travelmode=walking&destination=" + encodeURIComponent(dest(x));
   const luogo = (x) => x.m === "roma" ? (x.l === "Periferia" ? "Roma" : x.l) : x.c === "Altre località" ? (x.r || "") : x.c;
   const via = (x) => (x.a || "").replace(/,\s*\d{5}.*$/, "");
   const EXT = 'target="_blank" rel="noopener noreferrer"';
@@ -238,7 +239,8 @@
     $("#monete").innerHTML = importiMoneta();
     const d = $("#dlg-moneta"); if (!d.open) d.showModal();
   }
-  // Prima di aprire le indicazioni verso un posto: una finestra con "Vai al posto" in cima e, sotto, la moneta.
+  // Prima di aprire Google Maps verso un posto ("Portami lì" e "Apri su Maps"): una finestra con il pulsante
+  // per proseguire in cima e, sotto, la moneta. Lo stesso riquadro sta nella finestra "Proponilo".
   // In config.js, monetaPrima = "sempre" (ogni volta), "una" (una volta per visita) oppure "mai".
   const PRIMA = (window.SNS_CONFIG || {}).monetaPrima || "sempre";
   const INVITI = (window.SNS_CONFIG || {}).inviti !== false;   // "Proponilo": l'invito da mandare a qualcuno
@@ -248,7 +250,9 @@
     if (!DONA || PRIMA === "mai" || (PRIMA === "una" && giaChiesto)) return false;
     giaChiesto = true;
     e.preventDefault();
-    $("#vai-ora").href = a.href;
+    const v = $("#vai-ora");
+    v.href = a.href;
+    v.textContent = a.href.startsWith(STRADA) ? "▶ VAI AL POSTO" : "▶ APRI SU MAPS";
     $("#monete-vai").innerHTML = importiMoneta();
     const d = $("#dlg-vai"); if (!d.open) d.showModal();
     return true;
@@ -263,14 +267,25 @@
     if (m) return conta("dona_" + m.dataset.dona);
     versoMaps(e);
   }
-  // Ogni clic verso Google Maps: "Portami lì" (indicazioni), "Vai al posto" nella finestra, "Apri su Maps".
+  // Lo stesso riquadro della donazione di "Prima di andare", da mettere in un'altra finestra: il testo si prende
+  // da lì (index.html), così le spiegazioni e le avvertenze restano scritte in un posto solo.
+  function riquadroDona() {
+    const box = DONA && PRIMA !== "mai" && $("#dlg-vai .dona-box");
+    if (!box) return "";
+    const copia = box.cloneNode(true), monete = copia.querySelector(".monete"), note = $("#dlg-vai .dona-box + small");
+    if (monete) { monete.removeAttribute("id"); monete.innerHTML = importiMoneta(); }
+    return copia.outerHTML + (note ? note.outerHTML : "");
+  }
+  // Ogni clic verso Google Maps: "Portami lì" (indicazioni), "Apri su Maps" (la pagina del posto) e il pulsante
+  // per proseguire nella finestra. "portami" = pulsante toccato; "vai" e "maps" = Maps si è aperto davvero.
   function versoMaps(e) {
     const a = e.target.closest('a[href^="https://www.google.com/maps/"]');
     if (!a) return;
-    if (a.id === "vai-ora") return conta("vai");
-    if (!a.href.startsWith("https://www.google.com/maps/dir/")) return conta("maps");
-    conta("portami");
-    if (!primaDiAndare(e, a)) conta("vai");   // "vai" = le indicazioni si sono aperte davvero
+    const strada = a.href.startsWith(STRADA);
+    if (a.id === "vai-ora") return conta(strada ? "vai" : "maps");
+    if (!strada && !a.href.startsWith(PAGINA_MAPS)) return conta("maps");   // il link alla lista su Google, in fondo alla pagina
+    if (strada) conta("portami");
+    if (!primaDiAndare(e, a)) conta(strada ? "vai" : "maps");
   }
 
   // ---------- Filtri ----------
@@ -990,6 +1005,7 @@
       <div class="rullo">${esc(x.n)}</div>
       ${contro ? "" : `<div class="quando" role="group" aria-label="Per quando?">${QUANDO.map((m) => `<button type="button" data-inv="quando" data-k="${m.k}" aria-pressed="${m.k === k}">${m.breve}</button>`).join("")}</div>`}
       ${invio(`${contro ? "Meglio qui?" : quandoDi(k).qui} ${x.n}${doveSta(x)}. Ci stai?\n${linkInvito(x, k, contro)}`)}
+      ${riquadroDona()}
       <p class="get-info">Chi lo riceve apre il sito su questo posto e ti risponde «Ci sto!», oppure te ne propone un altro. Il sito non salva il messaggio né a chi lo mandi.</p>`;
   }
   // La stessa finestra per mandare un altro messaggio (per esempio il link di una comitiva)

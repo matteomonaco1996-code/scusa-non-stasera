@@ -100,9 +100,12 @@ la moneta apre una finestra con gli importi (1, 2, 5 € o libero) e poi la pagi
 - `termini.html` (punto 8, versione 1.1) e `privacy.html` (ora versione 1.4) aggiornati; i dati che arrivano da PayPal
   (nome, email, importo, messaggio) sono nel registro dei trattamenti dell’informativa.
 - Nessun vantaggio nel gioco per chi dona.
-- **Prima di andare** (dall’11 novembre 2026): toccando “Portami lì” si apre una finestra che ricorda la moneta.
-  Il primo pulsante è “Vai al posto”, quindi nessuno resta bloccato e si prosegue senza donare; Esc e “Chiudi”
-  funzionano. Resta però un passaggio in più a ogni posto: se dà fastidio, in `config.js` metti
+- **Prima di andare** (dall’11 novembre 2026; dal 13 novembre anche su “Apri su Maps”): toccando “Portami lì” o
+  “Apri su Maps” si apre una finestra che ricorda la moneta. Il primo pulsante è quello per proseguire (“Vai al posto”
+  oppure “Apri su Maps”), quindi nessuno resta bloccato e si prosegue senza donare; Esc e “Chiudi” funzionano.
+  Dal 13 novembre lo stesso riquadro sta anche nella finestra “Proponilo”, **sotto** i pulsanti per mandare il
+  messaggio: lì non aggiunge passaggi. Il punto 8 dei termini è stato ritoccato di conseguenza senza cambiare versione,
+  perché non cambiano diritti né obblighi (la data del ritocco è scritta in cima ai termini). Resta però un passaggio in più a ogni posto: se dà fastidio, in `config.js` metti
   `monetaPrima: "una"` (una volta per visita) oppure `"mai"`. Non renderlo mai obbligatorio e non nascondere
   “Vai al posto”: un invito a donare che ostacola il servizio diventa una pratica scorretta verso chi usa il sito.
 
