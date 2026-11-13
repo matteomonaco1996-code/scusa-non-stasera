@@ -30,6 +30,8 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   (“Posso usare la tua posizione?”): a che cosa serve, che cosa sta per succedere, dove finisce il dato, con
   “Sì, usa la posizione” e “No, scelgo io dove”. Non compare se il permesso è già dato o già rifiutato.
 - **SELEZIONA IL MONDO**: Roma, Firenze, Venezia, Milano, Bologna, Fuori porta.
+  Toccato un mondo, la pagina scende da sola a quello che viene dopo: l’elenco dei livelli (a Roma sta sotto la
+  mappa dei quartieri, che altrimenti sembra l’unico modo di scegliere) oppure, nelle città con un solo livello, i posti.
 - **LIVELLI**: a Roma ogni **quartiere** è un livello (38 quartieri in 5 aree:
   Centro, Sponda ovest, Nord, Est, Sud, più la Periferia). In fondo a ogni
   livello ci sono i 3 quartieri più vicini (*Prossimo livello*). Fuori porta i

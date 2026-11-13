@@ -109,6 +109,8 @@
   }
   // Comitive: accese solo se c'è il database e in config.js c'è  comitive: true
   const COMITIVE = !!(CFG.supabaseUrl && CFG.supabaseKey && CFG.comitive === true);
+  // Account accesi: esiste il check-in. Serve ai testi: lì la posizione parte verso il sito, altrove no.
+  const CON_CHECKIN = !!(CFG.supabaseUrl && CFG.supabaseKey && CFG.conto !== false);
   // Da dove arriva la visita: solo una categoria tra poche, mai l'indirizzo della pagina di provenienza.
   // Con ?da=instagram (o qr, volantino, amici…) in fondo al link che condividi la decidi tu.
   function provenienza() {
@@ -423,7 +425,7 @@
       g.insertBefore(r, g.firstChild);
     });
     const z = stato.livello && livelli.find((l) => l.n === stato.livello);
-    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${z.conta} posti` : "Tocca un quartiere per giocare quel livello. Le caselle verdi sono quartieri dove hai già fatto check-in.";
+    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${z.conta} posti` : "Tocca un quartiere sulla mappa, oppure sceglilo dall’elenco qui sotto." + (CON_CHECKIN ? " Le caselle verdi sono quartieri dove hai già fatto check-in." : "");
   }
 
   function disegnaPowerup() {
@@ -734,8 +736,6 @@
   async function permessoPosizione() {
     try { return (await navigator.permissions.query({ name: "geolocation" })).state; } catch (e) { return "prompt"; }
   }
-  // Con gli account accesi la posizione parte solo al check-in: va detto, altrimenti "non arriva al sito" sarebbe falso.
-  const CON_CHECKIN = !!(CFG.supabaseUrl && CFG.supabaseKey && CFG.conto !== false);
 
   // ---------- Posizione: la finestra che la chiede e, se è bloccata, spiega come riaccenderla ----------
   // Un sito non può accendere la posizione da solo: può solo far comparire la richiesta del browser (se non è
@@ -813,7 +813,14 @@
     scorri($(".bar"));
     percorso.avanza();
   }
-  function scegliMondo(id) { stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false; aggiorna(); percorso.avanza(); }
+  // Scelto il mondo, la pagina scende a quello che viene dopo: l'elenco dei livelli (a Roma sta sotto la mappa dei
+  // quartieri, che riempie lo schermo e sembra l'unico modo di scegliere) oppure, dove il mondo è un livello solo, i posti.
+  function scegliMondo(id) {
+    stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false;
+    aggiorna();
+    scorri((LIVELLI[id] || []).length ? $("#livelli") : $(".bar"));
+    percorso.avanza();
+  }
   function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa(); }
   // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
   // dopo aver scorso la lista, la mappa restava quasi tutta fuori schermo. Porta l'inizio subito sotto la barra.
