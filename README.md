@@ -30,8 +30,13 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   (“Posso usare la tua posizione?”): a che cosa serve, che cosa sta per succedere, dove finisce il dato, con
   “Sì, usa la posizione” e “No, scelgo io dove”. Non compare se il permesso è già dato o già rifiutato.
 - **SELEZIONA IL MONDO**: Roma, Firenze, Venezia, Milano, Bologna, Fuori porta.
-  Toccato un mondo, la pagina scende da sola a quello che viene dopo: l’elenco dei livelli (a Roma sta sotto la
-  mappa dei quartieri, che altrimenti sembra l’unico modo di scegliere) oppure, nelle città con un solo livello, i posti.
+- **I TRE PASSI**: la pagina è in quest’ordine, e a ogni scelta scende da sola al passo dopo:
+  **mondo → power-up → livello → posti**. Toccato un mondo si arriva al power-up; scelto il power-up (anche
+  «Tutto») si arriva all’elenco dei livelli, oppure dritti ai posti se il mondo ha un livello solo o il livello
+  è già scelto; scelto il livello si arriva ai posti. Ritoccare il power-up acceso lo spegne senza spostare la
+  pagina. I numeri dei livelli (× N) contano solo i posti del power-up e della ricerca scelti: i livelli a zero
+  sono spenti, nell’elenco e sulla mappa dei quartieri. A Roma la pagina arriva all’elenco dei livelli e non alla
+  mappa dei quartieri, che resta appena sopra: riempie lo schermo e sembrava l’unico modo di scegliere.
 - **LIVELLI**: a Roma ogni **quartiere** è un livello (38 quartieri in 5 aree:
   Centro, Sponda ovest, Nord, Est, Sud, più la Periferia). In fondo a ogni
   livello ci sono i 3 quartieri più vicini (*Prossimo livello*). Fuori porta i

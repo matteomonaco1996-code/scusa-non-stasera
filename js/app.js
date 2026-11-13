@@ -293,7 +293,7 @@
   // ---------- Filtri ----------
   function passa(x, salta) {
     if (!stato.vicino && x.m !== stato.mondo) return false;
-    if (stato.livello && x.l !== stato.livello) return false;
+    if (salta !== "livello" && stato.livello && x.l !== stato.livello) return false;
     if (salta !== "voglia" && stato.voglia && x.t !== stato.voglia) return false;
     if (stato.q) for (const p of stato.q.split(/\s+/)) if (p && !x.h.includes(p)) return false;
     return true;
@@ -306,18 +306,30 @@
   }
 
   // ---------- Disegno: mondi, livelli, power-up ----------
+  // Quanti posti ha ogni livello del mondo scelto con il power-up e la ricerca di adesso. Il power-up si sceglie
+  // prima del livello: così chi ha scelto «Pizza» vede in quali quartieri ce n'è, e non finisce in un livello vuoto.
+  let perLivello = {}, nelMondo = 0;
+  const quanti = (z) => perLivello[z.n] || 0;
+  function contaLivelli() {
+    perLivello = {}; nelMondo = 0;
+    DATA.forEach((x) => { if (x.m === stato.mondo && passa(x, "livello")) { perLivello[x.l] = (perLivello[x.l] || 0) + 1; nelMondo++; } });
+  }
   function disegnaMondi() {
+    contaLivelli();
+    const filtro = [stato.voglia ? `«${PW[stato.voglia][0]}»` : "", stato.q ? "la tua ricerca" : ""].filter(Boolean).join(" e ");
     $("#mondi").innerHTML = MONDI.map((m) => `<button type="button" class="tab px" data-mondo="${m.id}" aria-pressed="${!stato.vicino && stato.mondo === m.id}">
       <span class="w">MONDO ${m.w}</span><span class="nm">${esc(m.nome)}</span><span class="ct">× ${m.n} posti</span></button>`).join("");
     const nomeTutto = stato.mondo === "roma" ? "Tutta Roma" : stato.mondo === "fuori" ? "Tutto fuori porta" : "Tutta " + MONDI.find((m) => m.id === stato.mondo).nome;
     const tutti = `<div class="area"><div class="levels"><button type="button" class="level px" data-livello="" aria-pressed="${!stato.vicino && !stato.livello}">
-      <span class="cod">TUTTO</span><span class="nm">${esc(nomeTutto)}</span><span class="ct">× ${DATA.filter((x) => x.m === stato.mondo).length}</span></button></div></div>`;
-    $("#livelli").innerHTML = tutti + (LIVELLI[stato.mondo] || []).map((a) => `<div class="area"><h3>${esc(a.nome.toUpperCase())}</h3><div class="levels">${
-      a.livelli.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="${stato.livello === z.n}">
+      <span class="cod">TUTTO</span><span class="nm">${esc(nomeTutto)}</span><span class="ct">× ${nelMondo}</span></button></div></div>`;
+    const haLivelli = (LIVELLI[stato.mondo] || []).length > 0;
+    $("#livelli").innerHTML = (filtro && haLivelli ? `<p class="conta-solo">I numeri contano solo ${esc(filtro)}: dove vedi × 0 non ce n’è.</p>` : "") +
+      tutti + (LIVELLI[stato.mondo] || []).map((a) => `<div class="area"><h3>${esc(a.nome.toUpperCase())}</h3><div class="levels">${
+      a.livelli.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="${stato.livello === z.n}" ${!quanti(z) && stato.livello !== z.n ? "disabled" : ""}>
         ${stato.posLv === z.n ? `<span class="qui">SEI QUI</span>` : ""}
-        <span class="cod">LIVELLO ${z.cod}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${z.conta}</span></button>`).join("")
+        <span class="cod">LIVELLO ${z.cod}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${quanti(z)}</span></button>`).join("")
     }</div></div>`).join("");
-    $("#sott-mondi").textContent = stato.mondo === "roma" ? "Roma è divisa in quartieri: ogni quartiere è un livello."
+    $("#sott-livelli").textContent = stato.mondo === "roma" ? "Roma è divisa in quartieri: ogni quartiere è un livello."
       : stato.mondo === "fuori" ? "Gite, mare e borghi: ogni località è un livello." : "Un mondo, un livello: tutta la città.";
   }
   // ---------- Mappa del mondo (Roma): disegnata qui, senza servizi esterni ----------
@@ -410,9 +422,10 @@
       ${vie}<path class="ow-fiume" d="${d}"/>
       ${nodi.map((n) => { const { z, p } = n;
         const x = snap(p[0]) - 12, y = snap(p[1]) - 12;
-        const cls = stato.livello === z.n ? "on" : visti.has(z.n) ? "fatto" : "";
-        return `<g class="ow-nodo ${cls}" data-livello="${esc(z.n)}" tabindex="0" role="button" aria-label="Livello ${z.cod}: ${esc(z.n)}, ${z.conta} posti">
-          <title>${esc(z.n)} · ${z.conta} posti</title><rect x="${x}" y="${y}" width="24" height="24"/><text x="${x + 12}" y="${y + 17}" text-anchor="middle">${z.cod.split("-")[1]}</text>
+        const vuoto = !quanti(z) && stato.livello !== z.n;
+        const cls = stato.livello === z.n ? "on" : vuoto ? "vuoto" : visti.has(z.n) ? "fatto" : "";
+        return `<g class="ow-nodo ${cls}" data-livello="${esc(z.n)}" tabindex="0" role="button"${vuoto ? ' aria-disabled="true"' : ""} aria-label="Livello ${z.cod}: ${esc(z.n)}, ${quanti(z)} posti">
+          <title>${esc(z.n)} · ${quanti(z)} posti</title><rect x="${x}" y="${y}" width="24" height="24"/><text x="${x + 12}" y="${y + 17}" text-anchor="middle">${z.cod.split("-")[1]}</text>
           ${n.nome && n.nome.tx !== undefined ? `<text class="ow-nome" x="${n.nome.tx}" y="${n.nome.ty}" text-anchor="${n.nome.a}">${esc(n.nome.testo)}</text>` : ""}</g>`;
       }).join("")}
       ${io}
@@ -425,7 +438,7 @@
       g.insertBefore(r, g.firstChild);
     });
     const z = stato.livello && livelli.find((l) => l.n === stato.livello);
-    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${z.conta} posti` : "Tocca un quartiere sulla mappa, oppure sceglilo dall’elenco qui sotto." + (CON_CHECKIN ? " Le caselle verdi sono quartieri dove hai già fatto check-in." : "");
+    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${quanti(z)} posti` : "Tocca un quartiere sulla mappa, oppure sceglilo dall’elenco qui sotto." + (CON_CHECKIN ? " Le caselle verdi sono quartieri dove hai già fatto check-in." : "");
   }
 
   function disegnaPowerup() {
@@ -496,9 +509,10 @@
     const box = $("#next-lv");
     if (stato.vicino || stato.mondo !== "roma" || !stato.livello || stato.livello === "Periferia") { box.hidden = true; return; }
     const c = centro(stato.livello);
-    const vicini = tuttiLivelli("roma").filter((z) => z.n !== stato.livello && z.n !== "Periferia")
+    const vicini = tuttiLivelli("roma").filter((z) => z.n !== stato.livello && z.n !== "Periferia" && quanti(z))
       .map((z) => ({ ...z, d: km(c, centro(z.n)) })).sort((a, b) => a.d - b.d).slice(0, 3);
-    box.innerHTML = `<h3>Prossimo livello ▶</h3><div class="levels">${vicini.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="false"><span class="cod">LIVELLO ${z.cod}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${z.conta}</span></button>`).join("")}</div>`;
+    if (!vicini.length) { box.hidden = true; return; }
+    box.innerHTML = `<h3>Prossimo livello ▶</h3><div class="levels">${vicini.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="false"><span class="cod">LIVELLO ${z.cod}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${quanti(z)}</span></button>`).join("")}</div>`;
     box.hidden = false;
   }
   function aggiorna({ adatta = true } = {}) {
@@ -813,15 +827,33 @@
     scorri($(".bar"));
     percorso.avanza();
   }
-  // Scelto il mondo, la pagina scende a quello che viene dopo: l'elenco dei livelli (a Roma sta sotto la mappa dei
-  // quartieri, che riempie lo schermo e sembra l'unico modo di scegliere) oppure, dove il mondo è un livello solo, i posti.
+  // I tre passi, in ordine: mondo → power-up → livello → posti. A ogni scelta la pagina scende da sola al passo dopo,
+  // così nessuno resta fermo a chiedersi dove toccare.
+  // Il passo "livello": a Roma si arriva all'elenco (la mappa dei quartieri resta appena sopra: riempie lo schermo
+  // e sembrava l'unico modo di scegliere); altrove all'inizio della sezione.
+  const versoLivelli = () => scorri($("#overworld").hidden ? $("#sez-livelli") : $("#livelli"));
+  // C'è ancora un livello da scegliere? No se il mondo ne ha uno solo, se è già scelto o se si gioca "vicino a me".
+  const livelloDaScegliere = () => !stato.vicino && !stato.livello && (LIVELLI[stato.mondo] || []).length > 0;
   function scegliMondo(id) {
     stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false;
     aggiorna();
-    scorri((LIVELLI[id] || []).length ? $("#livelli") : $(".bar"));
+    scorri($("#sez-pw"));
     percorso.avanza();
   }
-  function scegliLivello(lv) { stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa(); }
+  // Ritoccare il power-up acceso lo spegne: lì si resta fermi, per sceglierne un altro. Ogni altra scelta
+  // (anche «Tutto») porta avanti: al livello se c'è da sceglierlo, altrimenti ai posti.
+  function scegliVoglia(v) {
+    const spento = !!v && stato.voglia === v;
+    stato.voglia = spento ? "" : v;
+    aggiorna();
+    if (spento) return percorso.segna();
+    if (livelloDaScegliere()) versoLivelli(); else scorri($(".bar"));
+    percorso.avanza();
+  }
+  function scegliLivello(lv) {
+    if (lv && lv !== stato.livello && !perLivello[lv]) return toast("Qui non ce n’è: scegli un altro livello o cambia power-up.");
+    stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa();
+  }
   // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
   // dopo aver scorso la lista, la mappa restava quasi tutta fuori schermo. Porta l'inizio subito sotto la barra.
   function allinea() {
@@ -984,7 +1016,7 @@
     if (cosa === "invita") return proponi(gt.x);
     if (cosa === "ovunque") { gt.ovunque = true; return gettone(); }
     if (cosa === "ora") { gt.ora = !gt.ora; return gettone(); }
-    if (cosa === "livello") { d.close(); scorri($("#sez-mondi")); return toast(stato.mondo === "roma" ? "Tocca un quartiere, poi rimetti il gettone." : "Scegli una località, poi rimetti il gettone."); }
+    if (cosa === "livello") { d.close(); versoLivelli(); return toast(stato.mondo === "roma" ? "Tocca un quartiere, poi rimetti il gettone." : "Scegli una località, poi rimetti il gettone."); }
     if (cosa === "mappa") { d.close(); mostraSuMappa(gt.x.i); if (!mobile()) scorri($(".bar")); return; }
     if (cosa === "scheda") { d.close(); return mostraScheda(gt.x.i); }
     if (cosa === "dove") return chiediDove();
@@ -1309,7 +1341,7 @@
     const b = e.target.closest("[data-mappa]");
     if (b) mostraSuMappa(+b.dataset.mappa);
   });
-  $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (!b) return; stato.voglia = stato.voglia === b.dataset.voglia ? "" : b.dataset.voglia; aggiorna(); percorso.segna(); });
+  $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (b) scegliVoglia(b.dataset.voglia); });
   $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); percorso.segna(); }, 160); });
   $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); percorso.segna(); });
   $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else finestraPosizione("chiedi"); });   // "Portami fuori" → da dove partiamo?

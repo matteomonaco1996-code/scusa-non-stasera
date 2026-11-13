@@ -82,25 +82,32 @@
   </div>
 </header>
 
+<!-- I tre passi, in quest'ordine: il mondo, il power-up, il livello. Poi i posti. -->
 <section class="zona" id="sez-mondi" aria-labelledby="t-mondi">
   <div class="wrap">
-    <div class="zona-head"><h2 id="t-mondi">SELEZIONA IL MONDO</h2><p id="sott-mondi">Roma è divisa in quartieri: ogni quartiere è un livello.</p></div>
+    <div class="zona-head"><h2 id="t-mondi">SELEZIONA IL MONDO</h2><p>Roma, fuori porta o un’altra città.</p></div>
     <div class="tabs" id="mondi" role="group" aria-label="Mondi"></div>
-    <figure class="overworld px" id="overworld" hidden>
-      <div id="ow-svg"></div>
-      <figcaption id="ow-info">Tocca un quartiere sulla mappa, oppure sceglilo dall’elenco qui sotto.</figcaption>
-    </figure>
-    <div id="livelli"></div>
   </div>
 </section>
 
-<section class="zona" aria-labelledby="t-pw">
+<section class="zona" id="sez-pw" aria-labelledby="t-pw">
   <div class="wrap">
     <div class="zona-head"><h2 id="t-pw">SCEGLI IL POWER-UP</h2><p>Che voglia hai? Uno solo, o tutti.</p></div>
     <div class="powerups" id="powerups" role="group" aria-label="Tipo di posto"></div>
     <div class="extra">
       <label class="campo"><span class="sr">Cerca</span><input id="q" type="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
     </div>
+  </div>
+</section>
+
+<section class="zona" id="sez-livelli" aria-labelledby="t-livelli">
+  <div class="wrap">
+    <div class="zona-head"><h2 id="t-livelli">SCEGLI IL LIVELLO</h2><p id="sott-livelli">Roma è divisa in quartieri: ogni quartiere è un livello.</p></div>
+    <figure class="overworld px" id="overworld" hidden>
+      <div id="ow-svg"></div>
+      <figcaption id="ow-info">Tocca un quartiere sulla mappa, oppure sceglilo dall’elenco qui sotto.</figcaption>
+    </figure>
+    <div id="livelli"></div>
   </div>
 </section>
 
