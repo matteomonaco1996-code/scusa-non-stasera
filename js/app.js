@@ -727,6 +727,16 @@
     });
   }
 
+  // "telefono" o "computer": per chiamare le cose con il loro nome nei testi sulla posizione
+  const apparecchio = () => (/Android|iPhone|iPad|iPod/.test(navigator.userAgent || "") || mobile() ? "telefono" : "computer");
+  // Che cosa risponderà il browser alla richiesta: "granted" (già consentita), "denied" (rifiutata) oppure
+  // "prompt" (la chiederà all'utente). Dove il browser non lo dice si assume "prompt".
+  async function permessoPosizione() {
+    try { return (await navigator.permissions.query({ name: "geolocation" })).state; } catch (e) { return "prompt"; }
+  }
+  // Con gli account accesi la posizione parte solo al check-in: va detto, altrimenti "non arriva al sito" sarebbe falso.
+  const CON_CHECKIN = !!(CFG.supabaseUrl && CFG.supabaseKey && CFG.conto !== false);
+
   // ---------- Posizione: la finestra che la chiede e, se è bloccata, spiega come riaccenderla ----------
   // Un sito non può accendere la posizione da solo: può solo far comparire la richiesta del browser (se non è
   // già stata rifiutata) oppure spiegare dove si riattiva. I passi cambiano da telefono a telefono.
@@ -752,7 +762,7 @@
   }
   function finestraPosizione(fase) {
     const d = $("#dlg-posizione"), c = $("#pos-corpo");
-    const cosa = /Android|iPhone|iPad|iPod/.test(navigator.userAgent || "") || mobile() ? "telefono" : "computer";
+    const cosa = apparecchio();
     const scelte = (si, no) => `<div class="get-acts in-colonna">${si ? `<button class="btn" type="button" data-pos="attiva">${si}</button>` : ""}<button class="btn alt" type="button" data-pos="no">${no}</button></div>`;
     // Il titolo dice che cosa sta succedendo: una scelta, la ricerca, oppure la posizione da riattivare
     $("#pos-t").textContent = fase === "chiedi" ? "DA DOVE PARTIAMO?" : fase === "cerco" ? "TI CERCO…" : "ATTIVA LA POSIZIONE";
@@ -785,8 +795,7 @@
   // Chi sceglie la zona (o chiude) non se la ritrova alla visita dopo: le due scelte restano in cima alla pagina.
   async function proponiPosizione() {
     if (!navigator.geolocation || stato.pos || memoria.get("sns-posizione") === "no") return;
-    let permesso = "prompt";
-    try { permesso = (await navigator.permissions.query({ name: "geolocation" })).state; } catch (e) { /* browser senza questa domanda: si chiede e basta */ }
+    const permesso = await permessoPosizione();
     if (permesso === "granted" || stato.pos || document.querySelector("dialog[open]")) return;
     finestraPosizione("chiedi");
   }
@@ -901,13 +910,30 @@
     const haLivelli = (LIVELLI[stato.mondo] || []).length > 0;
     $("#get-corpo").innerHTML = `<p class="get-cosa">Il gettone sceglie al posto tuo: pesca <b>un posto a caso</b> dalla lista. È gratis, puoi rimetterlo quante volte vuoi.</p>
       <p class="get-dom">Dove te lo pesco?</p>
-      ${errore ? `<p class="errore" role="alert">${esc(POS_ERR[errore] || errore)} <button class="link" type="button" data-get="guida" data-fase="${esc(errore)}">Come si attiva?</button></p>` : ""}
+      ${errore ? `<p class="errore" role="alert"><b>Non riesco a usare la posizione.</b> ${esc({ bloccata: `È bloccata per questo sito, oppure è spenta sul ${apparecchio()}.`, errore: `Il ${apparecchio()} non riesce a dirmi dove sei in questo momento.` }[errore] || POS_ERR[errore] || errore)}${errore === "assente" ? "" : ` <button class="link" type="button" data-get="guida" data-fase="${esc(errore)}">Come si attiva?</button>`} Intanto puoi scegliere tu dove pescare.</p>` : ""}
       <div class="get-scelte">
-        <button type="button" class="px primo" data-get="vicino"><b>▶ Vicino a me</b><small>Uso la posizione: solo posti a pochi minuti a piedi</small></button>
+        <button type="button" class="px primo" data-get="vicino"><b>▶ Vicino a me</b><small>Ti chiedo la posizione: pesco solo tra i posti a pochi minuti a piedi</small></button>
         ${haLivelli ? `<button type="button" class="px" data-get="livello"><b>${stato.mondo === "roma" ? "Scelgo il quartiere" : "Scelgo la località"}</b><small>Poi rimetti il gettone: pesco solo lì</small></button>` : ""}
         <button type="button" class="px" data-get="ovunque"><b>Ovunque ${m.id === "fuori" ? "fuori porta" : "a " + esc(m.nome)}</b><small>Può uscire un posto lontano da te</small></button>
       </div>
-      <small>Per il gettone la posizione resta sul tuo telefono.</small>`;
+      <small>La posizione la uso solo se scegli «Vicino a me», e resta sul tuo ${apparecchio()}.</small>`;
+  }
+  // Prima che il telefono chieda il permesso: a che cosa serve la posizione, che cosa sta per succedere, dove finisce.
+  // Compare solo quando il browser sta davvero per chiederla: se è già consentita (o già rifiutata) non serve.
+  function avvisoPosizione() {
+    const cosa = apparecchio();
+    $("#get-corpo").innerHTML = `<p class="get-dom">Posso usare la tua posizione?</p>
+      <ul class="avviso">
+        <li><b>A che cosa serve.</b> Solo a pescare tra i posti a pochi minuti a piedi da te.</li>
+        <li><b>Che cosa succede adesso.</b> Il ${cosa} ti chiede il permesso: scegli «Consenti».</li>
+        <li><b>Dove finisce.</b> Resta sul tuo ${cosa}: al sito non arriva e non viene salvata.${CON_CHECKIN ? " La inviamo solo se un giorno premi «Check-in», per verificare che sei lì." : ""}</li>
+      </ul>
+      <div class="get-acts in-colonna">
+        <button class="btn" type="button" data-get="vicino-ok">▶ Sì, usa la posizione</button>
+        <button class="btn alt" type="button" data-get="dove">No, scelgo io dove</button>
+      </div>
+      <small>Se dici di no non cambia nulla: il gettone pesca nella zona che scegli tu. <a href="privacy.html" target="_blank" rel="noopener">Privacy</a></small>`;
+    $("#get-corpo [data-get=vicino-ok]").focus();
   }
   function estrai(g) {
     const { x, nuovoGiro } = pesca(g.pool);
@@ -954,8 +980,16 @@
     if (cosa === "livello") { d.close(); scorri($("#sez-mondi")); return toast(stato.mondo === "roma" ? "Tocca un quartiere, poi rimetti il gettone." : "Scegli una località, poi rimetti il gettone."); }
     if (cosa === "mappa") { d.close(); mostraSuMappa(gt.x.i); if (!mobile()) scorri($(".bar")); return; }
     if (cosa === "scheda") { d.close(); return mostraScheda(gt.x.i); }
-    if (cosa === "vicino") {
-      $("#get-corpo").innerHTML = `<p class="get-dom">Ti cerco…</p><p>Se il browser te lo chiede, consenti la posizione.</p>`;
+    if (cosa === "dove") return chiediDove();
+    if (cosa === "vicino" || cosa === "vicino-ok") {
+      // Il primo tocco su "Vicino a me": se il browser sta per chiedere il permesso, prima l'avviso
+      if (cosa === "vicino" && navigator.geolocation && !stato.pos) {
+        const permesso = await permessoPosizione();
+        if (!d.open) return;
+        if (permesso === "prompt") return avvisoPosizione();
+      }
+      $("#get-corpo").innerHTML = `<p class="get-dom">Ti cerco…</p><p>Se il ${apparecchio()} ti chiede il permesso, scegli <b>Consenti</b>.</p>
+        <small>La posizione resta sul tuo ${apparecchio()}: serve solo a calcolare quanto dista ogni posto.</small>`;
       const err = await trovami();
       if (!d.open) return;
       if (err) chiediDove(err); else gettone();

@@ -26,6 +26,9 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   serve e la chiede (dopo i termini, mai insieme). Se è bloccata o spenta il sito non può riaccenderla:
   la finestra mostra i passi per iPhone, Android o computer, e la stessa guida compare da VICINO A ME e dal
   gettone. Chi risponde “non ora” non se la ritrova alla visita dopo (`sns-posizione` nel browser).
+  Nel gettone, toccando “Vicino a me”, prima che il telefono chieda il permesso compare un avviso
+  (“Posso usare la tua posizione?”): a che cosa serve, che cosa sta per succedere, dove finisce il dato, con
+  “Sì, usa la posizione” e “No, scelgo io dove”. Non compare se il permesso è già dato o già rifiutato.
 - **SELEZIONA IL MONDO**: Roma, Firenze, Venezia, Milano, Bologna, Fuori porta.
 - **LIVELLI**: a Roma ogni **quartiere** è un livello (38 quartieri in 5 aree:
   Centro, Sponda ovest, Nord, Est, Sud, più la Periferia). In fondo a ogni
