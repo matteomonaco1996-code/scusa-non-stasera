@@ -445,8 +445,8 @@
     const base = DATA.filter((x) => passa(x, "voglia"));
     const c = base.reduce((m, x) => (m[x.t] = (m[x.t] || 0) + 1, m), {});
     const ordine = Object.keys(PW).filter((k) => k !== "altro").sort((a, b) => (c[b] || 0) - (c[a] || 0)).concat("altro");
-    $("#powerups").innerHTML = `<button type="button" class="pw px" data-voglia="" aria-pressed="${!stato.voglia}">${svg("stella")}Tutto <span class="n">${base.length}</span></button>` +
-      ordine.map((k) => `<button type="button" class="pw px" data-voglia="${k}" aria-pressed="${stato.voglia === k}" ${!c[k] && stato.voglia !== k ? "disabled" : ""}>${svg(PW[k][1])}${esc(PW[k][0])} <span class="n">${c[k] || 0}</span></button>`).join("");
+    $("#powerups").innerHTML = `<button type="button" class="pw px" data-voglia="" aria-pressed="${!stato.voglia}">${svg("stella")}<span class="et">Tutto</span> <span class="n">${base.length}</span></button>` +
+      ordine.map((k) => `<button type="button" class="pw px" data-voglia="${k}" aria-pressed="${stato.voglia === k}" ${!c[k] && stato.voglia !== k ? "disabled" : ""}>${svg(PW[k][1])}<span class="et">${esc(PW[k][0])}</span> <span class="n">${c[k] || 0}</span></button>`).join("");
   }
 
   // ---------- Disegno: risultati ----------

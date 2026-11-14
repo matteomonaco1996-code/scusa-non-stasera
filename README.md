@@ -37,6 +37,8 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   pagina. I numeri dei livelli (× N) contano solo i posti del power-up e della ricerca scelti: i livelli a zero
   sono spenti, nell’elenco e sulla mappa dei quartieri. A Roma la pagina arriva all’elenco dei livelli e non alla
   mappa dei quartieri, che resta appena sopra: riempie lo schermo e sembrava l’unico modo di scegliere.
+  Sul telefono i power-up stanno su due colonne, con «Tutto» in cima a tutta larghezza: si vedono tutti insieme,
+  senza scorrere di lato.
 - **LIVELLI**: a Roma ogni **quartiere** è un livello (38 quartieri in 5 aree:
   Centro, Sponda ovest, Nord, Est, Sud, più la Periferia). In fondo a ogni
   livello ci sono i 3 quartieri più vicini (*Prossimo livello*). Fuori porta i
