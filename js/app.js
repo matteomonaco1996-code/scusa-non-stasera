@@ -803,7 +803,7 @@
     if (!d.open) return;
     if (err) return finestraPosizione(err);
     d.close();
-    if ($("#dlg-gettone").open) gettone(); else { scorri($(".bar")); percorso.avanza(); }
+    if ($("#dlg-gettone").open) gettone(); else { versoPosti(); percorso.avanza(); }
   }
   // All'apertura del sito: se la posizione non è già consentita, la finestra che la propone.
   // Chi sceglie la zona (o chiude) non se la ritrova alla visita dopo: le due scelte restano in cima alla pagina.
@@ -824,7 +824,7 @@
     cerco = false; voce.textContent = prima;
     $("#toast").hidden = true;
     if (err) return finestraPosizione(err);
-    scorri($(".bar"));
+    versoPosti();
     percorso.avanza();
   }
   // I tre passi, in ordine: mondo → power-up → livello → posti. A ogni scelta la pagina scende da sola al passo dopo,
@@ -832,6 +832,15 @@
   // Il passo "livello": a Roma si arriva all'elenco (la mappa dei quartieri resta appena sopra: riempie lo schermo
   // e sembrava l'unico modo di scegliere); altrove all'inizio della sezione.
   const versoLivelli = () => scorri($("#overworld").hidden ? $("#sez-livelli") : $("#livelli"));
+  // Il passo "posti": l'inizio dell'elenco, con la barra in cima allo schermo. La barra resta attaccata in alto
+  // mentre si scorre l'elenco, quindi "scorrere fino alla barra" non basta: quando è attaccata risulta già al suo
+  // posto e la pagina non si muove (succedeva con «Prossimo livello», in fondo all'elenco). Qui si calcola il punto vero.
+  function versoPosti() {
+    const bar = $(".bar"), main = $("main.main");
+    const sopra = parseFloat(getComputedStyle(bar).top) || 0;
+    const y = main.getBoundingClientRect().top + scrollY - bar.offsetHeight - sopra;
+    scrollTo({ top: Math.max(0, Math.round(y)), behavior: ridotto() ? "auto" : "smooth" });
+  }
   // C'è ancora un livello da scegliere? No se il mondo ne ha uno solo, se è già scelto o se si gioca "vicino a me".
   const livelloDaScegliere = () => !stato.vicino && !stato.livello && (LIVELLI[stato.mondo] || []).length > 0;
   function scegliMondo(id) {
@@ -847,12 +856,12 @@
     stato.voglia = spento ? "" : v;
     aggiorna();
     if (spento) return percorso.segna();
-    if (livelloDaScegliere()) versoLivelli(); else scorri($(".bar"));
+    if (livelloDaScegliere()) versoLivelli(); else versoPosti();
     percorso.avanza();
   }
   function scegliLivello(lv) {
     if (lv && lv !== stato.livello && !perLivello[lv]) return toast("Qui non ce n’è: scegli un altro livello o cambia power-up.");
-    stato.livello = lv; stato.vicino = false; aggiorna(); scorri($(".bar")); conta("livello"); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa();
+    stato.livello = lv; stato.vicino = false; aggiorna(); versoPosti(); conta("livello"); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa();
   }
   // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
   // dopo aver scorso la lista, la mappa restava quasi tutta fuori schermo. Porta l'inizio subito sotto la barra.
@@ -1165,7 +1174,7 @@
       conta("invito_altro");
       d.close(); portaA(x);
       gt.usciti.add(x.i); inv.rilancio = true;
-      scorri($(".bar"));
+      versoPosti();
       return gettone();
     }
   }
