@@ -1,5 +1,8 @@
 -- Generato da strumenti/aggiorna_lista.py: posti della lista, per verificare i check-in.
 insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
+('7784424395342518925', 'Ai Tre Scalini - Bottiglieria dal 1895', 41.896282, 12.49051, 'Monti', 'Roma', 'vino'),
+('14766546462998955924', 'Bar Sogno', 41.874814, 12.50606, 'San Giovanni · Re di Roma', 'Roma', 'vino'),
+('12383658046672713395', 'Pippo a Tivoli', 41.965582, 12.799089, null, 'Tivoli', 'altro'),
 ('6331454842966528317', 'Confu - Fish Concept Sushi', 41.96155, 12.802318, null, 'Tivoli', 'mondo'),
 ('8063598320706561703', 'Ristorante La Tenuta di Rocca Bruna Country Resort', 41.941486, 12.766626, null, 'Tivoli', 'ristorante'),
 ('7823492162923725133', 'Ristorante Totarello', 41.95647, 12.757674, null, 'Tivoli', 'ristorante'),
