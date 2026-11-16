@@ -406,7 +406,7 @@ insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
 ('589509290827997813', 'Nena Mercato&Cucina', 41.899206, 12.519272, 'San Lorenzo', 'Roma', 'ristorante'),
 ('8432068247723300644', 'THE APPUNTAMENTO', 41.910365, 12.468684, 'Prati', 'Roma', 'ristorante'),
 ('7851146073382502784', 'RETROBOTTEGA', 41.90194, 12.47525, 'Pantheon', 'Roma', 'ristorante'),
-('16419990066561388133', 'BARRED', 41.871219, 12.479648, 'San Giovanni · Re di Roma', 'Roma', 'ristorante'),
+('16419990066561388133', 'BARRED', 41.871219, 12.479648, 'Ostiense', 'Roma', 'ristorante'),
 ('18010233251123425381', 'Trattoria Dal Cordaro (Roma) - Vino e Cucina romana dal 1922', 41.883964, 12.47378, 'Trastevere', 'Roma', 'trattoria'),
 ('3878241891416315370', 'Ristorante Controluce', 41.886275, 12.473159, 'Trastevere', 'Roma', 'trattoria'),
 ('3769140885675967576', 'Pianostrada', 41.888789, 12.475272, 'Ghetto', 'Roma', 'ristorante'),

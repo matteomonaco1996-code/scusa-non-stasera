@@ -66,7 +66,7 @@
     "nt": "La numero 1 per la pizza romana: niente da invidiare a Roma."
   },
   "BARRED": {
-    "q": "San Giovanni · Re di Roma"
+    "a": "Via Ostiense, 60 B, 00154 Roma RM"
   },
   "Franz Burger": {
     "q": "San Giovanni · Re di Roma"
@@ -89,5 +89,8 @@
   "Beppe e i suoi formaggi": {
     "q": "San Giovanni · Re di Roma",
     "a": "Via Gallia, 22/24, 00183 Roma RM"
+  },
+  "Kisaki Ramen & Sushi": {
+    "a": "Via Marianna Dionigi, 54, 00193 Roma RM"
   }
 }
