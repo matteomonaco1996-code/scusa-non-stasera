@@ -73,7 +73,6 @@ insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
 ('6089486552517950814', 'Agustarello A Testaccio', 41.879551, 12.473582, 'Testaccio', 'Roma', 'trattoria'),
 ('17120510955817799622', 'Al Biondo Tevere', 41.863495, 12.478362, 'Garbatella', 'Roma', 'trattoria'),
 ('6611733647132826237', 'Al Sospiro', 41.918847, 12.522428, 'Nomentano · Bologna', 'Roma', 'vino'),
-('2669841419974565025', 'Spritzino Roma', 41.871148, 12.479702, 'Ostiense', 'Roma', 'bar'),
 ('7939474451064125718', 'Ristorante Mamma Orso', 41.910947, 12.518339, 'Nomentano · Bologna', 'Roma', 'ristorante'),
 ('16237743932057586443', 'Antica Locanda Montin', 45.431595, 12.3248, null, 'Venezia', 'trattoria'),
 ('2302316812067290152', 'Abbate Osteria di Mare', 41.887029, 12.535494, 'Pigneto', 'Roma', 'pesce'),
