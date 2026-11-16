@@ -64,5 +64,30 @@
   },
   "Ristorante Pizzeria Da Sandrina": {
     "nt": "La numero 1 per la pizza romana: niente da invidiare a Roma."
+  },
+  "BARRED": {
+    "q": "San Giovanni · Re di Roma"
+  },
+  "Franz Burger": {
+    "q": "San Giovanni · Re di Roma"
+  },
+  "Sinosteria": {
+    "q": "Marconi · Portuense"
+  },
+  "Pianostrada": {
+    "q": "Ghetto"
+  },
+  "Gallo Ristorante di pesce": {
+    "q": "Esquilino"
+  },
+  "Alcazar Garden": {
+    "q": "Aventino · Circo Massimo"
+  },
+  "Trattoria Priscilla": {
+    "q": "Appio Latino · Tuscolano"
+  },
+  "Beppe e i suoi formaggi": {
+    "q": "San Giovanni · Re di Roma",
+    "a": "Via Gallia, 22/24, 00183 Roma RM"
   }
 }
