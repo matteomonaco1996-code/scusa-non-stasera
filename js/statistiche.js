@@ -38,7 +38,7 @@
   const MONETE = [["dona_apri", "“Dona una moneta” aperto"], ["dona_1", "1 €"], ["dona_2", "2 €"], ["dona_5", "5 €"], ["dona_altro", "Altro"]];
 
   let sb = null, esempio = false, giorni = 30;
-  let dati = { oggi: iso(new Date()), giorno: new Map(), primo: null, donazioni: [] };
+  let dati = { oggi: iso(new Date()), giorno: new Map(), primo: null, donazioni: [], livelli: [] };
 
   // ---------- Dati ----------
   function prepara(j) {
@@ -49,7 +49,8 @@
       giorno.get(r.g)[r.e] = Number(r.n) || 0;
       if (!primo || r.g < primo) primo = r.g;
     }
-    dati = { oggi: (j && j.oggi) || iso(new Date()), giorno, primo, donazioni: ((j && j.donazioni) || []).map((d) => ({ id: d.id, g: d.g, euro: Number(d.euro) || 0 })) };
+    dati = { oggi: (j && j.oggi) || iso(new Date()), giorno, primo, donazioni: ((j && j.donazioni) || []).map((d) => ({ id: d.id, g: d.g, euro: Number(d.euro) || 0 })),
+      livelli: ((j && j.livelli) || []).map((r) => ({ g: String(r.g), l: String(r.l), n: Number(r.n) || 0 })) };
   }
   const conta = (g, eventi) => { const r = dati.giorno.get(g); return r ? eventi.reduce((s, e) => s + (r[e] || 0), 0) : 0; };
   function somma(eventi, dal, al) { let s = 0; for (let g = dal; g <= al; g = piu(g, 1)) s += conta(g, eventi); return s; }
@@ -74,7 +75,10 @@
       for (const e in r) if (r[e] > 0) contatori.push({ g, e, n: r[e] });
     }
     const donazioni = [[3, 5], [9, 2], [16, 1], [41, 2], [58, 5], [77, 1], [102, 2], [140, 10]].map(([fa, e], k) => ({ id: 100 - k, g: piu(oggi, -fa), euro: e }));
-    return { oggi, contatori, donazioni };
+    const livelli = [];
+    [["Trastevere", 9], ["Testaccio", 7], ["Pigneto", 6], ["Monti", 5], ["Tutta Roma", 5], ["Garbatella", 4], ["Tivoli", 3], ["Prati", 3], ["Tutta Firenze", 2], ["San Lorenzo", 2], ["Fregene", 1], ["Altri", 1]]
+      .forEach(([l, peso]) => { for (let i = 179; i >= 0; i--) { const n = Math.round(peso * (0.2 + caso() * 0.5)); if (n) livelli.push({ g: piu(oggi, -i), l, n }); } });
+    return { oggi, contatori, donazioni, livelli };
   }
 
   // ---------- Etichetta che segue dito, mouse o tastiera ----------
@@ -273,6 +277,11 @@
     disegnaBarre($("#b-azioni"), AZIONI.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "delle aperture" }, visite);
     const fonti = Object.keys(FONTI).map((e) => ({ nome: FONTI[e], n: somma([e], dal, al) })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n);
     disegnaBarre($("#b-fonti"), fonti, { fmt: (n) => fmtN.format(n), di: "delle visite", quotaInRiga: true }, fonti.reduce((s, r) => s + r.n, 0));
+    // Quartieri e località: i più scelti del periodo, in ordine
+    const perZona = new Map();
+    for (const r of dati.livelli) if (r.g >= dal && r.g <= al) perZona.set(r.l, (perZona.get(r.l) || 0) + r.n);
+    const zone = [...perZona].map(([nome, n]) => ({ nome, n })).sort((a, b) => b.n - a.n || a.nome.localeCompare(b.nome, "it"));
+    disegnaBarre($("#b-zone"), zone.slice(0, 25), { fmt: (n) => fmtN.format(n), di: "delle scelte", quotaInRiga: true }, zone.reduce((s, r) => s + r.n, 0));
     disegnaBarre($("#b-inviti"), INVITI.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "" }, 0);
     disegnaComitive(dal, al);
     disegnaBarre($("#b-monete"), MONETE.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "" }, 0);

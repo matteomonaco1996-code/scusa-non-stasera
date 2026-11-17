@@ -85,12 +85,15 @@
   // I nomi ammessi sono elencati in supabase/statistiche.sql: gli altri vengono ignorati dal database.
   const CFG = window.SNS_CONFIG || {};
   const CONTA_URL = CFG.supabaseUrl && CFG.supabaseKey && CFG.statistiche !== false ? String(CFG.supabaseUrl).replace(/\/+$/, "") + "/rest/v1/rpc/conta" : "";
-  function conta(...eventi) {
+  function mandaConteggio(indirizzo, corpo) {
     if (!CONTA_URL || navigator.globalPrivacyControl || navigator.doNotTrack === "1") return;
     const testa = { "Content-Type": "application/json", apikey: CFG.supabaseKey };
     if (/^eyJ/.test(CFG.supabaseKey)) testa.Authorization = "Bearer " + CFG.supabaseKey;   // chiavi del vecchio tipo
-    try { fetch(CONTA_URL, { method: "POST", keepalive: true, headers: testa, body: JSON.stringify({ p_eventi: eventi }) }).catch(() => {}); } catch (e) { /* contare non deve mai rompere il gioco */ }
+    try { fetch(indirizzo, { method: "POST", keepalive: true, headers: testa, body: JSON.stringify(corpo) }).catch(() => {}); } catch (e) { /* contare non deve mai rompere il gioco */ }
   }
+  const conta = (...eventi) => mandaConteggio(CONTA_URL, { p_eventi: eventi });
+  // Quale quartiere o località viene scelto: un numero per giorno e per zona, niente su chi l'ha scelto
+  const contaZona = (nome) => { if (nome) mandaConteggio(CONTA_URL + "_livello", { p_livello: nome }); };
   // Una chiamata a una funzione del database aperta a tutti (le comitive). Restituisce il risultato, oppure lancia un
   // errore con un messaggio da mostrare: quello scritto nella funzione se l'ha rifiutata lei, altrimenti uno generico.
   async function rpc(nome, args) {
@@ -306,6 +309,7 @@
   }
 
   // ---------- Disegno: mondi, livelli, power-up ----------
+  const nomeTutto = (mondo) => mondo === "roma" ? "Tutta Roma" : mondo === "fuori" ? "Tutto fuori porta" : "Tutta " + MONDI.find((m) => m.id === mondo).nome;
   // Quanti posti ha ogni livello del mondo scelto con il power-up e la ricerca di adesso. Il power-up si sceglie
   // prima del livello: così chi ha scelto «Pizza» vede in quali quartieri ce n'è, e non finisce in un livello vuoto.
   let perLivello = {}, nelMondo = 0;
@@ -319,9 +323,8 @@
     const filtro = [stato.voglia ? `«${PW[stato.voglia][0]}»` : "", stato.q ? "la tua ricerca" : ""].filter(Boolean).join(" e ");
     $("#mondi").innerHTML = MONDI.map((m) => `<button type="button" class="tab px" data-mondo="${m.id}" aria-pressed="${!stato.vicino && stato.mondo === m.id}">
       <span class="w">MONDO ${m.w}</span><span class="nm">${esc(m.nome)}</span><span class="ct">× ${m.n} posti</span></button>`).join("");
-    const nomeTutto = stato.mondo === "roma" ? "Tutta Roma" : stato.mondo === "fuori" ? "Tutto fuori porta" : "Tutta " + MONDI.find((m) => m.id === stato.mondo).nome;
     const tutti = `<div class="area"><div class="levels"><button type="button" class="level px" data-livello="" aria-pressed="${!stato.vicino && !stato.livello}">
-      <span class="cod">TUTTO</span><span class="nm">${esc(nomeTutto)}</span><span class="ct">× ${nelMondo}</span></button></div></div>`;
+      <span class="cod">TUTTO</span><span class="nm">${esc(nomeTutto(stato.mondo))}</span><span class="ct">× ${nelMondo}</span></button></div></div>`;
     const haLivelli = (LIVELLI[stato.mondo] || []).length > 0;
     $("#livelli").innerHTML = (filtro && haLivelli ? `<p class="conta-solo">I numeri contano solo ${esc(filtro)}: dove vedi × 0 non ce n’è.</p>` : "") +
       tutti + (LIVELLI[stato.mondo] || []).map((a) => `<div class="area"><h3>${esc(a.nome.toUpperCase())}</h3><div class="levels">${
@@ -846,6 +849,7 @@
   function scegliMondo(id) {
     stato.mondo = id; stato.livello = ""; stato.vicino = false; gt.ovunque = false;
     aggiorna();
+    if (!(LIVELLI[id] || []).length) contaZona(nomeTutto(id));   // una città con un livello solo: la zona è già scelta
     scorri($("#sez-pw"));
     percorso.avanza();
   }
@@ -861,7 +865,7 @@
   }
   function scegliLivello(lv) {
     if (lv && lv !== stato.livello && !perLivello[lv]) return toast("Qui non ce n’è: scegli un altro livello o cambia power-up.");
-    stato.livello = lv; stato.vicino = false; aggiorna(); versoPosti(); conta("livello"); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa();
+    stato.livello = lv; stato.vicino = false; aggiorna(); versoPosti(); conta("livello"); contaZona(lv || nomeTutto(stato.mondo)); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa();
   }
   // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
   // dopo aver scorso la lista, la mappa restava quasi tutta fuori schermo. Porta l'inizio subito sotto la barra.

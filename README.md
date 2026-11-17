@@ -154,6 +154,10 @@ sono i numeri, che il database consegna solo alle email nella tabella `amministr
 - **Come conta**: `js/app.js` chiama la funzione `conta` del database a ogni apertura e ai clic principali. Si salva
   solo un numero per giorno e per tipo di azione (`supabase/statistiche.sql`): niente cookie, niente indirizzi,
   niente nel browser. Chi ha acceso “non tracciare” non viene contato. Senza database non parte nessuna chiamata.
+- **Quartieri e località**: ogni volta che viene scelto un quartiere, una località o «Tutta Roma» sale il suo
+  numero del giorno (funzione `conta_livello`). I nomi ammessi stanno in `supabase/livelli.sql`, generato da
+  `python3 strumenti/livelli_sql.py`: se nella pagina di monitoraggio cresce la voce «Altri», c'è una località
+  nuova e il file va rigenerato ed eseguito sul database.
 - **Chi legge**: solo le email elencate nella tabella `amministratori`, dopo l'accesso con email e password.
   L'accesso si crea una volta dalla pagina stessa («È la prima volta»): il primo che conferma la propria email
   diventa l'amministratore, poi le registrazioni si chiudono (`supabase/accesso_monitoraggio.sql`).
@@ -166,7 +170,7 @@ sono i numeri, che il database consegna solo alle email nella tabella `amministr
 - **Per accenderlo**: progetto Supabase → SQL Editor → `schema.sql`, poi `statistiche.sql`, poi una riga con la
   propria email in `amministratori`; infine URL e chiave pubblica in `config.js`. `conto: false` tiene spenti
   account e punti lasciando accesi i contatori; `statistiche: false` fa il contrario.
-- **Prove**: `node strumenti/test_statistiche.mjs supabase/schema.sql supabase/statistiche.sql` e
+- **Prove**: `node strumenti/test_statistiche.mjs supabase/schema.sql supabase/statistiche.sql supabase/livelli.sql` e
   `node strumenti/test_accesso.mjs supabase/statistiche.sql supabase/accesso_monitoraggio.sql`.
 
 ### Donazioni

@@ -68,6 +68,35 @@ begin
   end loop;
 end $$;
 
+-- ---------- Quali quartieri e località vengono scelti ----------
+-- Un numero per giorno e per zona, come gli altri contatori: non si sa chi ha scelto che cosa.
+-- I nomi ammessi stanno in "livelli_ammessi" (li scrive supabase/livelli.sql, generato da strumenti/livelli_sql.py);
+-- un nome che non è in elenco finisce nella voce "Altri", così nel database non entra testo scritto da fuori.
+create table if not exists public.livelli_ammessi (
+  nome text primary key check (char_length(nome) between 1 and 80)
+);
+create table if not exists public.contatori_livelli (
+  giorno  date    not null,
+  livello text    not null,
+  n       integer not null default 0 check (n >= 0),
+  primary key (giorno, livello)
+);
+alter table public.livelli_ammessi   enable row level security;
+alter table public.contatori_livelli enable row level security;
+revoke all on public.livelli_ammessi, public.contatori_livelli from anon, authenticated;
+
+create or replace function public.conta_livello(p_livello text) returns void
+language plpgsql security definer set search_path = public as $$
+declare
+  oggi date := (now() at time zone 'Europe/Rome')::date;
+  nome text := 'Altri';
+begin
+  if p_livello is null then return; end if;
+  if exists (select 1 from public.livelli_ammessi a where a.nome = p_livello) then nome := p_livello; end if;
+  insert into public.contatori_livelli (giorno, livello, n) values (oggi, nome, 1)
+  on conflict (giorno, livello) do update set n = public.contatori_livelli.n + 1 where public.contatori_livelli.n < 1000000;
+end $$;
+
 -- ---------- Leggere (solo chi gestisce il sito) ----------
 create or replace function public.sono_admin() returns boolean
 language sql stable security definer set search_path = public as $$
@@ -88,6 +117,8 @@ begin
     'oggi', oggi,
     'contatori', (select coalesce(json_agg(json_build_object('g', giorno, 'e', evento, 'n', n) order by giorno, evento), '[]'::json)
                   from public.contatori where giorno >= dal),
+    'livelli', (select coalesce(json_agg(json_build_object('g', giorno, 'l', livello, 'n', n) order by giorno, livello), '[]'::json)
+                from public.contatori_livelli where giorno >= dal),
     'donazioni', (select coalesce(json_agg(json_build_object('id', id, 'g', giorno, 'euro', euro) order by giorno desc, id desc), '[]'::json)
                   from public.donazioni_ricevute)
   );
@@ -110,9 +141,9 @@ begin
 end $$;
 
 -- Le funzioni non sono eseguibili da chiunque per default: si apre solo il necessario.
-revoke execute on function public.eventi_ammessi(), public.conta(text[]), public.sono_admin(), public.statistiche(int),
+revoke execute on function public.eventi_ammessi(), public.conta(text[]), public.conta_livello(text), public.sono_admin(), public.statistiche(int),
   public.registra_donazione(date, numeric), public.elimina_donazione(bigint) from public, anon, authenticated;
-grant execute on function public.conta(text[]) to anon, authenticated;
+grant execute on function public.conta(text[]), public.conta_livello(text) to anon, authenticated;
 grant execute on function public.sono_admin(), public.statistiche(int),
   public.registra_donazione(date, numeric), public.elimina_donazione(bigint) to authenticated;
 

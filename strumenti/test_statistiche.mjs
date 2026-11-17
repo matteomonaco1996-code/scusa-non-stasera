@@ -2,7 +2,7 @@
 // Usa PGlite (Postgres in WebAssembly) con un finto schema "auth" di Supabase.
 // Come lanciarlo, dalla cartella del sito:
 //   npm install --no-save @electric-sql/pglite@0.5.16
-//   node strumenti/test_statistiche.mjs supabase/schema.sql supabase/statistiche.sql
+//   node strumenti/test_statistiche.mjs supabase/schema.sql supabase/statistiche.sql [supabase/livelli.sql]
 
 import { PGlite } from "@electric-sql/pglite";
 import fs from "node:fs";
@@ -84,5 +84,32 @@ r = (await q(`select public.statistiche(30) j`))[0].j;
 check(r.donazioni.length === 1, "donazione eliminata", r.donazioni);
 r = await q(`select count(*)::int n from information_schema.columns where table_schema = 'public' and table_name = 'donazioni_ricevute' and column_name not in ('id', 'giorno', 'euro', 'creato')`);
 check(r[0].n === 0, "delle donazioni si salvano solo giorno e importo: nessun nome", r);
+
+console.log("Quartieri e località scelti");
+await as("", "postgres");
+if (process.argv[4]) { await db.exec(fs.readFileSync(process.argv[4], "utf8")); await db.exec(fs.readFileSync(process.argv[4], "utf8")); ok("livelli.sql eseguito, e rieseguibile"); }
+else await db.exec(`insert into public.livelli_ammessi (nome) values ('Trastevere'), ('Navona · Campo de'' Fiori'), ('Tutta Roma') on conflict do nothing`);
+await as("", "anon");
+await db.exec(`select public.conta_livello('Trastevere')`);
+await db.exec(`select public.conta_livello('Trastevere')`);
+await db.exec(`select public.conta_livello('Navona · Campo de'' Fiori')`);
+await db.exec(`select public.conta_livello('Tutta Roma')`);
+await db.exec(`select public.conta_livello('Quartiere inventato')`);
+await db.exec(`select public.conta_livello('<script>alert(1)</script>')`);
+await db.exec(`select public.conta_livello(null)`);
+await db.exec(`select public.conta_livello('${"x".repeat(500)}')`);
+await expectFail(`select * from public.contatori_livelli`, "dal browser i conteggi dei quartieri non si leggono");
+await expectFail(`insert into public.contatori_livelli values (current_date, 'Trastevere', 99)`, "…e non si scrivono a mano");
+await expectFail(`insert into public.livelli_ammessi values ('Mio quartiere')`, "…e non si aggiungono nomi all'elenco");
+await as("", "postgres");
+r = await q(`select livello, n from public.contatori_livelli order by livello`);
+check(JSON.stringify(r) === JSON.stringify([{ livello: "Altri", n: 3 }, { livello: "Navona · Campo de' Fiori", n: 1 }, { livello: "Trastevere", n: 2 }, { livello: "Tutta Roma", n: 1 }]),
+  "ogni scelta aggiunge uno al suo quartiere; i nomi fuori elenco finiscono in «Altri», mai scritti com'erano", r);
+await as(ALTRO);
+await expectFail(`select public.statistiche(30)`, "chi non gestisce il sito non legge i quartieri");
+await as(CAPO);
+r = (await q(`select public.statistiche(30) j`))[0].j;
+check(Array.isArray(r.livelli) && r.livelli.length === 4 && r.livelli.every((x) => x.g && x.l && x.n > 0) && r.livelli.find((x) => x.l === "Trastevere").n === 2,
+  "chi gestisce il sito li legge insieme agli altri numeri", r.livelli);
 
 console.log(process.exitCode ? "\nQUALCOSA NON VA" : "\nTutto a posto");

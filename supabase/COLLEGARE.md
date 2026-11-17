@@ -23,6 +23,9 @@ ramo `main`: ogni push pubblica il sito).
 - Da fare, da parte di Matteo: aprire `statistiche.html`, toccare «È la prima volta», usare l'email del suo account
   Supabase, scegliere la password e toccare il link nell'email di conferma (la pagina che si apre dopo non si
   carica perché il Site URL del progetto è quello predefinito: la conferma vale lo stesso).
+- **Quartieri scelti** (dal 17 novembre 2026): nel database ci sono anche `livelli_ammessi` e `contatori_livelli`
+  (in `statistiche.sql`) e l'elenco dei nomi di `livelli.sql`. Quando compare una località nuova fuori Roma:
+  `python3 strumenti/livelli_sql.py`, poi eseguire `livelli.sql` sul database.
 - Se dimentica la password: dalla dashboard di Supabase, Authentication → Users, si cancella l'utente; poi si
   svuota `public.amministratori` e si rifà «È la prima volta».
 - Il giorno in cui si accendono gli account del sito: `drop trigger solo_amministratori on auth.users;`
