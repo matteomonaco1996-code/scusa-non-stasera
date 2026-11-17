@@ -317,7 +317,7 @@
   }
   const errore = (sel, testo) => { const p = $(sel); p.textContent = testo; p.hidden = !testo; };
   function accesso(email = "") {
-    const s = stato(`<h2>Entra</h2><p>Area riservata a chi gestisce il sito.</p>
+    const s = stato(`<h2>Entra</h2>
       <form class="form" id="f-entra"><label class="riga">Email<input type="email" id="a-email" required autocomplete="username"></label>
       <label class="riga">Password<input type="password" id="a-password" required autocomplete="current-password"></label>
       <p class="errore" id="a-err" role="alert" hidden></p>
@@ -333,11 +333,11 @@
   }
   // La prima volta: si sceglie la password e si conferma l'email dal link che arriva per posta
   function crea(email = "") {
-    const s = stato(`<h2>Crea l’accesso</h2><p>Si fa una volta sola. Usa l’email del tuo account Supabase: è l’unica a cui può arrivare il messaggio di conferma.</p>
+    const s = stato(`<h2>Crea l’accesso</h2><p>Usa l’email del tuo account Supabase.</p>
       <form class="form" id="f-crea"><label class="riga">Email<input type="email" id="n-email" required autocomplete="username"></label>
       <label class="riga">Password (almeno ${PASSWORD_MIN} caratteri)<input type="password" id="n-password" required minlength="${PASSWORD_MIN}" autocomplete="new-password"></label>
       <label class="riga">Ripeti la password<input type="password" id="n-ripeti" required minlength="${PASSWORD_MIN}" autocomplete="new-password"></label>
-      <small>Scegline una che non usi altrove. Non la vediamo e non possiamo recuperarla.</small>
+      <small>Segnatela: non si può recuperare.</small>
       <p class="errore" id="n-err" role="alert" hidden></p>
       <div class="acts"><button class="btn" type="submit">CREA L’ACCESSO</button><button class="btn alt" type="button" id="n-indietro">HO GIÀ L’ACCESSO</button></div></form>`);
     s.querySelector("#n-email").value = email;
@@ -358,10 +358,10 @@
   }
   function conferma(email) {
     const s = stato(`<h2>Controlla la posta</h2><p id="c-testo"></p>
-      <p>Dopo il tocco può aprirsi una pagina che non si carica: è normale, la conferma vale lo stesso. Poi torna qui ed entra.</p>
+      <p>Se la pagina che si apre non si carica è normale: torna qui ed entra.</p>
       <p class="errore" id="c-err" role="status" hidden></p>
       <div class="acts"><button class="btn" type="button" id="c-entra">HO CONFERMATO: ENTRA</button><button class="btn alt" type="button" id="c-rimanda">RIMANDA L’EMAIL</button></div>`);
-    s.querySelector("#c-testo").textContent = `Ti abbiamo scritto a ${email}. Apri il messaggio e tocca il link di conferma.`;
+    s.querySelector("#c-testo").textContent = `Tocca il link nell’email che ti abbiamo mandato a ${email}.`;
     s.querySelector("#c-entra").addEventListener("click", () => accesso(email));
     s.querySelector("#c-rimanda").addEventListener("click", async () => {
       const { error } = await sb.auth.resend({ type: "signup", email, options: { emailRedirectTo: dove() } });

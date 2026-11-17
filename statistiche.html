@@ -36,7 +36,7 @@
     </div>
 
     <section class="mon-scheda mon-dona" aria-labelledby="t-dona">
-      <header><h2 id="t-dona">Donazioni</h2><p>Il sito non vede i pagamenti: quelli esistono solo dentro PayPal. Le somme qui sotto le segni tu, copiandole da PayPal.</p></header>
+      <header><h2 id="t-dona">Donazioni</h2><p>Le segni tu, copiandole da PayPal.</p></header>
       <div class="mon-eroe">
         <div class="mon-grande"><span class="eti" id="e-eti"></span><span class="val" id="e-val"></span><span class="delta" id="e-delta"></span></div>
         <dl class="mon-totali" id="totali"></dl>
@@ -49,7 +49,7 @@
         <div>
           <h3>Tocchi sulle monete</h3>
           <div class="mon-barre" id="b-monete"></div>
-          <p class="mon-nota">Un tocco apre PayPal: non vuol dire che la donazione sia stata fatta.</p>
+          <p class="mon-nota">Un tocco non è una donazione fatta.</p>
         </div>
       </div>
       <div class="mon-due">
@@ -60,7 +60,6 @@
             <label class="riga">Euro ricevuti<input type="text" id="d-euro" required inputmode="decimal" autocomplete="off" placeholder="2,00" maxlength="9"></label>
             <button class="btn" type="submit">SEGNA</button>
             <p class="errore" id="d-err" hidden></p>
-            <small>Solo giorno e importo: non scrivere il nome di chi ha donato.</small>
           </form>
         </div>
         <div>
@@ -74,29 +73,29 @@
     <section class="mon-numeri" id="numeri" aria-label="Numeri delle visite nel periodo"></section>
 
     <section class="mon-scheda" aria-labelledby="t-visite">
-      <header><h2 id="t-visite">Visite al giorno</h2><p>Una visita è un’apertura del sito. Ricaricare la pagina non conta di nuovo.</p></header>
+      <header><h2 id="t-visite">Visite al giorno</h2><p>Una visita è un’apertura del sito.</p></header>
       <div class="mon-grafico" id="g-visite" tabindex="0" role="img" aria-label="Grafico delle visite al giorno. Con le frecce destra e sinistra scorri i giorni; sotto c’è la tabella."></div>
       <details class="mon-tabella"><summary>Mostra la tabella</summary><div class="tab-wrap" tabindex="0" role="region" aria-label="Tabella delle visite al giorno"><table id="tab-visite"><thead><tr><th scope="col">Giorno</th><th scope="col">Visite</th></tr></thead><tbody></tbody></table></div></details>
     </section>
 
     <div class="mon-due">
       <section class="mon-scheda" aria-labelledby="t-azioni">
-        <header><h2 id="t-azioni">Che cosa fanno</h2><p>Quante volte è stato toccato ogni pulsante.</p></header>
+        <header><h2 id="t-azioni">Che cosa fanno</h2></header>
         <div class="mon-barre" id="b-azioni"></div>
       </section>
       <section class="mon-scheda" aria-labelledby="t-fonti">
-        <header><h2 id="t-fonti">Da dove arrivano</h2><p>I link aperti da WhatsApp o copiati a mano risultano “diretti”. Per distinguerli, condividi il sito come <code>ristomat.click/?da=whatsapp</code> (oppure <code>instagram</code>, <code>qr</code>, <code>volantino</code>, <code>amici</code>).</p></header>
+        <header><h2 id="t-fonti">Da dove arrivano</h2><p>Per distinguere i canali condividi <code>ristomat.click/?da=instagram</code> (o <code>whatsapp</code>, <code>qr</code>, <code>amici</code>).</p></header>
         <div class="mon-barre" id="b-fonti"></div>
       </section>
     </div>
 
     <section class="mon-scheda" aria-labelledby="t-inviti">
-      <header><h2 id="t-inviti">Inviti</h2><p>“Proponilo”: quante volte un posto viene proposto a qualcuno e che cosa fa chi riceve il link. Un tocco su “Invia” non vuol dire che il messaggio sia partito, e il sito non sa chi ha scritto a chi.</p></header>
+      <header><h2 id="t-inviti">Inviti</h2><p>“Proponilo”: posti proposti e risposte di chi riceve il link.</p></header>
       <div class="mon-barre" id="b-inviti"></div>
     </section>
 
     <section class="mon-scheda" id="s-comitive" aria-labelledby="t-comitive" hidden>
-      <header><h2 id="t-comitive">Comitive</h2><p>I tavoli di amici, senza account. I nomi li scrive chi usa il sito: se uno non va bene puoi cancellare la comitiva (chi è seduto la perde, con la lista e i voti). Da qui non vedi i link di invito né quali posti hanno in lista.</p></header>
+      <header><h2 id="t-comitive">Comitive</h2><p>I nomi li scrive chi usa il sito: se uno non va bene puoi cancellare la comitiva.</p></header>
       <dl class="mon-totali" id="c-totali"></dl>
       <div class="mon-due">
         <div><h3>Che cosa fanno</h3><div class="mon-barre" id="b-comitive"></div></div>
@@ -104,15 +103,7 @@
       </div>
     </section>
 
-    <section class="mon-scheda mon-come" aria-labelledby="t-come">
-      <header><h2 id="t-come">Come leggere questi numeri</h2></header>
-      <ul>
-        <li>Sono <b>contatori anonimi</b>: un numero per giorno e per tipo di azione. Niente cookie, niente indirizzi, nessun elenco di persone. Per questo contano le <b>aperture</b>, non le persone: chi apre il sito tre volte vale tre.</li>
-        <li>Chi ha acceso nel browser “non tracciare” non viene contato, quindi i numeri veri sono un po’ più alti.</li>
-        <li>Chiunque potrebbe, volendo, far salire un contatore a mano: sono numeri per capire l’andamento, non una contabilità.</li>
-        <li>I soldi veri sono quelli che vedi in PayPal. Per il commercialista vale l’estratto di PayPal, non questa pagina.</li>
-      </ul>
-    </section>
+    <p class="mon-nota mon-come">Contano le aperture, non le persone. I soldi veri sono quelli che vedi in PayPal.</p>
   </div>
 </main>
 <div class="mon-tip" id="tip" hidden></div>
