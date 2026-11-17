@@ -15,8 +15,17 @@ ramo `main`: ogni push pubblica il sito).
   Contiene un `delete`, e il connettore chiede a Matteo una conferma che scade in un minuto: finora non è
   arrivata in tempo. Tutto il resto funziona senza.
 - `config.js` ha l'indirizzo e la chiave pubblica, con `conto: false`.
-- Da fare: il passo 3 (email di chi legge i numeri) e il passo 4 (Site URL per l'accesso). Il connettore non
-  arriva alle impostazioni di accesso: le fa Matteo nella dashboard di Supabase.
+- **Accesso alla pagina di monitoraggio: email e password**, non più il codice via email (il servizio di posta
+  incluso in Supabase scrive solo ai membri dell'organizzazione e poche volte l'ora, e il connettore non arriva
+  alle impostazioni delle email). È stato eseguito anche `accesso_monitoraggio.sql`: finché l'elenco
+  `amministratori` è vuoto, il primo che conferma la propria email diventa l'amministratore; poi può registrarsi
+  solo chi è in elenco. I passi 3 e 4 qui sotto non servono più.
+- Da fare, da parte di Matteo: aprire `statistiche.html`, toccare «È la prima volta», usare l'email del suo account
+  Supabase, scegliere la password e toccare il link nell'email di conferma (la pagina che si apre dopo non si
+  carica perché il Site URL del progetto è quello predefinito: la conferma vale lo stesso).
+- Se dimentica la password: dalla dashboard di Supabase, Authentication → Users, si cancella l'utente; poi si
+  svuota `public.amministratori` e si rifà «È la prima volta».
+- Il giorno in cui si accendono gli account del sito: `drop trigger solo_amministratori on auth.users;`
 - Le prove automatiche non devono mai chiamare il database vero: gonfierebbero i contatori.
 
 ## Che cosa vuole Matteo, adesso

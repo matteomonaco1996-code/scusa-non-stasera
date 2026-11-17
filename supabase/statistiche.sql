@@ -1,7 +1,8 @@
 -- =====================================================================
 -- Scusa, non stasera — contatori anonimi e pagina di monitoraggio
--- Come usarlo: dopo schema.sql. Supabase → SQL Editor → incolla tutto → Run.
--- Poi, UNA volta, dì al database chi può leggere i numeri (l'email con cui entri nel sito):
+-- Come usarlo: Supabase → SQL Editor → incolla tutto → Run. Non ha bisogno di schema.sql.
+-- Poi esegui accesso_monitoraggio.sql: decide chi può crearsi l'accesso alla pagina di monitoraggio
+-- (il primo che conferma la propria email diventa l'amministratore). In alternativa, a mano:
 --     insert into public.amministratori (email) values ('la-tua-email@esempio.it');
 --
 -- Principi:
@@ -41,7 +42,7 @@ revoke all on public.contatori, public.amministratori, public.donazioni_ricevute
 -- ---------- Contare (chiunque, senza accesso) ----------
 -- Gli eventi ammessi. Qualsiasi altro nome viene ignorato in silenzio.
 create or replace function public.eventi_ammessi() returns text[]
-language sql immutable as $$
+language sql immutable set search_path = '' as $$
   select array[
     'visita', 'termini_ok',
     'da_diretto', 'da_google', 'da_instagram', 'da_facebook', 'da_whatsapp', 'da_tiktok', 'da_telegram',

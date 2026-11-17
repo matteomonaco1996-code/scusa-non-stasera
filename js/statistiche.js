@@ -298,29 +298,74 @@
   function spento() {
     stato(`<h2>Non ancora attiva</h2><p>Questa pagina si accende insieme al database del sito. Per ora non c’è niente da vedere.</p>`);
   }
+  // ---------- Accesso: email e password ----------
+  // Niente codici via email: il servizio di posta incluso nel database scrive solo a chi gestisce il progetto, e
+  // poche volte l'ora. L'email serve una volta sola, per confermare l'indirizzo quando si crea l'accesso.
+  const PASSWORD_MIN = 10;
+  const dove = () => location.href.split("#")[0].split("?")[0];
+  // Che cosa dire quando il database rifiuta: mai il messaggio tecnico
+  function spiega(e, cosa) {
+    const c = (e && (e.code || "")) + " " + (e && (e.message || ""));
+    if (e && e.status === 429 || /rate_limit|rate limit/i.test(c)) return "Troppi tentativi in poco tempo: riprova tra qualche minuto.";
+    if (/email_not_confirmed|not confirmed/i.test(c)) return "L’email non è ancora confermata: apri il messaggio che ti abbiamo mandato e tocca il link.";
+    if (/invalid_credentials|Invalid login/i.test(c)) return "Email o password non corrette.";
+    if (/email_address_not_authorized|not authorized/i.test(c)) return "A questa email non possiamo scrivere: usa quella del tuo account Supabase.";
+    if (/weak_password|Password should/i.test(c)) return `La password è troppo debole: almeno ${PASSWORD_MIN} caratteri.`;
+    if (/user_already_exists|already registered/i.test(c)) return "Questo accesso esiste già: entra con la password.";
+    if (/Database error|unexpected_failure|riservata/i.test(c)) return "Con questa email non si può creare un accesso: la pagina è riservata a chi gestisce il sito.";
+    return cosa === "crea" ? "Non sono riuscito a creare l’accesso: riprova tra poco." : "Non sono riuscito a farti entrare: riprova tra poco.";
+  }
+  const errore = (sel, testo) => { const p = $(sel); p.textContent = testo; p.hidden = !testo; };
   function accesso(email = "") {
-    const s = stato(`<h2>Entra</h2><p>Scrivi la tua email: ti mandiamo un codice, niente password.</p>
-      <form class="form" id="f-email"><label class="riga">Email<input type="email" id="a-email" required autocomplete="email"></label>
-      <p class="errore" id="a-err" hidden></p><div class="acts"><button class="btn" type="submit">MANDAMI IL CODICE</button></div></form>`);
+    const s = stato(`<h2>Entra</h2><p>Area riservata a chi gestisce il sito.</p>
+      <form class="form" id="f-entra"><label class="riga">Email<input type="email" id="a-email" required autocomplete="username"></label>
+      <label class="riga">Password<input type="password" id="a-password" required autocomplete="current-password"></label>
+      <p class="errore" id="a-err" role="alert" hidden></p>
+      <div class="acts"><button class="btn" type="submit">ENTRA</button><button class="btn alt" type="button" id="a-crea">È LA PRIMA VOLTA</button></div></form>`);
     s.querySelector("#a-email").value = email;
-    s.querySelector("#f-email").addEventListener("submit", async (e) => {
+    s.querySelector("#a-crea").addEventListener("click", () => crea($("#a-email").value.trim()));
+    s.querySelector("#f-entra").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const em = $("#a-email").value.trim();
-      const { error } = await sb.auth.signInWithOtp({ email: em, options: { shouldCreateUser: true, emailRedirectTo: location.href.split("#")[0].split("?")[0] } });
-      if (error) { const p = $("#a-err"); p.textContent = error.status === 429 ? "Troppe richieste in poco tempo: riprova tra qualche minuto." : "Non sono riuscito a mandare il codice: controlla l’email e riprova."; p.hidden = false; return; }
-      codice(em);
+      errore("#a-err", "");
+      const { error } = await sb.auth.signInWithPassword({ email: $("#a-email").value.trim(), password: $("#a-password").value });
+      if (error) errore("#a-err", spiega(error, "entra"));   // se va bene ci pensa onAuthStateChange
     });
   }
-  function codice(email) {
-    const s = stato(`<h2>Controlla la posta</h2><p id="c-testo"></p>
-      <form class="form" id="f-codice"><label class="riga">Codice<input type="text" id="a-codice" required inputmode="numeric" autocomplete="one-time-code" maxlength="10"></label>
-      <p class="errore" id="c-err" hidden></p><div class="acts"><button class="btn" type="submit">ENTRA</button><button class="btn alt" type="button" id="c-indietro">CAMBIA EMAIL</button></div></form>`);
-    s.querySelector("#c-testo").textContent = `Ti abbiamo scritto a ${email}. Inserisci il codice dell’email, oppure apri il link che contiene.`;
-    s.querySelector("#c-indietro").addEventListener("click", () => accesso(email));
-    s.querySelector("#f-codice").addEventListener("submit", async (e) => {
+  // La prima volta: si sceglie la password e si conferma l'email dal link che arriva per posta
+  function crea(email = "") {
+    const s = stato(`<h2>Crea l’accesso</h2><p>Si fa una volta sola. Usa l’email del tuo account Supabase: è l’unica a cui può arrivare il messaggio di conferma.</p>
+      <form class="form" id="f-crea"><label class="riga">Email<input type="email" id="n-email" required autocomplete="username"></label>
+      <label class="riga">Password (almeno ${PASSWORD_MIN} caratteri)<input type="password" id="n-password" required minlength="${PASSWORD_MIN}" autocomplete="new-password"></label>
+      <label class="riga">Ripeti la password<input type="password" id="n-ripeti" required minlength="${PASSWORD_MIN}" autocomplete="new-password"></label>
+      <small>Scegline una che non usi altrove. Non la vediamo e non possiamo recuperarla.</small>
+      <p class="errore" id="n-err" role="alert" hidden></p>
+      <div class="acts"><button class="btn" type="submit">CREA L’ACCESSO</button><button class="btn alt" type="button" id="n-indietro">HO GIÀ L’ACCESSO</button></div></form>`);
+    s.querySelector("#n-email").value = email;
+    s.querySelector("#n-indietro").addEventListener("click", () => accesso($("#n-email").value.trim()));
+    s.querySelector("#f-crea").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const { error } = await sb.auth.verifyOtp({ email, token: $("#a-codice").value.trim(), type: "email" });
-      if (error) { const p = $("#c-err"); p.textContent = "Codice non valido o scaduto."; p.hidden = false; }
+      errore("#n-err", "");
+      const em = $("#n-email").value.trim(), pw = $("#n-password").value;
+      if (pw.length < PASSWORD_MIN) return errore("#n-err", `La password deve avere almeno ${PASSWORD_MIN} caratteri.`);
+      if (pw !== $("#n-ripeti").value) return errore("#n-err", "Le due password non sono uguali.");
+      const { data, error } = await sb.auth.signUp({ email: em, password: pw, options: { emailRedirectTo: dove() } });
+      if (error) return errore("#n-err", spiega(error, "crea"));
+      // Con un'email già registrata e confermata il database risponde "bene" ma senza identità: l'accesso c'è già
+      if (data && data.user && Array.isArray(data.user.identities) && !data.user.identities.length) return errore("#n-err", "Questo accesso esiste già: entra con la password.");
+      if (data && data.session) return;   // conferma non richiesta: sei già dentro
+      conferma(em);
+    });
+  }
+  function conferma(email) {
+    const s = stato(`<h2>Controlla la posta</h2><p id="c-testo"></p>
+      <p>Dopo il tocco può aprirsi una pagina che non si carica: è normale, la conferma vale lo stesso. Poi torna qui ed entra.</p>
+      <p class="errore" id="c-err" role="status" hidden></p>
+      <div class="acts"><button class="btn" type="button" id="c-entra">HO CONFERMATO: ENTRA</button><button class="btn alt" type="button" id="c-rimanda">RIMANDA L’EMAIL</button></div>`);
+    s.querySelector("#c-testo").textContent = `Ti abbiamo scritto a ${email}. Apri il messaggio e tocca il link di conferma.`;
+    s.querySelector("#c-entra").addEventListener("click", () => accesso(email));
+    s.querySelector("#c-rimanda").addEventListener("click", async () => {
+      const { error } = await sb.auth.resend({ type: "signup", email, options: { emailRedirectTo: dove() } });
+      errore("#c-err", error ? spiega(error, "crea") : "Fatto: controlla di nuovo la posta, anche nello spam.");
     });
   }
   function riservata() {

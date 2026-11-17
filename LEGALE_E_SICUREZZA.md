@@ -164,8 +164,9 @@ Per questo **non serve un banner dei cookie**; l'informativa (versione 1.3) lo s
 **Accesi il 17 novembre 2026.** Progetto Supabase `scusa-non-stasera` (ref `swjaorxphkfigqwgonqq`, regione
 Francoforte, piano gratuito), creato con il connettore Supabase di Claude. Nel database c'è **solo**
 `supabase/statistiche.sql`: niente tabelle degli account né delle comitive. In `config.js`: `conto: false`,
-`comitive: false`. Da fare ancora a mano, da parte di Matteo: firmare il DPA di Supabase (punto 3 qui sopra) e,
-per entrare nella pagina di monitoraggio, impostare il Site URL (vedi `supabase/COLLEGARE.md`).
+`comitive: false`. Da fare ancora a mano, da parte di Matteo: firmare il DPA di Supabase (punto 3 qui sopra) e
+creare il proprio accesso alla pagina di monitoraggio (email e password, vedi `supabase/COLLEGARE.md`).
+Nel database c'è quindi un solo dato personale: l'email e la password (cifrata) di chi gestisce il sito.
 
 Da ricordare:
 - i contatori contano le aperture, non le persone; chiunque potrebbe farli salire a mano: sono indicativi;
