@@ -6,12 +6,12 @@
 //                  la fanno le regole del database in supabase/schema.sql)
 // NON inserire MAI qui la chiave "service_role": darebbe accesso a tutto il database.
 window.SNS_CONFIG = {
-  supabaseUrl: "",
-  supabaseKey: "",
+  supabaseUrl: "https://swjaorxphkfigqwgonqq.supabase.co",
+  supabaseKey: "sb_publishable_3EsKTwbvVzq_pFRbQ6WFdg_l8wpWMd9",
   // Con il database acceso si possono tenere separati i due usi:
   //   conto: false       → niente account, punti e recensioni (restano solo i contatori)
   //   statistiche: false → niente contatori anonimi delle visite (vedi statistiche.html)
-  conto: true,
+  conto: false,   // per ora solo i contatori: account, punti e recensioni restano spenti
   statistiche: true,
   // Donazione facoltativa ("Dona una moneta"): incolla qui il link della tua pagina per ricevere denaro
   // (per esempio PayPal.me, Ko-fi, Satispay). Deve iniziare con https://

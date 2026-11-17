@@ -4,6 +4,21 @@ Scritto il 17 novembre 2026 per chi (persona o sessione di Claude) accende il da
 **Scusa, non stasera · Ristomat** (https://ristomat.click, repository `matteomonaco1996-code/scusa-non-stasera`,
 ramo `main`: ogni push pubblica il sito).
 
+## Stato al 17 novembre 2026
+
+- Progetto creato: `scusa-non-stasera`, ref `swjaorxphkfigqwgonqq`, Francoforte, piano gratuito
+  (`https://swjaorxphkfigqwgonqq.supabase.co`). Fatto con il connettore Supabase di Claude.
+- Nel database è stato eseguito **solo `statistiche.sql`** (non `schema.sql`, `luoghi.sql`, `comitive.sql`):
+  per contare non servono, e ogni tabella o funzione in più è una porta in più da sorvegliare. Vanno eseguiti
+  il giorno in cui si accendono account o comitive. Vale più di quanto dice il passo 2 qui sotto.
+- Manca una funzione: `elimina_donazione` (toglie dalla pagina di monitoraggio una donazione segnata per errore).
+  Contiene un `delete`, e il connettore chiede a Matteo una conferma che scade in un minuto: finora non è
+  arrivata in tempo. Tutto il resto funziona senza.
+- `config.js` ha l'indirizzo e la chiave pubblica, con `conto: false`.
+- Da fare: il passo 3 (email di chi legge i numeri) e il passo 4 (Site URL per l'accesso). Il connettore non
+  arriva alle impostazioni di accesso: le fa Matteo nella dashboard di Supabase.
+- Le prove automatiche non devono mai chiamare il database vero: gonfierebbero i contatori.
+
 ## Che cosa vuole Matteo, adesso
 
 Solo **contare ingressi e clic** e leggerli nella pagina di monitoraggio (`statistiche.html`).

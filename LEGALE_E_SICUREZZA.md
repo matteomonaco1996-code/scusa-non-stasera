@@ -161,6 +161,12 @@ indirizzi IP, identificativi o legami con gli account, e chi ha acceso “non tr
 Per questo **non serve un banner dei cookie**; l'informativa (versione 1.3) lo spiega nella sezione
 “Contatori anonimi”.
 
+**Accesi il 17 novembre 2026.** Progetto Supabase `scusa-non-stasera` (ref `swjaorxphkfigqwgonqq`, regione
+Francoforte, piano gratuito), creato con il connettore Supabase di Claude. Nel database c'è **solo**
+`supabase/statistiche.sql`: niente tabelle degli account né delle comitive. In `config.js`: `conto: false`,
+`comitive: false`. Da fare ancora a mano, da parte di Matteo: firmare il DPA di Supabase (punto 3 qui sopra) e,
+per entrare nella pagina di monitoraggio, impostare il Site URL (vedi `supabase/COLLEGARE.md`).
+
 Da ricordare:
 - i contatori contano le aperture, non le persone; chiunque potrebbe farli salire a mano: sono indicativi;
 - `statistiche.html` è leggibile solo dalle email nella tabella `amministratori`: non aggiungerne altre senza motivo;

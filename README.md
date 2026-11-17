@@ -160,6 +160,7 @@ sono i numeri, che il database consegna solo alle email nella tabella `amministr
   `whatsapp`, `facebook`, `tiktok`, `telegram`, `google`, `qr`, `volantino`, `amici`).
 - **Soldi**: il sito non vede i pagamenti. Le donazioni vere sono nell'attività di PayPal; in pagina si segnano
   a mano giorno e importo, mai il nome di chi ha donato.
+- **Acceso dal 17 novembre 2026** (solo i contatori: `conto: false`). Stato e passi rimasti in `supabase/COLLEGARE.md`.
 - **Per accenderlo**: progetto Supabase → SQL Editor → `schema.sql`, poi `statistiche.sql`, poi una riga con la
   propria email in `amministratori`; infine URL e chiave pubblica in `config.js`. `conto: false` tiene spenti
   account e punti lasciando accesi i contatori; `statistiche: false` fa il contrario.
