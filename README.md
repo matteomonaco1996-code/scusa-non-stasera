@@ -106,6 +106,8 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | `tipi.json` | Tipo di locale per i posti il cui nome non lo dice |
 | `in_breve.json` | Descrizioni brevi (etichetta IN BREVE) per i posti senza una nota di Matteo: bozze da rileggere |
 | `correzioni.json` | Correzioni manuali (tipo `t`, quartiere `q`, città `c`, nota `nt`): vincono su tutto |
+| `prove/` | Prove automatiche del sito: `node prove/tutte.js` le lancia tutte (vedi `prove/LEGGIMI.md`). Non vengono pubblicate |
+| `supabase/accesso_monitoraggio.sql`, `supabase/livelli.sql` | Chi può crearsi l'accesso alla pagina di monitoraggio; quartieri e località che si possono contare |
 | `strumenti/aggiorna_lista.py` | Scarica la lista da Google Maps e rigenera `locali.js` |
 | `strumenti/quartieri.py` | I quartieri di Roma: centro, area e sponda del Tevere |
 | `img/` | Il logo disegnato da Matteo: `logo.svg` e `logo-chiaro.svg` (1200×630), `gettone.svg`, `icona.svg`, i PNG per schede del browser e schermata Home, `anteprima.png` per i link condivisi, `logo.png` e `logo-chiaro.png` da usare altrove |

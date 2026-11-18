@@ -1,0 +1,13 @@
+{
+  "name": "scusa-non-stasera-prove",
+  "private": true,
+  "description": "Prove automatiche del sito. Non fanno parte del sito pubblicato.",
+  "scripts": {
+    "tutte": "node tutte.js",
+    "vivo": "node tutte.js --vivo"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.16",
+    "axe-core": "^4.10.0"
+  }
+}
