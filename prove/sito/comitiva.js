@@ -46,6 +46,7 @@ const CORSI = '3935991939893424995';
     await p.route('**/config.js', async (route) => {
       const r = await route.fetch(); let t = await r.text();
       if (acceso) t = t.replace(/supabaseUrl: "[^"]*"/, 'supabaseUrl: "https://finto.supabase.co/"').replace(/supabaseKey: "[^"]*"/, 'supabaseKey: "sb_publishable_finta"').replace('conto: true', 'conto: false');
+      else t = t.replace(/supabaseUrl: "[^"]*"/, 'supabaseUrl: ""');   // database spento: senza indirizzo
       if (comitive) t = t.replace('comitive: false', 'comitive: true');
       await route.fulfill({ response: r, body: t });
     });
@@ -203,12 +204,12 @@ const CORSI = '3935991939893424995';
   console.log('Riservatezza e interruttori');
   const tutte = [...A.richieste, ...B.richieste];
   const campi = [...new Set(tutte.filter((r) => r.fn !== 'conta').flatMap((r) => Object.keys(r.args)))].sort();
-  dico('al database arrivano solo: ' + campi.join(', '), campi.join() === 'p_chiave,p_cosa,p_faccia,p_fatto,p_luogo,p_mio_nome,p_nome,p_segreto,p_valore' && tutte.every((r) => !('authorization' in r.testa) && !r.testa.cookie), campi);
+  dico('al database arrivano solo: ' + campi.join(', '), campi.join() === 'p_chiave,p_cosa,p_faccia,p_fatto,p_livello,p_luogo,p_mio_nome,p_nome,p_segreto,p_valore' && tutte.every((r) => !('authorization' in r.testa) && !r.testa.cookie), campi);
   const ev = [...A.eventi, ...B.eventi].filter((e) => /^comitiva/.test(e));
   dico('contatori anonimi: ' + [...new Set(ev)].sort().join(' '), ['comitiva_crea', 'comitiva_entra', 'comitiva_aggiungi', 'comitiva_voto', 'comitiva_fatto', 'comitiva_invita'].every((e) => ev.includes(e)), ev);
   dico('nessun errore sui due telefoni (a parte i rifiuti del database, che sono voluti)', [...A.err, ...B.err].filter((e) => !/status of 400/.test(e)).length === 0, { A: A.err, B: B.err });
   await A.ctx.close(); await B.ctx.close();
-  for (const [nome, opz] of [['database acceso ma «comitive: false» (com’è nel sito)', { comitive: false }], ['database spento (com’è oggi)', { acceso: false, comitive: true }]]) {
+  for (const [nome, opz] of [['database acceso ma «comitive: false» (com’è nel sito)', { comitive: false }], ['database spento', { acceso: false, comitive: true }]]) {
     const C = await telefono(opz); await vai(C.p, BASE + '?comitiva=' + riga.chiave + '&da=amici');
     await C.p.evaluate(() => document.querySelector('button[data-livello="Pantheon"]').click()); await C.p.waitForTimeout(500);
     const r = await C.p.evaluate(() => ({ menu: document.querySelector('#m-comitiva').hidden, com: document.querySelector('#dlg-comitiva').open, bott: document.querySelectorAll('[data-comitiva]').length, schede: document.querySelectorAll('.card').length }));
