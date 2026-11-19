@@ -173,6 +173,11 @@
     }));
   }
   const tuttiLivelli = (m) => (LIVELLI[m] || []).flatMap((a) => a.livelli);
+  // Come si chiama una zona per chi usa il sito: a Roma «quartiere» (con il numero che ha sulla mappa), fuori porta
+  // «località». La parola «livello» resta solo nel programma: per un luogo fa pensare a una difficoltà, e confondeva.
+  const numeroDi = (z) => String(+((z.cod || "").split("-")[1] || 0));
+  const etichetta = (z, mondo) => (mondo === "roma" ? (z.n === "Periferia" ? "ZONA" : `QUARTIERE ${numeroDi(z)}`) : "LOCALITÀ");
+  const areaDi = (z, mondo) => ((LIVELLI[mondo] || []).find((a) => a.livelli.includes(z)) || {}).nome || "";
   const centro = (lv) => {
     const z = (META.quartieri || []).find((q) => q.n === lv);
     if (z) return z;
@@ -338,10 +343,11 @@
       tutti + (LIVELLI[stato.mondo] || []).map((a) => `<div class="area"><h3>${esc(a.nome.toUpperCase())}</h3><div class="levels">${
       a.livelli.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="${stato.livello === z.n}" ${!quanti(z) && stato.livello !== z.n ? "disabled" : ""}>
         ${stato.posLv === z.n ? `<span class="qui">SEI QUI</span>` : ""}
-        <span class="cod">LIVELLO ${z.cod}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${quanti(z)}</span></button>`).join("")
+        <span class="cod">${etichetta(z, stato.mondo)}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${quanti(z)}</span></button>`).join("")
     }</div></div>`).join("");
-    $("#sott-livelli").textContent = stato.mondo === "roma" ? "Roma è divisa in quartieri: ogni quartiere è un livello."
-      : stato.mondo === "fuori" ? "Gite, mare e borghi: ogni località è un livello." : "Un mondo, un livello: tutta la città.";
+    $("#t-livelli").textContent = stato.mondo === "roma" ? "SCEGLI IL QUARTIERE" : stato.mondo === "fuori" ? "SCEGLI LA LOCALITÀ" : "SCEGLI LA ZONA";
+    $("#sott-livelli").textContent = stato.mondo === "roma" ? "Roma, quartiere per quartiere."
+      : stato.mondo === "fuori" ? "Gite, mare e borghi fuori Roma." : "Qui la zona è una sola: tutta la città.";
   }
   // ---------- Mappa del mondo (Roma): disegnata qui, senza servizi esterni ----------
   // Sotto le caselle, le strade principali di Roma: un file leggero (mappa/quartieri.js) che si carica dopo il resto della pagina.
@@ -435,7 +441,7 @@
         const x = snap(p[0]) - 12, y = snap(p[1]) - 12;
         const vuoto = !quanti(z) && stato.livello !== z.n;
         const cls = stato.livello === z.n ? "on" : vuoto ? "vuoto" : visti.has(z.n) ? "fatto" : "";
-        return `<g class="ow-nodo ${cls}" data-livello="${esc(z.n)}" tabindex="0" role="button"${vuoto ? ' aria-disabled="true"' : ""} aria-label="Livello ${z.cod}: ${esc(z.n)}, ${quanti(z)} posti">
+        return `<g class="ow-nodo ${cls}" data-livello="${esc(z.n)}" tabindex="0" role="button"${vuoto ? ' aria-disabled="true"' : ""} aria-label="Quartiere ${numeroDi(z)}: ${esc(z.n)}, ${quanti(z)} posti">
           <title>${esc(z.n)} · ${quanti(z)} posti</title><rect x="${x}" y="${y}" width="24" height="24"/><text x="${x + 12}" y="${y + 17}" text-anchor="middle">${z.cod.split("-")[1]}</text>
           ${n.nome && n.nome.tx !== undefined ? `<text class="ow-nome" x="${n.nome.tx}" y="${n.nome.ty}" text-anchor="${n.nome.a}">${esc(n.nome.testo)}</text>` : ""}</g>`;
       }).join("")}
@@ -449,7 +455,7 @@
       g.insertBefore(r, g.firstChild);
     });
     const z = stato.livello && livelli.find((l) => l.n === stato.livello);
-    $("#ow-info").textContent = z ? `Livello ${z.cod}: ${z.n} · ${quanti(z)} posti` : "Tocca un quartiere sulla mappa, oppure sceglilo dall’elenco qui sotto." + (CON_CHECKIN ? " Le caselle verdi sono quartieri dove hai già fatto check-in." : "");
+    $("#ow-info").textContent = z ? `Quartiere ${numeroDi(z)}: ${z.n} · ${quanti(z)} posti` : "Tocca un quartiere sulla mappa, oppure sceglilo dall’elenco qui sotto." + (CON_CHECKIN ? " Le caselle verdi sono quartieri dove hai già fatto check-in." : "");
   }
 
   function disegnaPowerup() {
@@ -502,7 +508,8 @@
     let lv, tit;
     if (stato.livello) {
       const z = tuttiLivelli(stato.mondo).find((z) => z.n === stato.livello);
-      lv = z ? `LIVELLO ${z.cod}` : `MONDO ${m.w}`; tit = stato.livello;
+      const area = z ? areaDi(z, stato.mondo) : "";
+      lv = z ? `${m.nome}${area ? " · " + area : ""}`.toUpperCase() : `MONDO ${m.w}`; tit = stato.livello;
     } else if (stato.vicino) {
       lv = stato.posLv ? `SEI DALLE PARTI DI ${stato.posLv.toUpperCase()}` : "PLAYER 1"; tit = "Vicino a te";
     } else { lv = `MONDO ${m.w}`; tit = m.id === "roma" ? "Tutta Roma" : m.id === "fuori" ? "Fuori porta" : m.nome; }
@@ -522,7 +529,7 @@
         h += scheda(x);
       }
     } else h = vis.map(scheda).join("");
-    $("#cards").innerHTML = n ? h : `<div class="empty"><strong>Nessun posto</strong>${stato.voglia || stato.q ? "Con questi filtri qui non c’è niente." : "Cambia power-up o livello, oppure ricomincia da capo."}<div class="azioni">${stato.voglia || stato.q ? `<button class="btn" type="button" data-togli-filtri>TOGLI I FILTRI</button>` : ""}<button class="btn${stato.voglia || stato.q ? " alt" : ""}" type="button" data-restart>${svg("restart")}RESTART</button></div></div>`;
+    $("#cards").innerHTML = n ? h : `<div class="empty"><strong>Nessun posto</strong>${stato.voglia || stato.q ? "Con questi filtri qui non c’è niente." : "Cambia power-up o zona, oppure ricomincia da capo."}<div class="azioni">${stato.voglia || stato.q ? `<button class="btn" type="button" data-togli-filtri>TOGLI I FILTRI</button>` : ""}<button class="btn${stato.voglia || stato.q ? " alt" : ""}" type="button" data-restart>${svg("restart")}RESTART</button></div></div>`;
     intestazione(n, conta);
     // Sotto il campo di ricerca della pagina: i posti trovati stanno parecchio più giù, quindi lo si dice lì e si offre di andarci
     $("#q-esito").hidden = !stato.q;
@@ -541,7 +548,7 @@
     const vicini = tuttiLivelli("roma").filter((z) => z.n !== stato.livello && z.n !== "Periferia" && quanti(z))
       .map((z) => ({ ...z, d: km(c, centro(z.n)) })).sort((a, b) => a.d - b.d).slice(0, 3);
     if (!vicini.length) { box.hidden = true; return; }
-    box.innerHTML = `<h3>Prossimo livello ▶</h3><div class="levels">${vicini.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="false"><span class="cod">LIVELLO ${z.cod}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${quanti(z)}</span></button>`).join("")}</div>`;
+    box.innerHTML = `<h3>Quartieri vicini ▶</h3><div class="levels">${vicini.map((z) => `<button type="button" class="level px" data-livello="${esc(z.n)}" aria-pressed="false"><span class="cod">${etichetta(z, "roma")}</span><span class="nm">${esc(z.n)}</span><span class="ct">× ${quanti(z)}</span></button>`).join("")}</div>`;
     box.hidden = false;
   }
   function aggiorna({ adatta = true } = {}) {
@@ -570,7 +577,7 @@
     if (!x && !stato.vicino && !stato.livello) t = "Anzi sì! Portami fuori.";
     else {
       x = x || ultimi[0];
-      if (!x) t = "Anzi sì… ma qui non trovo niente. Cambiamo livello?";
+      if (!x) t = "Anzi sì… ma qui non trovo niente. Cambiamo zona?";
       else if (stato.pos && x.km !== undefined) { const m = minuti(x.km); t = `Anzi sì: <b>${esc(x.n)}</b>, ${m <= 45 ? `a ${m} ${m === 1 ? "minuto" : "minuti"} a piedi` : `a ${fmtKm.format(x.km)} km`}. Ci vediamo lì?`; }
       else t = `Anzi sì: <b>${esc(x.n)}</b>, a ${esc(luogo(x))}. Ci vediamo lì?`;
     }
@@ -962,7 +969,7 @@
     versoPosti();
   }
   function scegliLivello(lv) {
-    if (lv && lv !== stato.livello && !perLivello[lv]) return toast("Qui non ce n’è: scegli un altro livello o cambia power-up.");
+    if (lv && lv !== stato.livello && !perLivello[lv]) return toast("Qui non ce n’è: scegli un’altra zona o cambia power-up.");
     stato.livello = lv; stato.vicino = false; aggiorna(); versoPosti(); conta("livello"); contaZona(lv || nomeTutto(stato.mondo)); percorso.avanza(); if (stato.mondo === "roma") mappa.anticipa();
   }
   // Su telefono lista e mappa si alternano e sono alte in modo diverso: senza questo, passando alla mappa
@@ -1049,7 +1056,7 @@
     clearInterval(gt.timer);
     const g = inGioco();
     if (!g.pool.length) {
-      $("#get-corpo").innerHTML = `<p class="get-dom">Nessun posto in gioco.</p><p>Con questi filtri non c’è niente da pescare: cambia livello o power-up, oppure ricomincia.</p>
+      $("#get-corpo").innerHTML = `<p class="get-dom">Nessun posto in gioco.</p><p>Con questi filtri non c’è niente da pescare: cambia zona o power-up, oppure ricomincia.</p>
         <div class="get-acts"><button class="btn" type="button" data-restart>${svg("restart")}RESTART</button></div>`;
       return;
     }
@@ -1109,7 +1116,7 @@
         ${INVITI ? `<div class="get-acts"><button class="btn alt" type="button" data-get="invita">Proponilo: ${esc(inv.rilancio ? "Meglio qui?" : g.mom.qui)}</button></div>` : ""}
         <div class="get-link"><button class="link" type="button" data-get="mappa">Vedi sulla mappa</button><button class="link" type="button" data-get="scheda">Apri la scheda</button>${SNS.pulsanteComitiva ? SNS.pulsanteComitiva(x, "link") : ""}</div>
         ${DONA ? `<p class="moneta-riga">${moneta()}<small>Donazione facoltativa a Matteo, che cura il sito.</small></p>` : ""}
-        <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? (g.ora ? `Qui è l’unico posto adatto all’ora (${esc(g.mom.nome)}).` : "È l’unico posto in gioco: cambia livello o power-up per pescarne altri.") : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
+        <p class="get-info">${nuovoGiro ? "Li hai visti tutti: il giro ricomincia. " : ""}${n < 2 ? (g.ora ? `Qui è l’unico posto adatto all’ora (${esc(g.mom.nome)}).` : "È l’unico posto in gioco: cambia zona o power-up per pescarne altri.") : `Pescato tra ${n} posti · ${esc(g.dove)}${filtro}.`} ${cambia}</p>
         <small>Gli orari non li conosciamo: prima di partire controlla su Maps che sia aperto.</small>`;
       rispondi(x);
       segnaInCorso();

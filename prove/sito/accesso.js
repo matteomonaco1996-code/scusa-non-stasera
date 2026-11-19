@@ -38,7 +38,7 @@ const TAVOLA = { nome: 'I Mangioni di Via Po', chiave: 'chiave-di-prova-00000000
     if (nome === 'telefono') { await p.click('[data-view=mappa]'); await p.waitForTimeout(1200); await esamina(p, nome + ': mappa'); }
     await p.goto(BASE + 'index.html?posto=3935991939893424995&m=s'); await p.waitForTimeout(800); await esamina(p, nome + ': invito ricevuto');
     await p.click('[data-inv=no]'); await esamina(p, nome + ': invito, no');
-    for (const pag of ['privacy.html', 'termini.html', 'statistiche.html?esempio']) { await p.goto(BASE + pag); await p.waitForTimeout(700); await esamina(p, nome + ': ' + pag.split('.')[0]); }
+    for (const pag of ['privacy.html', 'termini.html', '404.html', 'statistiche.html?esempio']) { await p.goto(BASE + pag); await p.waitForTimeout(700); await esamina(p, nome + ': ' + pag.split('.')[0]); }
     await p.context().close();
     p = await nuovo(opz, false, false); await p.goto(BASE + 'index.html'); await p.waitForTimeout(700); await esamina(p, nome + ': termini');
     await p.click('#termini-ok'); await p.waitForTimeout(600); await esamina(p, nome + ': posizione'); await chiudi(p);

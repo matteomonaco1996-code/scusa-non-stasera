@@ -52,10 +52,14 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   mappa dei quartieri, che resta appena sopra: riempie lo schermo e sembrava l’unico modo di scegliere.
   Sul telefono i power-up stanno su due colonne, con «Tutto» in cima a tutta larghezza: si vedono tutti insieme,
   senza scorrere di lato.
-- **LIVELLI**: a Roma ogni **quartiere** è un livello (38 quartieri in 5 aree:
-  Centro, Sponda ovest, Nord, Est, Sud, più la Periferia). In fondo a ogni
-  livello ci sono i 3 quartieri più vicini (*Prossimo livello*). Fuori porta i
-  livelli sono le località con almeno 3 posti; le altre sono raggruppate per regione.
+- **ZONE** (nel programma si chiamano ancora «livelli»): a Roma sono i **quartieri** (38 in 5 aree: Centro, Sponda
+  ovest, Nord, Est, Sud, più la Periferia); fuori porta sono le **località** con almeno 3 posti, le altre sono
+  raggruppate per regione. In fondo a ogni quartiere ci sono i 3 più vicini (*Quartieri vicini*).
+  Dal 19 novembre 2026 a chi usa il sito la parola «livello» non si mostra più per i luoghi: un quartiere è un
+  concetto geografico, «livello» fa pensare a difficoltà o progressione, e «Prossimo livello» faceva chiedere
+  «rispetto a cosa?» (segnalato da chi ha provato il sito). Si legge «SCEGLI IL QUARTIERE» / «LA LOCALITÀ» / «LA
+  ZONA», sulle tessere «QUARTIERE 6» (il numero è quello della mappa) o «LOCALITÀ», nella barra dove ci si trova
+  («ROMA · CENTRO», «FUORI PORTA · LAZIO»). «Livello» resta solo per i livelli del giocatore (account, oggi spenti).
 - **FILTRI** (dal 19 novembre 2026): un pulsante nella barra sopra i posti, sempre in vista, apre una finestra con
   gli stessi power-up (con i numeri) e il campo di ricerca. Serve a chi è già sui posti, soprattutto dopo
   «Vicino a me», dove i power-up della pagina restano cinque schermate più su. Scelto un tipo la finestra si
@@ -149,6 +153,12 @@ Il workflow `.github/workflows/pubblica.yml` pubblica su GitHub Pages a ogni pus
 e ogni lunedì riscarica la lista da Google Maps: se è cambiata aggiorna `locali.js` e
 `supabase/luoghi.sql` e ripubblica. Con i segreti `SUPABASE_URL` e `SUPABASE_SERVICE_KEY`
 aggiorna anche i posti nel database. Serve *Settings → Pages → Source: GitHub Actions*.
+
+**Pagina non trovata** (`404.html`, dal 19 novembre 2026): a un indirizzo sbagliato il sito mostra una sua pagina con
+il modo di tornare al gioco. I suoi collegamenti partono dalla radice (`/css/stile.css`, `/`) perché compare a
+qualunque indirizzo, anche dentro una cartella. A tratti, proprio sugli indirizzi che non esistono, i server di
+GitHub rispondono «503» (la loro pagina «Unicorn») invece di «404»: non dipende dal sito e le pagine vere non ne
+risentono. La prova `prove/sito/vivo-file.js` in quel caso riprova, come chiede il server.
 
 ### Descrizioni IN BREVE e posti chiusi
 

@@ -14,8 +14,8 @@ const U = process.argv[2] || 'http://localhost:8765/index.html', LOCALE = /local
     await p.goto(U); await p.waitForTimeout(800);
     await p.click('[data-mondo="fuori"]'); await p.waitForTimeout(500);
     const r = await p.evaluate(() => ({ aree: [...document.querySelectorAll('#livelli .area h3')].map((x) => x.textContent), primi: [...document.querySelectorAll('#livelli .level')].slice(1, 4).map((x) => x.querySelector('.cod').textContent + ' ' + x.querySelector('.nm').textContent + ' ' + x.querySelector('.ct').textContent.trim()) }));
-    dico(`${caso}: il primo livello è «${r.primi[0]}» (poi ${r.primi.slice(1).map((x) => x.replace(/LIVELLO /, '')).join(', ')}); prima area: ${r.aree[0]}`, /^LIVELLO 2-01 Tivoli/.test(r.primi[0]) && /LAZIO/i.test(r.aree[0]) && err.length === 0, { r, err });
-    if (caso === 'oggi') { await p.evaluate(() => document.querySelector('button[data-livello="Tivoli"]').click()); await p.waitForTimeout(500); const t = await p.evaluate(() => document.querySelector('#lv').textContent + ' · ' + document.querySelector('#titolo-ris').textContent + ' · ' + document.querySelectorAll('.card').length + ' schede'); dico('toccandolo: ' + t, /^LIVELLO 2-01 · Tivoli · \d+ schede$/.test(t), t); }
+    dico(`${caso}: la prima località è «${r.primi[0]}» (poi ${r.primi.slice(1).map((x) => x.replace(/LOCALITÀ /, '')).join(', ')}); prima area: ${r.aree[0]}`, /^LOCALITÀ Tivoli/.test(r.primi[0]) && /LAZIO/i.test(r.aree[0]) && err.length === 0, { r, err });
+    if (caso === 'oggi') { await p.evaluate(() => document.querySelector('button[data-livello="Tivoli"]').click()); await p.waitForTimeout(500); const t = await p.evaluate(() => document.querySelector('#lv').textContent + ' · ' + document.querySelector('#titolo-ris').textContent + ' · ' + document.querySelectorAll('.card').length + ' schede'); dico('toccandolo: ' + t, /^FUORI PORTA · LAZIO · Tivoli · \d+ schede$/.test(t), t); }
     await ctx.close();
   }
   await b.close(); console.log(`\n${ok} ok · ${ko} KO`); process.exitCode = ko ? 1 : 0;

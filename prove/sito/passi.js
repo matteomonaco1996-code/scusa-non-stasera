@@ -40,7 +40,7 @@ const check = (n, c, x) => (c ? ok : ko).push(n + (x !== undefined ? ' → ' + J
   let { ctx, p, err } = await nuovo();
   let v = await vedi(p);
   check('la pagina è in quest’ordine: mondo, power-up, livello', JSON.stringify(v.ordine.slice(0, 3)) === JSON.stringify(['sez-mondi', 'sez-pw', 'sez-livelli']), v.ordine);
-  check('i titoli: SELEZIONA IL MONDO, SCEGLI IL POWER-UP, SCEGLI IL LIVELLO', JSON.stringify(v.titoli.slice(0, 3)) === JSON.stringify(['SELEZIONA IL MONDO', 'SCEGLI IL POWER-UP', 'SCEGLI IL LIVELLO']), v.titoli);
+  check('i titoli: SELEZIONA IL MONDO, SCEGLI IL POWER-UP, SCEGLI IL QUARTIERE', JSON.stringify(v.titoli.slice(0, 3)) === JSON.stringify(['SELEZIONA IL MONDO', 'SCEGLI IL POWER-UP', 'SCEGLI IL QUARTIERE']), v.titoli);
   check('all’inizio i numeri dei livelli sono quelli di sempre (Tutta Roma = somma dei quartieri, nessuno spento)', v.tutto > 400 && v.tutto === v.somma && v.spenti === 0 && !v.nota, { tutto: v.tutto, somma: v.somma, spenti: v.spenti });
   const totale = v.tutto;
   await tocca(p, '#m-livelli');
@@ -105,7 +105,7 @@ const check = (n, c, x) => (c ? ok : ko).push(n + (x !== undefined ? ' → ' + J
   check('Fuori porta: dopo il mondo, il power-up', v.mondo === 'Fuori porta' && inCima(v.pw), { mondo: v.mondo, pw: v.pw });
   await tocca(p, '#powerups [data-voglia=""]');
   v = await vedi(p);
-  check('Fuori porta: dopo il power-up, le località (senza mappa dei quartieri, con il titolo in cima)', inCima(v.sezLivelli) && !v.mappa && v.lvInVista >= 3 && /località/.test(v.sotto), { sez: v.sezLivelli, inVista: v.lvInVista, sotto: v.sotto });
+  check('Fuori porta: dopo il power-up, le località (senza mappa dei quartieri, con il titolo in cima)', inCima(v.sezLivelli) && !v.mappa && v.lvInVista >= 3 && /Gite, mare e borghi/.test(v.sotto), { sez: v.sezLivelli, inVista: v.lvInVista, sotto: v.sotto });
   await p.screenshot({ path: out + '/passi-4-fuori.png' });
   await tocca(p, '#livelli [data-livello="Tivoli"]');
   v = await vedi(p);

@@ -2,7 +2,9 @@
 const SITO = 'https://ristomat.click/';
 let ok = 0, ko = 0; const dico = (m, c, x) => { c ? ok++ : ko++; console.log((c ? '  ✓ ' : '  ✗ ') + m + (c ? '' : ' → ' + JSON.stringify(x).slice(0, 600))); };
 const { chromium } = require('playwright'); let pagina;
-const prendi = async (u) => pagina.evaluate(async (u) => { for (let k = 0; k < 3; k++) { try { const r = await fetch(u, { cache: 'no-store' }); const t = await r.text(); return { stato: r.status, tipo: r.headers.get('content-type') || '', lung: t.length, testo: /\.(png|woff2)(\?|$)/.test(u) ? '' : t }; } catch (e) { if (k === 2) return { stato: 0, err: String(e).slice(0, 80) }; await new Promise((f) => setTimeout(f, 800)); } } }, u);
+// Un 503 non è una risposta sul file: è il server (GitHub) che dice «adesso no, riprova». Capita a tratti proprio sugli
+// indirizzi che non esistono. Si riprova con una pausa, fino a otto volte, prima di trarre conclusioni.
+const prendi = async (u) => pagina.evaluate(async (u) => { for (let k = 0; k < 8; k++) { try { const r = await fetch(u, { cache: 'no-store' }); if (r.status === 503 && k < 7) { await new Promise((f) => setTimeout(f, 700 + k * 300)); continue; } const t = await r.text(); return { stato: r.status, tipo: r.headers.get('content-type') || '', lung: t.length, testo: /\.(png|woff2)(\?|$)/.test(u) ? '' : t }; } catch (e) { if (k >= 2) return { stato: 0, err: String(e).slice(0, 80) }; await new Promise((f) => setTimeout(f, 800)); } } }, u);
 (async () => {
   const b = await chromium.launch(); pagina = await b.newPage(); await pagina.goto(SITO); await pagina.waitForTimeout(500);
   const visti = new Map(), coda = ['index.html', 'privacy.html', 'termini.html', 'statistiche.html', 'manifest.webmanifest', '.well-known/security.txt', 'js/comitiva.js', 'vendor/supabase/supabase.js', 'mappa/roma.js', 'mappa/quartieri.js', 'img/facce/0.svg', 'img/facce/1.svg', 'img/facce/2.svg', 'img/facce/3.svg', 'img/facce/4.svg', 'img/facce/5.svg', 'img/anteprima.png'];
@@ -31,8 +33,13 @@ const prendi = async (u) => pagina.evaluate(async (u) => { for (let k = 0; k < 3
   // reindirizzamenti e pagine che non esistono
   const no = await prendi(SITO + 'pagina-che-non-esiste-' + Date.now() + '.html');
   dico('una pagina che non esiste risponde «non trovata» (404), non una pagina vuota qualsiasi', no.stato === 404, no.stato);
-  for (const f of ['correzioni.json', 'in_breve.json', 'strumenti/aggiorna_lista.py', 'supabase/schema.sql', 'README.md', '.github/workflows/pubblica.yml', '.git/config']) { const r = await prendi(SITO + f); if (r.stato === 200) dico('file di lavoro non pubblicato: ' + f, false, r.stato); }
-  dico('i file di lavoro (correzioni, attrezzi, database, .git) non sono pubblicati sul sito', true);
+  dico('…e mostra la nostra pagina, con il modo di tornare al gioco', /Game over\?/.test(no.testo || '') && /href="\/"/.test(no.testo || '') && /href="\/css\/stile\.css"/.test(no.testo || ''), (no.testo || '').slice(0, 200));
+  const inFondo = await prendi(SITO + 'una/cartella/che/non/esiste-' + Date.now() + '/');
+  dico('…anche a un indirizzo sbagliato dentro una cartella', inFondo.stato === 404 && /Game over\?/.test(inFondo.testo || ''), inFondo.stato);
+  // devono rispondere proprio «non trovato»: un 503 non dimostra che il file non c'è
+  const lavoro = [];
+  for (const f of ['correzioni.json', 'in_breve.json', 'strumenti/aggiorna_lista.py', 'supabase/schema.sql', 'README.md', '.github/workflows/pubblica.yml', '.git/config', 'prove/tutte.js']) { const r = await prendi(SITO + f); if (r.stato !== 404) lavoro.push(f + ' ' + r.stato); }
+  dico('i file di lavoro (correzioni, attrezzi, database, prove, .git) non sono pubblicati sul sito', lavoro.length === 0, lavoro);
   const i = visti.get('index.html'), sec = visti.get('.well-known/security.txt'), man = visti.get('manifest.webmanifest');
   dico('la pagina dei contatti per la sicurezza (security.txt) c’è e non è scaduta', sec && sec.stato === 200 && /Contact:/.test(sec.testo) && (() => { const m = sec.testo.match(/Expires:\s*(\S+)/); return m && new Date(m[1]) > new Date(); })(), sec && sec.testo.slice(0, 200));
   dico('il file per «Aggiungi a schermata Home» è valido', (() => { try { const m = JSON.parse(man.testo); return m.name && m.icons.length >= 2 && m.start_url !== undefined; } catch (e) { return false; } })(), man && man.testo.slice(0, 150));
