@@ -854,21 +854,33 @@
   // La battuta ci porta lì e li fa notare, invece di aprire una finestra con le stesse due scelte.
   // I due tasti lampeggiano per qualche secondo quando la schermata d'apertura è libera: niente finestre sopra,
   // niente ancora scelto, i tasti sullo schermo. Una volta per arrivo (e di nuovo dopo un restart).
-  let invitato = false, tInvito;
-  function invitaPartenza() {
+  // Prima c'è l'entrata in scena (personaggi dai lati, fumetti uno dopo l'altro): è tutta nel foglio di stile e
+  // all'apertura parte da sola. Qui la si fa ripartire («daCapo») quando era coperta da una finestra o dopo un
+  // restart, e si aspetta che finisca prima di far lampeggiare i tasti, più brevemente: così il movimento, in
+  // tutto, resta sotto i cinque secondi.
+  let invitato = false, tInvito, giroInvito = 0;
+  function invitaPartenza(daCapo) {
     if (invitato || inCorso() || document.querySelector("dialog[open]")) return;
     const s = $(".partenza"), r = s.getBoundingClientRect();
     if (!s.offsetParent || r.bottom <= 0 || r.top >= innerHeight) return;
     invitato = true;
-    s.classList.add("lampeggia");
-    clearTimeout(tInvito); tInvito = setTimeout(() => s.classList.remove("lampeggia"), 5200);
+    const sc = $(".scena"), ultimo = $(".battuta.gioco .voce-di"), io = ++giroInvito;
+    if (daCapo === true) { sc.classList.add("ferma"); void sc.offsetWidth; sc.classList.remove("ferma"); }
+    // l'ultimo fumetto che si apre è quello di Ristomat: quando ha finito tocca ai tasti. Se l'entrata non c'è
+    // (browser vecchio, «riduci movimento», già finita) non c'è niente da aspettare.
+    const inCorsa = ultimo.getAnimations ? ultimo.getAnimations() : [];
+    Promise.all(inCorsa.map((a) => a.finished)).catch(() => {}).then(() => {
+      if (io !== giroInvito || inCorso() || document.querySelector("dialog[open]")) return;
+      s.classList.toggle("breve", inCorsa.length > 0); s.classList.add("lampeggia");
+      clearTimeout(tInvito); tInvito = setTimeout(() => s.classList.remove("lampeggia", "breve"), inCorsa.length ? 2400 : 5200);
+    });
   }
   let tChiama;
   function versoPartenza() {
     const s = $(".partenza"), r = s.getBoundingClientRect();
     if (r.top < 0 || r.bottom > innerHeight) s.scrollIntoView({ block: "center", behavior: ridotto() ? "auto" : "smooth" });
     s.focus({ preventScroll: true });
-    s.classList.remove("chiama", "lampeggia"); void s.offsetWidth; s.classList.add("chiama");
+    giroInvito++; clearTimeout(tInvito); s.classList.remove("chiama", "lampeggia", "breve"); void s.offsetWidth; s.classList.add("chiama");
     clearTimeout(tChiama); tChiama = setTimeout(() => s.classList.remove("chiama"), 1500);
   }
   let cerco = false;
@@ -991,7 +1003,7 @@
     $("#m-start").focus({ preventScroll: true });
     toast("Si riparte da capo.");
     percorso.avanza();   // così "Indietro" annulla anche un restart fatto per sbaglio
-    invitato = false; setTimeout(invitaPartenza, 700);
+    invitato = false; setTimeout(() => invitaPartenza(true), 700);
   }
 
   // ---------- Gettone: un posto solo, pescato tra quelli che puoi raggiungere davvero ----------
@@ -1490,7 +1502,7 @@
   // Una visita = un'apertura del sito. Ricaricare la pagina o tornare indietro non conta di nuovo.
   const arrivo = ((performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {}).type;
   // I due tasti d'apertura si fanno notare appena non c'è niente sopra: subito, o quando si chiude l'ultima finestra
-  document.querySelectorAll("dialog").forEach((d) => d.addEventListener("close", () => setTimeout(invitaPartenza, 350)));
-  setTimeout(invitaPartenza, 700);
+  document.querySelectorAll("dialog").forEach((d) => d.addEventListener("close", () => setTimeout(() => invitaPartenza(true), 350)));
+  setTimeout(invitaPartenza, 400);
   if (arrivo !== "reload" && arrivo !== "back_forward") conta("visita", "da_" + provenienza(), ...(IN_APP ? ["app_visita"] : []));
 })();

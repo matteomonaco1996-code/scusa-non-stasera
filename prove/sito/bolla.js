@@ -33,43 +33,74 @@ const out = process.argv[2];
     dico(nome + ': nessun errore', err.length === 0, err);
     await ctx.close();
   }
-  // I due tasti si fanno notare: cornice d'oro sempre, che lampeggia per meno di cinque secondi quando la schermata è libera
+  // L'entrata in scena e il lampeggio: Gaia entra da sinistra e parla, poi entri tu da destra, poi Ristomat chiede
+  // «Da dove partiamo?» e i due tasti (che hanno sempre la cornice d'oro) lampeggiano. In tutto meno di cinque secondi.
   {
-    const stato = (p) => p.evaluate(() => { const c = getComputedStyle(document.querySelector('#m-start')), z = getComputedStyle(document.querySelector('#m-livelli')); return { lampeggia: document.querySelector('.partenza').classList.contains('lampeggia'),
-      cornice: c.outlineStyle + ' ' + c.outlineWidth, uguali: c.outlineStyle === z.outlineStyle && c.outlineWidth === z.outlineWidth && c.animationName === z.animationName, anim: c.animationName, durata: parseFloat(c.animationDuration) * parseFloat(c.animationIterationCount) }; });
+    const guarda = (p) => p.evaluate(() => {
+      // «in campo»: sul telefono il bordo è quello dello schermo, sul computer quello della scena, che taglia ciò che sporge
+      const el = (q) => document.querySelector(q), sc = el('.scena').getBoundingClientRect(), taglia = getComputedStyle(el('.scena')).overflowX === 'clip';
+      const sx = taglia ? sc.left : 0, dx = taglia ? sc.right : innerWidth;
+      const vede = (q) => { const e = el(q), r = e.getBoundingClientRect(), c = getComputedStyle(e); return c.opacity !== '0' && r.width > 20 && r.right > sx + 1 && r.left < dx - 1; };
+      const c = getComputedStyle(el('#m-start')), z = getComputedStyle(el('#m-livelli')), par = el('.partenza');
+      return { gaia: vede('.battuta.lei .figura'), fGaia: vede('.battuta.lei .voce-di'), tu: vede('.battuta.io .figura'), fTu: vede('.battuta.io .voce-di'), moneta: vede('.battuta.gioco .figura'), fRisto: vede('.battuta.gioco .voce-di'),
+        xGaia: Math.round(el('.battuta.lei .figura').getBoundingClientRect().left), xTu: Math.round(el('.battuta.io .figura').getBoundingClientRect().left), sx: Math.round(sx), dx: Math.round(dx),
+        lampeggia: par.classList.contains('lampeggia'), breve: par.classList.contains('breve'), anim: c.animationName, durata: parseFloat(c.animationDuration) * parseFloat(c.animationIterationCount),
+        cornice: c.outlineStyle + ' ' + c.outlineWidth + ' ' + c.outlineColor, uguali: c.outlineStyle === z.outlineStyle && c.outlineWidth === z.outlineWidth && c.animationName === z.animationName,
+        scorre: document.documentElement.scrollWidth > innerWidth + 1, movimento: document.getAnimations().filter((a) => a.playState === 'running' || a.pending).length };
+    });
+    const ORO = 'solid 4px rgb(242, 182, 50)';
+    // un filmato: una fotografia ogni 150 ms per sei secondi
+    const filma = async (p, quanto = 6000) => { const t0 = Date.now(), f = []; while (Date.now() - t0 < quanto) { const s = await guarda(p).catch(() => null); if (s) f.push({ t: Date.now() - t0, ...s }); await p.waitForTimeout(150); } return f; };
+    const primo = (f, cosa) => { const x = f.find(cosa); return x ? x.t : Infinity; };
+    for (const [nome, disp] of [['telefono', devices['iPhone 13']], ['computer', { viewport: { width: 1280, height: 800 } }]]) {
+      const ctx = await b.newContext({ ...disp });
+      await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); localStorage.setItem('sns-posizione', 'no'); } catch (e) {} });
+      const p = await ctx.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
+      await p.goto('http://localhost:8765/index.html', { waitUntil: 'commit' });
+      await p.waitForSelector('.battuta.gioco .voce-di', { state: 'attached' });   // «attached»: all'inizio il fumetto c'è ma è ancora chiuso
+      const f = await filma(p);
+      const tG = primo(f, (x) => x.gaia), tFG = primo(f, (x) => x.fGaia), tT = primo(f, (x) => x.tu), tFT = primo(f, (x) => x.fTu), tM = primo(f, (x) => x.moneta), tFR = primo(f, (x) => x.fRisto), tL = primo(f, (x) => x.lampeggia);
+      dico(nome + ': entrata in scena: all’inizio il palco è vuoto, Gaia arriva da fuori a sinistra e tu da fuori a destra', !f[0].gaia && !f[0].tu && !f[0].fGaia && !f[0].fTu && !f[0].fRisto && f[0].xGaia < f[0].sx && f[0].xTu >= f[0].dx - 1 && f[f.length - 1].gaia && f[f.length - 1].tu && f[f.length - 1].xGaia >= f[0].sx && f[f.length - 1].xTu < f[0].dx - 60, { inizio: f[0], fine: f[f.length - 1] });
+      dico(nome + ': …nell’ordine: Gaia, il suo fumetto, tu, il tuo fumetto, Ristomat con la domanda', tG <= tFG && tFG < tT && tT <= tFT && tFT < tFR && tM <= tFR && tFR < 3200, { tG, tFG, tT, tFT, tM, tFR });
+      dico(nome + ': …poi lampeggiano i due tasti, insieme, e per poco', tL >= tFR && tL < 3600 && f.filter((x) => x.lampeggia).every((x) => x.breve && x.uguali) && f.find((x) => x.lampeggia).anim === 'chiama' && Math.abs(f.find((x) => x.lampeggia).durata - 2.1) < 0.01, { tFR, tL, es: f.find((x) => x.lampeggia) });
+      dico(nome + ': …mentre i personaggi entrano la pagina non si allarga di lato', f.every((x) => !x.scorre), f.filter((x) => x.scorre).map((x) => x.t));
+      const fermo = primo(f, (x) => x.t > tL && x.movimento === 0);
+      dico(nome + ': …e tutto il movimento finisce entro cinque secondi; la cornice d’oro resta accesa su tutti e due', fermo < 5000 && f[f.length - 1].movimento === 0 && f[f.length - 1].cornice === ORO && f[f.length - 1].uguali && f[f.length - 1].fGaia && f[f.length - 1].fTu && f[f.length - 1].fRisto, { fermo, fine: f[f.length - 1] });
+      if (nome === 'telefono') {
+        // scelto un livello e tornati su con RESTART: la scena rientra e i tasti lampeggiano di nuovo
+        await p.evaluate(() => document.querySelector('#livelli [data-livello="Trastevere"]').click()); await p.waitForTimeout(700);
+        dico('lampeggio: dopo aver scelto un livello non lampeggiano', !(await guarda(p)).lampeggia);
+        await p.click('.bar [data-restart]');
+        const r = await filma(p, 5000);
+        dico('RESTART: tornati all’inizio la scena rientra (il tuo fumetto sparisce e riappare) e poi i tasti lampeggiano', r.some((x) => !x.fTu) && r[r.length - 1].fTu && r.some((x) => x.lampeggia) && await p.evaluate(() => scrollY < 5), { senza: r.filter((x) => !x.fTu).length, lamp: r.filter((x) => x.lampeggia).length });
+      }
+      dico(nome + ': entrata in scena: nessun errore', err.length === 0, err);
+      await ctx.close();
+    }
+    // i due tasti si toccano subito, anche mentre i personaggi stanno entrando
     let ctx = await b.newContext({ ...devices['iPhone 13'] });
     await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); localStorage.setItem('sns-posizione', 'no'); } catch (e) {} });
-    let p = await ctx.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
-    await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1300);
-    let s = await stato(p);
-    dico('lampeggio: all’arrivo i due tasti lampeggiano insieme, per meno di cinque secondi', s.lampeggia && s.anim === 'chiama' && s.uguali && s.durata > 3 && s.durata < 5 && s.cornice === 'solid 4px', s);
-    await p.waitForTimeout(5200);
-    s = await stato(p);
-    dico('lampeggio: poi si ferma e la cornice d’oro resta accesa su tutti e due', !s.lampeggia && s.anim === 'none' && s.cornice === 'solid 4px' && s.uguali && await p.evaluate(() => getComputedStyle(document.querySelector('#m-start')).outlineColor === 'rgb(242, 182, 50)'), s);
-    // scelto un livello e tornati su con RESTART: lampeggiano di nuovo
-    await p.evaluate(() => document.querySelector('#livelli [data-livello="Trastevere"]').click()); await p.waitForTimeout(700);
-    dico('lampeggio: dopo aver scelto un livello non lampeggiano', !(await stato(p)).lampeggia);
-    await p.click('.bar [data-restart]'); await p.waitForTimeout(2200);
-    s = await stato(p);
-    dico('lampeggio: dopo RESTART, tornati all’inizio, lampeggiano di nuovo', s.lampeggia && await p.evaluate(() => scrollY < 5), s);
-    dico('lampeggio: nessun errore', err.length === 0, err);
+    let p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(250);
+    const durante = await guarda(p);
+    await p.click('#m-livelli'); await p.waitForTimeout(900);
+    dico('i due tasti si toccano subito: «Scelgo la zona» a entrata appena cominciata porta alla scelta del mondo', !durante.fRisto && Math.abs(await p.evaluate(() => document.querySelector('#sez-mondi').getBoundingClientRect().top)) < 80, durante);
     await ctx.close();
-    // con una finestra sopra non parte: comincia quando la finestra si chiude
+    // con una finestra sopra l'entrata si rifà quando la finestra si chiude, e poi i tasti lampeggiano
     ctx = await b.newContext({ ...devices['iPhone 13'] });
     await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); } catch (e) {} });
-    p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1500);
-    s = await stato(p);
-    dico('lampeggio: con la finestra «Da dove partiamo?» sopra non parte', await p.evaluate(() => document.querySelector('#dlg-posizione').open) && !s.lampeggia, s);
-    await p.click('#dlg-posizione [data-chiudi]'); await p.waitForTimeout(900);
-    s = await stato(p);
-    dico('lampeggio: chiusa la finestra senza scegliere, i due tasti lampeggiano', s.lampeggia && s.anim === 'chiama', s);
+    p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(3200);
+    let s = await guarda(p);
+    dico('prima visita: con la finestra «Da dove partiamo?» sopra i tasti non lampeggiano', await p.evaluate(() => document.querySelector('#dlg-posizione').open) && !s.lampeggia, s);
+    await p.click('#dlg-posizione [data-chiudi]');
+    const dopo = await filma(p, 4200);
+    dico('prima visita: chiusa la finestra senza scegliere, la scena entra da capo e poi i tasti lampeggiano', dopo.some((x) => !x.fGaia) && dopo[dopo.length - 1].fRisto && primo(dopo, (x) => x.lampeggia) > primo(dopo, (x) => !x.fGaia) && dopo.some((x) => x.lampeggia), { senza: dopo.filter((x) => !x.fGaia).length, lamp: dopo.filter((x) => x.lampeggia).length });
     await ctx.close();
-    // chi ha chiesto meno movimento: cornice sì, lampeggio no
+    // chi ha chiesto meno movimento: tutto già al suo posto, la cornice c'è ma non lampeggia
     ctx = await b.newContext({ ...devices['iPhone 13'], reducedMotion: 'reduce' });
     await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); localStorage.setItem('sns-posizione', 'no'); } catch (e) {} });
-    p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1300);
-    s = await stato(p);
-    dico('lampeggio: con «riduci movimento» la cornice c’è ma non lampeggia', s.anim === 'none' && s.cornice === 'solid 4px', s);
+    p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html', { waitUntil: 'commit' }); await p.waitForSelector('.battuta.gioco .voce-di', { state: 'attached' });   // «attached»: all'inizio il fumetto c'è ma è ancora chiuso
+    const fermi = await filma(p, 1500);
+    dico('«riduci movimento»: personaggi e fumetti sono al loro posto dal primo istante, niente si muove, la cornice c’è', fermi.every((x) => x.gaia && x.fGaia && x.tu && x.fTu && x.fRisto && x.movimento === 0 && x.anim === 'none') && fermi[fermi.length - 1].cornice === ORO, fermi[0]);
     await ctx.close();
   }
   // Chi arriva la prima volta: dopo i termini la finestra «Da dove partiamo?» c'è ancora, con le due scelte di pari peso

@@ -14,6 +14,12 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   “Anzi sì! Portami fuori.”, che si tocca; infine il gettone, a nome di Ristomat, dice che cosa fa il sito e
   chiede “Da dove partiamo?”, proprio sopra le due scelte. Così l'intento si capisce dalla conversazione, senza
   un testo a parte. Dopo una ricerca il tuo fumetto dà il consiglio (“Anzi sì: … Ci vediamo lì?”).
+  **L'entrata in scena** (dal 19 novembre 2026): all'apertura Gaia entra da sinistra e si apre il suo fumetto, poi
+  entri tu da destra con il tuo, infine il gettone di Ristomat con la domanda; solo allora lampeggiano i due tasti.
+  Dura poco più di due secondi (meno di cinque con il lampeggio), è fatta solo di trasformazioni nel foglio di
+  stile (niente cambia posto nella pagina) e i due tasti si toccano dal primo istante. Si rifà quando la scena era
+  coperta da una finestra e dopo un RESTART. Non parte con «riduci movimento» né nei browser che non sanno tagliare
+  ciò che sporge di lato (`overflow: clip`, cioè Safari prima del 16): lì la scena è ferma, come prima.
   I due personaggi sono in `img/gaia.svg` e `img/tu.svg` e si ridisegnano con `strumenti/personaggi.py`
   (capelli, barba, occhiali e colori sono due righe in cima al file).
 - **DA DOVE PARTIAMO?**: la prima scelta, subito sotto la vignetta e nella finestra che compare alla prima visita, è

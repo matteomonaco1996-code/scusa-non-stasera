@@ -106,6 +106,26 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
 .figura { display: block; width: 72px; height: 88px; flex: none; image-rendering: pixelated; }
 .figura.gettone { width: 60px; height: 60px; margin: 0 6px 6px; }
 .voce-di { display: grid; gap: 4px; justify-items: start; min-width: 0; margin-bottom: 14px; }
+/* L'entrata in scena: Gaia entra da sinistra e si apre il suo fumetto, poi entri tu da destra con il tuo, infine
+   il gettone di Ristomat con la domanda. Si capisce chi parla e in che ordine si legge. Dura poco più di due secondi.
+   Solo trasformazioni e opacità: niente cambia posto nella pagina, e i due tasti sotto si toccano da subito.
+   Parte da sola all'apertura; il programma la fa ripartire (toglie e rimette "ferma") quando la scena era coperta
+   da una finestra o dopo un restart. Solo dove il browser sa tagliare ciò che esce di lato (overflow: clip),
+   altrimenti chi entra da destra allargherebbe la pagina; con «riduci movimento» non parte. */
+@supports (overflow-x: clip) {
+  .scena { overflow-x: clip; margin-inline: -6px; padding-inline: 6px; }   /* i personaggi spuntano dal bordo della scena; il margine lascia intere le cornici dei fumetti */
+  .scena:not(.ferma) .battuta.lei .figura { animation: entra-sx .4s linear .1s backwards; }
+  .scena:not(.ferma) .battuta.lei .voce-di { transform-origin: 0 100%; animation: fumetto-apre .2s steps(3, end) .5s backwards; }
+  .scena:not(.ferma) .battuta.io .figura { animation: entra-dx .4s linear .9s backwards; }
+  .scena:not(.ferma) .battuta.io .voce-di { transform-origin: 100% 100%; animation: fumetto-apre .2s steps(3, end) 1.3s backwards; }
+  .scena:not(.ferma) .battuta.gioco .figura { animation: moneta-arriva .3s steps(4, end) 1.75s backwards; }
+  .scena:not(.ferma) .battuta.gioco .voce-di { transform-origin: 0 100%; animation: fumetto-apre .2s steps(3, end) 2.05s backwards; }
+}
+/* quattro passetti a saltelli, a scatti come nei vecchi giochi */
+@keyframes entra-sx { 0% { transform: translate(-120px, 0); animation-timing-function: steps(2, end); } 25% { transform: translate(-90px, -4px); animation-timing-function: steps(2, end); } 50% { transform: translate(-60px, 0); animation-timing-function: steps(2, end); } 75% { transform: translate(-30px, -4px); animation-timing-function: steps(2, end); } 100% { transform: none; } }
+@keyframes entra-dx { 0% { transform: translate(120px, 0); animation-timing-function: steps(2, end); } 25% { transform: translate(90px, -4px); animation-timing-function: steps(2, end); } 50% { transform: translate(60px, 0); animation-timing-function: steps(2, end); } 75% { transform: translate(30px, -4px); animation-timing-function: steps(2, end); } 100% { transform: none; } }
+@keyframes fumetto-apre { from { transform: scale(0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes moneta-arriva { from { transform: translateY(-28px) scale(.5); opacity: 0; } to { transform: none; opacity: 1; } }
 .battuta.io .voce-di { justify-items: end; }
 .voce-di .nome { font: 400 16px/1 var(--f-title); letter-spacing: .05em; color: var(--pompei-txt); }
 .battuta.io .nome { color: var(--cielo); }
@@ -133,6 +153,7 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
 .partenza-scelte button { outline: 4px solid var(--oro); outline-offset: 4px; }
 .partenza-scelte button:focus-visible { outline: 7px solid var(--crema); outline-offset: 4px; }
 .partenza.lampeggia .partenza-scelte button { animation: chiama .7s steps(2, jump-none) 7; }
+.partenza.lampeggia.breve .partenza-scelte button { animation-iteration-count: 3; }   /* dopo l'entrata in scena: in tutto il movimento resta sotto i cinque secondi */
 .partenza-scelte .pxi { font-size: 30px; margin-top: 2px; color: var(--vino); }
 .partenza-scelte .voce { display: block; font: 400 26px/1.15 var(--f-title); letter-spacing: .03em; }
 .partenza-scelte small { display: block; margin-top: 4px; font-size: 15px; line-height: 1.35; color: var(--dim); }
@@ -397,6 +418,8 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 .pin.io { background: #250E10; width: 16px; height: 16px; animation: lampeggia 1s steps(2) infinite; }
 
 @media (max-width: 960px) {
+  /* una colonna sola: i personaggi entrano dal bordo vero dello schermo */
+  @supports (overflow-x: clip) { .title { overflow-x: clip; } .scena { overflow-x: visible; margin-inline: 0; padding-inline: 0; } }
   .title .wrap { grid-template-columns: minmax(0, 1fr); }
   .marchio h1 { font-size: clamp(20px, 6vw, 30px); }
   .seg { display: inline-flex; }
