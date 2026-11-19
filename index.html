@@ -95,7 +95,8 @@
     <div class="zona-head"><h2 id="t-pw">SCEGLI IL POWER-UP</h2><p>Che voglia hai? Uno solo, o tutti.</p></div>
     <div class="powerups" id="powerups" role="group" aria-label="Tipo di posto"></div>
     <div class="extra">
-      <label class="campo"><span class="sr">Cerca</span><input id="q" type="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
+      <label class="campo"><span class="sr">Cerca</span><input id="q" type="search" enterkeyhint="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
+      <p class="q-esito" id="q-esito" hidden><span id="q-quanti" aria-live="polite"></span><button class="btn" type="button" id="q-vai">VEDI I POSTI ▼</button></p>
     </div>
   </div>
 </section>
@@ -180,7 +181,7 @@
   <div class="testa"><h2 id="fil-t">CHE VOGLIA HAI?</h2><button class="btn alt mini" type="button" id="filtri-chiudi">CHIUDI</button></div>
   <div class="corpo">
     <div class="powerups" id="filtri-pw" role="group" aria-label="Tipo di posto"></div>
-    <label class="campo"><span class="sr">Cerca</span><input id="q-f" type="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
+    <label class="campo"><span class="sr">Cerca</span><input id="q-f" type="search" enterkeyhint="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
     <div class="piede"><button class="btn" type="button" id="filtri-ok">MOSTRA I POSTI</button></div>
   </div>
 </dialog>

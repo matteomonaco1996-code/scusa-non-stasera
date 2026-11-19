@@ -524,6 +524,9 @@
     } else h = vis.map(scheda).join("");
     $("#cards").innerHTML = n ? h : `<div class="empty"><strong>Nessun posto</strong>${stato.voglia || stato.q ? "Con questi filtri qui non c’è niente." : "Cambia power-up o livello, oppure ricomincia da capo."}<div class="azioni">${stato.voglia || stato.q ? `<button class="btn" type="button" data-togli-filtri>TOGLI I FILTRI</button>` : ""}<button class="btn${stato.voglia || stato.q ? " alt" : ""}" type="button" data-restart>${svg("restart")}RESTART</button></div></div>`;
     intestazione(n, conta);
+    // Sotto il campo di ricerca della pagina: i posti trovati stanno parecchio più giù, quindi lo si dice lì e si offre di andarci
+    $("#q-esito").hidden = !stato.q;
+    if (stato.q) { const parole = $("#q").value.trim(); $("#q-quanti").textContent = n ? `${n === 1 ? "1 posto" : n + " posti"} con «${parole}»` : `Nessun posto con «${parole}»: prova un’altra parola.`; $("#q-vai").hidden = !n; }
     $("main.main").classList.toggle("vuota", !n);   // niente posti: il suggerimento del gettone («pesco tra questi») non ha senso
     $("#filtri-ok").textContent = n ? `MOSTRA ${n === 1 ? "IL POSTO" : "I " + n + " POSTI"}` : "NESSUN POSTO: CHIUDI";
     const resto = n - vis.length;
@@ -1460,6 +1463,18 @@
   $("#q-f").addEventListener("input", (e) => { $("#q").value = e.target.value; clearTimeout(tCerca); tCerca = setTimeout(() => { if (!$("#dlg-filtri").open) return; stato.q = norm(e.target.value.trim()); aggiorna(); percorso.segna(); }, 160); });
   $("#q-f").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("#filtri-ok").click(); } });
   document.addEventListener("click", (e) => { if (e.target.closest("[data-togli-filtri]")) togliFiltri(); });
+  // Invio nel campo (o «VEDI I POSTI»): la ricerca vale subito e si va ai posti trovati, senza doverli cercare scorrendo
+  const cercaOra = () => {
+    clearTimeout(tCerca);
+    const q = norm($("#q").value.trim());
+    if (q !== stato.q) { stato.q = q; aggiorna(); }
+    if (!stato.q) return;
+    $("#q").blur();   // sul telefono chiude la tastiera
+    if (!ultimi.length) return toast("Nessun posto con queste parole.");
+    versoPosti(); percorso.avanza();
+  };
+  $("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); cercaOra(); } });
+  $("#q-vai").addEventListener("click", cercaOra);
   $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); percorso.segna(); }, 160); });
   $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); percorso.segna(); });
   $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else versoPartenza(); });   // "Portami fuori" → da dove partiamo? I due tasti sono lì sotto

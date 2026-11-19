@@ -61,6 +61,10 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   «Vicino a me», dove i power-up della pagina restano cinque schermate più su. Scelto un tipo la finestra si
   chiude e la lista riparte dall'inizio, senza passare dalla scelta del livello; il pulsante diventa «FILTRI · 1»
   e in cima ai posti compare «Vedi solo … · Togli». INDIETRO toglie il filtro. Prova: `prove/sito/filtri.js`.
+- **RICERCA LIBERA** (campo sotto i power-up): cerca in nome, indirizzo, quartiere, tipo, nota e descrizione. Dal
+  19 novembre 2026, appena scrivi, sotto il campo compare quanti posti ha trovato («23 posti con «carbonara»») con
+  il pulsante VEDI I POSTI, e Invio porta ai posti: prima la lista si aggiornava cinque schermate più giù e sembrava
+  che la ricerca non funzionasse (segnalato da chi ha provato il sito).
 - **POWER-UP**: Come a casa · A tavola · Pizza, ovvio · Un calice · Due drink ·
   Dolce & caffè · Giro del mondo · Al volo · Sapore di mare · Brace & carne ·
   Spesa golosa · Da scoprire.

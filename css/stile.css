@@ -273,6 +273,9 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 #dlg-filtri .pw .et { flex: 1 1 auto; min-width: 0; line-height: 1.1; }
 #dlg-filtri .pw[data-voglia=""] { grid-column: 1 / -1; }
 #dlg-filtri .campo { flex: none; max-width: none; }
+/* Sotto il campo di ricerca della pagina: quanti posti ha trovato e il pulsante per andarci (la lista è più giù) */
+.q-esito { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 4px var(--px) 0; font-size: 16px; color: var(--ink); }
+.q-esito .btn { padding: 8px 14px; font-size: 18px; }
 /* Il pulsante per tornare ai posti resta in vista anche quando la finestra è più alta dello schermo */
 #dlg-filtri .piede { position: sticky; bottom: 0; display: grid; padding: 10px 0 16px; margin-top: -4px; background: var(--panel); }
 .bar-actions .btn { white-space: nowrap; }

@@ -209,6 +209,43 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
     await ctx.close();
   }
 
+  // ---------- 4. Il campo di ricerca della pagina: i posti trovati sono più giù, quindi lo dice e ci porta ----------
+  for (const [nome, disp] of [['telefono', devices['iPhone 13']], ['computer', { viewport: { width: 1366, height: 800 } }]]) {
+    const { ctx, p, err } = await nuovo({ dispositivo: disp, posizione: false });
+    const tutti = totale(await vedi(p));
+    await p.click('#m-livelli'); await p.waitForTimeout(600);
+    await p.locator('#q').scrollIntoViewIfNeeded(); await p.waitForTimeout(300);
+    const esito = () => p.evaluate(() => { const e = document.querySelector('#q-esito'), r = e.getBoundingClientRect(); return { nascosto: e.hidden, testo: document.querySelector('#q-quanti').textContent, vai: !document.querySelector('#q-vai').hidden, inVista: !e.hidden && r.top >= 0 && r.bottom <= innerHeight }; });
+    check(nome + ': ricerca della pagina: senza parole non c’è nessun avviso', (await esito()).nascosto);
+    await p.click('#q'); await p.keyboard.type('carbonara', { delay: 30 }); await p.waitForTimeout(500);
+    let v = await vedi(p), e = await esito();
+    const trovati = totale(v);
+    check(nome + ': scritto «carbonara», sotto il campo c’è scritto quanti posti ha trovato, con il pulsante per andarci', !e.nascosto && e.inVista && trovati > 0 && trovati < tutti && e.testo === `${trovati} posti con «carbonara»` && e.vai, { e, trovati });
+    await p.screenshot({ path: out + '/filtri-7-cerca-' + nome + '.png' });
+    const yCampo = v.y;
+    await p.keyboard.press('Enter'); await p.waitForTimeout(700);
+    v = await vedi(p);
+    check(nome + ': Invio porta ai posti trovati, dall’inizio', daCapo(v) && v.y > yCampo + 300 && totale(v) === trovati && v.q === 'carbonara' && /carbonara/.test(v.riga || ''), { y: v.y, yCampo, conteggio: v.conteggio, riga: v.riga });
+    check(nome + ': …e i posti mostrati parlano davvero di carbonara', await p.evaluate(() => [...document.querySelectorAll('#cards .card')].every((c) => /carbonara/i.test(c.textContent))));
+    await p.click('#indietro'); await p.waitForTimeout(900);
+    v = await vedi(p);
+    check(nome + ': INDIETRO riporta al campo di ricerca, con la parola ancora scritta', Math.abs(v.y - yCampo) < 40 && v.q === 'carbonara' && totale(v) === trovati, { y: v.y, yCampo, q: v.q });
+    await p.click('#q-vai'); await p.waitForTimeout(700);
+    v = await vedi(p);
+    check(nome + ': anche «VEDI I POSTI» porta ai posti', daCapo(v) && totale(v) === trovati, { y: v.y });
+    await p.locator('#q').scrollIntoViewIfNeeded(); await p.waitForTimeout(300);
+    await p.fill('#q', 'zzzqqq'); await p.waitForTimeout(500);
+    e = await esito();
+    check(nome + ': una parola che non trova niente: lo dice sotto il campo, senza pulsante', !e.nascosto && /^Nessun posto con «zzzqqq»/.test(e.testo) && !e.vai, e);
+    const yPrima = (await vedi(p)).y;
+    await p.press('#q', 'Enter'); await p.waitForTimeout(600);
+    check(nome + ': …e Invio non porta a una lista vuota', Math.abs((await vedi(p)).y - yPrima) < 40);
+    await p.fill('#q', ''); await p.waitForTimeout(500);
+    check(nome + ': cancellata la parola, l’avviso sparisce e tornano tutti i posti', (await esito()).nascosto && totale(await vedi(p)) === tutti);
+    check(nome + ': ricerca della pagina: nessun errore', err.length === 0, err);
+    await ctx.close();
+  }
+
   await b.close();
   for (const x of ko) console.log('✗ ' + x);
   console.log(`${ok.length} ok, ${ko.length} falliti`);
