@@ -852,12 +852,23 @@
   }
   // «Anzi sì! Portami fuori.»: la domanda «Da dove partiamo?» si fa in un posto solo, i due tasti sotto il dialogo.
   // La battuta ci porta lì e li fa notare, invece di aprire una finestra con le stesse due scelte.
+  // I due tasti lampeggiano per qualche secondo quando la schermata d'apertura è libera: niente finestre sopra,
+  // niente ancora scelto, i tasti sullo schermo. Una volta per arrivo (e di nuovo dopo un restart).
+  let invitato = false, tInvito;
+  function invitaPartenza() {
+    if (invitato || inCorso() || document.querySelector("dialog[open]")) return;
+    const s = $(".partenza"), r = s.getBoundingClientRect();
+    if (!s.offsetParent || r.bottom <= 0 || r.top >= innerHeight) return;
+    invitato = true;
+    s.classList.add("lampeggia");
+    clearTimeout(tInvito); tInvito = setTimeout(() => s.classList.remove("lampeggia"), 5200);
+  }
   let tChiama;
   function versoPartenza() {
     const s = $(".partenza"), r = s.getBoundingClientRect();
     if (r.top < 0 || r.bottom > innerHeight) s.scrollIntoView({ block: "center", behavior: ridotto() ? "auto" : "smooth" });
     s.focus({ preventScroll: true });
-    s.classList.remove("chiama"); void s.offsetWidth; s.classList.add("chiama");
+    s.classList.remove("chiama", "lampeggia"); void s.offsetWidth; s.classList.add("chiama");
     clearTimeout(tChiama); tChiama = setTimeout(() => s.classList.remove("chiama"), 1500);
   }
   let cerco = false;
@@ -980,6 +991,7 @@
     $("#m-start").focus({ preventScroll: true });
     toast("Si riparte da capo.");
     percorso.avanza();   // così "Indietro" annulla anche un restart fatto per sbaglio
+    invitato = false; setTimeout(invitaPartenza, 700);
   }
 
   // ---------- Gettone: un posto solo, pescato tra quelli che puoi raggiungere davvero ----------
@@ -1477,5 +1489,8 @@
   if (!percorso.avvio()) accogli();   // se si riprende da dove si era, niente finestra in mezzo
   // Una visita = un'apertura del sito. Ricaricare la pagina o tornare indietro non conta di nuovo.
   const arrivo = ((performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {}).type;
+  // I due tasti d'apertura si fanno notare appena non c'è niente sopra: subito, o quando si chiude l'ultima finestra
+  document.querySelectorAll("dialog").forEach((d) => d.addEventListener("close", () => setTimeout(invitaPartenza, 350)));
+  setTimeout(invitaPartenza, 700);
   if (arrivo !== "reload" && arrivo !== "back_forward") conta("visita", "da_" + provenienza(), ...(IN_APP ? ["app_visita"] : []));
 })();

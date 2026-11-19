@@ -8,7 +8,7 @@ const out = process.argv[2];
     const p = await ctx.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
     await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(400);
     let s = await p.evaluate(() => { const a = document.querySelector('#m-start'), z = document.querySelector('#m-livelli'), ra = a.getBoundingClientRect(), rz = z.getBoundingClientRect(); return { titolo: document.querySelector('.partenza').getAttribute('aria-label'), a: a.innerText.replace(/\s+/g, ' '), z: z.innerText.replace(/\s+/g, ' '), icone: document.querySelectorAll('.partenza-scelte svg path').length, affiancate: Math.abs(ra.top - rz.top) < 4, hA: Math.round(ra.height), hZ: Math.round(rz.height), scorre: document.documentElement.scrollWidth > innerWidth + 1, fondi: [getComputedStyle(a).backgroundColor, getComputedStyle(z).backgroundColor], menu: [...document.querySelectorAll('.menu button')].filter((x) => x.offsetHeight > 0).map((x) => x.querySelector('.voce').textContent.trim()), punti: getComputedStyle(document.querySelector('.scena .solo-conto')).display }; });
-    dico(nome + ': due scelte con titolo, icone e spiegazione', s.titolo === 'Da dove partiamo?' && /^VICINO A ME I posti a pochi minuti a piedi\. Ti chiedo la posizione$/.test(s.a) && /^SCELGO LA ZONA Un quartiere di Roma, un’altra città o fuori porta\. Senza posizione$/.test(s.z) && s.affiancate && s.icone === 2 && !s.scorre && s.hA >= 60 && s.hZ >= 60, s);
+    dico(nome + ': due scelte con titolo, icone e spiegazione', s.titolo === 'Da dove partiamo?' && /^VICINO A ME I posti a pochi minuti a piedi\. Ti chiedo la posizione$/.test(s.a) && /^SCELGO LA ZONA Quartiere, altra città o fuori porta\. Senza posizione$/.test(s.z) && s.affiancate && s.icone === 2 && !s.scorre && s.hA >= 60 && s.hZ >= 60, s);
     dico(nome + ': i due tasti hanno lo stesso peso (stesso fondo, nessuno già «acceso»)', s.fondi[0] === s.fondi[1] && s.fondi[0] === 'rgb(249, 239, 216)', s.fondi);
     dico(nome + ': sotto restano gettone e donazione; la frase sui punti è nascosta finché non ci sono gli account', JSON.stringify(s.menu) === JSON.stringify(['INSERISCI GETTONE', 'DONA UNA MONETA']) && s.punti === 'none', [s.menu, s.punti]);
     const prima = await p.evaluate(() => { const z = document.querySelector('#m-livelli').getBoundingClientRect(), v = document.querySelector('#m-livelli .voce'); return { zonaDentroPrimaSchermata: z.bottom <= innerHeight, taglio: v.scrollWidth > v.clientWidth + 1, righeVoce: Math.round(v.getBoundingClientRect().height / parseFloat(getComputedStyle(v).lineHeight)) }; });
@@ -22,7 +22,7 @@ const out = process.argv[2];
     if (nome === 'telefono') await p.screenshot({ path: `${out}/partenza-chiama.png` });
     await p.waitForTimeout(1700);
     s = await p.evaluate(() => ({ chiama: document.querySelector('.partenza').classList.contains('chiama'), cornice: getComputedStyle(document.querySelector('#m-start')).outlineStyle }));
-    dico(nome + ': …e dopo un momento la cornice se ne va', !s.chiama && s.cornice === 'none', s);
+    dico(nome + ': …e dopo un momento smette di lampeggiare; la cornice d’oro resta accesa', !s.chiama && s.cornice === 'solid', s);
     // i due pulsanti in pagina
     await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(200);
     await p.click('#m-livelli'); await p.waitForTimeout(600);
@@ -31,6 +31,45 @@ const out = process.argv[2];
     await p.click('#m-start'); await p.waitForTimeout(1200);
     dico(nome + ': pulsante VICINO A ME trova i posti vicini', await p.evaluate(() => document.querySelector('#titolo-ris').textContent === 'Vicino a te' && document.querySelector('#m-start .voce').textContent === 'VICINO A ME'));
     dico(nome + ': nessun errore', err.length === 0, err);
+    await ctx.close();
+  }
+  // I due tasti si fanno notare: cornice d'oro sempre, che lampeggia per meno di cinque secondi quando la schermata è libera
+  {
+    const stato = (p) => p.evaluate(() => { const c = getComputedStyle(document.querySelector('#m-start')), z = getComputedStyle(document.querySelector('#m-livelli')); return { lampeggia: document.querySelector('.partenza').classList.contains('lampeggia'),
+      cornice: c.outlineStyle + ' ' + c.outlineWidth, uguali: c.outlineStyle === z.outlineStyle && c.outlineWidth === z.outlineWidth && c.animationName === z.animationName, anim: c.animationName, durata: parseFloat(c.animationDuration) * parseFloat(c.animationIterationCount) }; });
+    let ctx = await b.newContext({ ...devices['iPhone 13'] });
+    await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); localStorage.setItem('sns-posizione', 'no'); } catch (e) {} });
+    let p = await ctx.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
+    await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1300);
+    let s = await stato(p);
+    dico('lampeggio: all’arrivo i due tasti lampeggiano insieme, per meno di cinque secondi', s.lampeggia && s.anim === 'chiama' && s.uguali && s.durata > 3 && s.durata < 5 && s.cornice === 'solid 4px', s);
+    await p.waitForTimeout(5200);
+    s = await stato(p);
+    dico('lampeggio: poi si ferma e la cornice d’oro resta accesa su tutti e due', !s.lampeggia && s.anim === 'none' && s.cornice === 'solid 4px' && s.uguali && await p.evaluate(() => getComputedStyle(document.querySelector('#m-start')).outlineColor === 'rgb(242, 182, 50)'), s);
+    // scelto un livello e tornati su con RESTART: lampeggiano di nuovo
+    await p.evaluate(() => document.querySelector('#livelli [data-livello="Trastevere"]').click()); await p.waitForTimeout(700);
+    dico('lampeggio: dopo aver scelto un livello non lampeggiano', !(await stato(p)).lampeggia);
+    await p.click('.bar [data-restart]'); await p.waitForTimeout(2200);
+    s = await stato(p);
+    dico('lampeggio: dopo RESTART, tornati all’inizio, lampeggiano di nuovo', s.lampeggia && await p.evaluate(() => scrollY < 5), s);
+    dico('lampeggio: nessun errore', err.length === 0, err);
+    await ctx.close();
+    // con una finestra sopra non parte: comincia quando la finestra si chiude
+    ctx = await b.newContext({ ...devices['iPhone 13'] });
+    await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); } catch (e) {} });
+    p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1500);
+    s = await stato(p);
+    dico('lampeggio: con la finestra «Da dove partiamo?» sopra non parte', await p.evaluate(() => document.querySelector('#dlg-posizione').open) && !s.lampeggia, s);
+    await p.click('#dlg-posizione [data-chiudi]'); await p.waitForTimeout(900);
+    s = await stato(p);
+    dico('lampeggio: chiusa la finestra senza scegliere, i due tasti lampeggiano', s.lampeggia && s.anim === 'chiama', s);
+    await ctx.close();
+    // chi ha chiesto meno movimento: cornice sì, lampeggio no
+    ctx = await b.newContext({ ...devices['iPhone 13'], reducedMotion: 'reduce' });
+    await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); localStorage.setItem('sns-posizione', 'no'); } catch (e) {} });
+    p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1300);
+    s = await stato(p);
+    dico('lampeggio: con «riduci movimento» la cornice c’è ma non lampeggia', s.anim === 'none' && s.cornice === 'solid 4px', s);
     await ctx.close();
   }
   // Chi arriva la prima volta: dopo i termini la finestra «Da dove partiamo?» c'è ancora, con le due scelte di pari peso

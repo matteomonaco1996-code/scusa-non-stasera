@@ -22,7 +22,10 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   (stesso fondo, nessuno evidenziato) e dicono prima che cosa ottieni e poi che cosa ti viene chiesto: nei primi
   due giorni di contatori metà dei tentativi di posizione non era arrivata, mentre la zona era la strada più usata.
   La battuta “Anzi sì! Portami fuori.” non apre più una finestra con le stesse due scelte: porta ai due tasti e
-  li incornicia per un momento. La finestra resta solo alla prima visita.
+  li fa lampeggiare. La finestra resta solo alla prima visita. I due tasti hanno una cornice d'oro, che li stacca
+  dai fumetti: quando la schermata d'apertura è libera (nessuna finestra sopra, niente ancora scelto) lampeggia per
+  meno di cinque secondi, come «PREMI START», poi resta accesa; riparte dopo un RESTART. Dura poco apposta: un
+  lampeggio continuo stanca chi legge e disturba chi è sensibile al movimento (con «riduci movimento» non parte).
 - **VICINO A ME**: usa il GPS del telefono (la posizione non esce dal browser) e
   mostra i posti in ordine di distanza, a fasce: *Sotto casa* (EASY, fino a 10
   minuti a piedi), *Due passi* (NORMAL, 10–25), *Vale il viaggio* (HARD).
