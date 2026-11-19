@@ -133,9 +133,11 @@ const VAI = 'a[href^="https://www.google.com/maps/dir/"]';
   check('nessun errore (vicino)', err.length === 0, err);
   await ctx.close();
 
-  // ===== 11) «Scelgo la zona» dalla finestra: porta ai quartieri e ci resta =====
-  ({ ctx, p, err } = await nuovo());
-  await p.click('#bolla'); await p.waitForTimeout(300);
+  // ===== 11) «Scelgo la zona» dalla finestra della prima visita: porta ai quartieri e ci resta =====
+  // (la finestra si apre da sola solo a chi non ha ancora scelto: «Portami fuori» ora porta ai due tasti della pagina)
+  ctx = await b.newContext({ ...devices['iPhone 13'], reducedMotion: 'reduce' });
+  await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); } catch (e) {} });
+  p = await ctx.newPage(); await p.goto(U); await p.waitForTimeout(900);
   await p.click('#pos-corpo [data-pos=no]'); await p.waitForTimeout(900);
   s = await st(p);
   const top = await p.evaluate(() => Math.round(document.querySelector('#sez-mondi').getBoundingClientRect().top));

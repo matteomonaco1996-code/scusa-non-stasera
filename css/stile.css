@@ -38,7 +38,7 @@
 }
 
 /* La carta: fondo crema e inchiostro scuro, perché è lì che si legge. Ridefinisce i colori per tutto ciò che contiene. */
-.card, dialog.finestra, .overworld, .empty, .dona-fondo, .leaflet-popup, .tab, .level, .pw, .legale {
+.card, dialog.finestra, .overworld, .empty, .dona-fondo, .leaflet-popup, .tab, .level, .pw, .legale, .partenza-scelte button {
   color-scheme: light; color: var(--ink);
   --panel: var(--carta); --panel-2: #EDDEBE; --pozzo: #F2E5C9; --riga: #D9C49A;
   --ink: #250E10; --dim: #5F4642; --pompei: #F7CBC7; --pompei-txt: #913E20; --pino-txt: #1D5B2B; --cielo: #16558C;
@@ -124,15 +124,16 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
 /* La prima scelta: due strade, ben distinte */
 .partenza { margin-top: 20px; display: grid; gap: 12px; max-width: 36em; }
 .partenza-scelte { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 2px; }
-.partenza-scelte button { cursor: pointer; border: 0; text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 12px; padding: 14px; background: var(--panel-2); color: var(--ink); font: inherit; }
-.partenza-scelte button:hover { background: var(--edge); }
+.partenza-scelte button { cursor: pointer; border: 0; text-align: left; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 12px; padding: 14px; background: var(--panel); color: var(--ink); font: inherit; }
+.partenza-scelte button:hover { background: var(--panel-2); }
 .partenza-scelte button:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
-.partenza-scelte .pxi { font-size: 30px; margin-top: 2px; color: var(--ocra); }
+.partenza-scelte .pxi { font-size: 30px; margin-top: 2px; color: var(--vino); }
 .partenza-scelte .voce { display: block; font: 400 26px/1.15 var(--f-title); letter-spacing: .03em; }
 .partenza-scelte small { display: block; margin-top: 4px; font-size: 15px; line-height: 1.35; color: var(--dim); }
-.partenza-scelte .primo { background: var(--ocra); color: var(--scuro); }
-.partenza-scelte .primo:hover { background: var(--ocra); }
-.partenza-scelte .primo .pxi, .partenza-scelte .primo small { color: var(--scuro); }
+/* «Anzi sì! Portami fuori.» porta qui: i due tasti si fanno notare per un momento */
+.partenza:focus { outline: none; }
+.partenza.chiama .partenza-scelte button { outline: 4px solid var(--oro); outline-offset: 3px; animation: chiama .45s steps(2, jump-none) 3; }
+@keyframes chiama { from { outline-color: var(--oro); } to { outline-color: transparent; } }
 /* Sul telefono restano una accanto all'altra, così si vedono insieme: icona sopra, testo più corto */
 @media (max-width: 560px) {
   .title .wrap { row-gap: 10px; }            /* meno aria sopra, così le due scelte stanno nella prima schermata */
@@ -148,7 +149,6 @@ h1 { margin: 0; font: 400 clamp(54px, 9.6vw, 124px)/.9 var(--f-title); letter-sp
   .partenza-scelte .pxi { font-size: 24px; margin-top: 0; }
   .partenza-scelte .voce { font-size: 22px; letter-spacing: .01em; }
   .partenza-scelte small { margin-top: 2px; font-size: 14px; line-height: 1.3; }
-  .partenza-scelte .lungo { display: none; }
 }
 
 .menu { margin-top: 14px; display: grid; gap: 4px; max-width: 30em; }
@@ -562,6 +562,7 @@ dialog.gettone { width: min(480px, calc(100vw - 24px)); margin-top: max(12px, 7v
 .avviso { list-style: none; margin: 0; padding: 12px 14px; display: grid; gap: 10px; background: var(--pozzo); box-shadow: inset 4px 0 0 var(--ocra); font-size: 16px; line-height: 1.4; }
 .avviso b { display: block; color: var(--ocra); font-weight: 600; }
 .get-scelte { display: grid; gap: 14px; padding: 2px; }
+.get-scelte:focus { outline: none; }
 .get-scelte button { cursor: pointer; border: 0; text-align: left; display: grid; gap: 2px; padding: 12px 14px; background: var(--panel-2); color: var(--ink); }
 .get-scelte button:hover { background: var(--edge); }
 .get-scelte b { font: 400 25px/1.2 var(--f-title); letter-spacing: .02em; }

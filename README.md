@@ -17,8 +17,12 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   I due personaggi sono in `img/gaia.svg` e `img/tu.svg` e si ridisegnano con `strumenti/personaggi.py`
   (capelli, barba, occhiali e colori sono due righe in cima al file).
 - **DA DOVE PARTIAMO?**: la prima scelta, subito sotto la vignetta e nella finestra che compare alla prima visita, è
-  tra due strade ben distinte: **VICINO A ME** (usa la posizione) e **SCELGO LA ZONA** (quartiere, città o fuori
-  porta, senza posizione). Anche la battuta “Anzi sì! Portami fuori.” apre questa scelta.
+  tra due strade ben distinte: **VICINO A ME** (i posti a pochi minuti a piedi; chiede la posizione) e **SCELGO LA
+  ZONA** (quartiere, città o fuori porta, senza posizione). Dal 19 novembre 2026 i due tasti hanno lo stesso peso
+  (stesso fondo, nessuno evidenziato) e dicono prima che cosa ottieni e poi che cosa ti viene chiesto: nei primi
+  due giorni di contatori metà dei tentativi di posizione non era arrivata, mentre la zona era la strada più usata.
+  La battuta “Anzi sì! Portami fuori.” non apre più una finestra con le stesse due scelte: porta ai due tasti e
+  li incornicia per un momento. La finestra resta solo alla prima visita.
 - **VICINO A ME**: usa il GPS del telefono (la posizione non esce dal browser) e
   mostra i posti in ordine di distanza, a fasce: *Sotto casa* (EASY, fino a 10
   minuti a piedi), *Due passi* (NORMAL, 10–25), *Vale il viaggio* (HARD).
@@ -173,6 +177,12 @@ sono i numeri, che il database consegna solo alle email nella tabella `amministr
   `whatsapp`, `facebook`, `tiktok`, `telegram`, `google`, `qr`, `volantino`, `amici`).
 - **Soldi**: il sito non vede i pagamenti. Le donazioni vere sono nell'attività di PayPal; in pagina si segnano
   a mano giorno e importo, mai il nome di chi ha donato.
+- **Perché la posizione non arriva** (dal 19 novembre 2026): accanto a `posizione_no` si conta il motivo:
+  `posizione_rifiutata` (la persona ha visto la richiesta e ha detto no), `posizione_bloccata` (il browser ha detto
+  no senza chiedere: era già negata, oppure ha risposto in meno di 0,7 secondi) e `posizione_persa` (il telefono non
+  l'ha trovata). `app_visita`, `app_posizione_si` e `app_posizione_no` contano le aperture dal browser interno di
+  un'app (Instagram, Facebook, TikTok…), riconosciuto dal nome del browser, che non viene salvato. La distinzione
+  tra «rifiutata» e «bloccata» è una stima fatta sul tempo di risposta, non una certezza.
 - **Acceso dal 17 novembre 2026** (solo i contatori: `conto: false`). Stato e passi rimasti in `supabase/COLLEGARE.md`.
 - **Per accenderlo**: progetto Supabase → SQL Editor → `schema.sql`, poi `statistiche.sql`, poi una riga con la
   propria email in `amministratori`; infine URL e chiave pubblica in `config.js`. `conto: false` tiene spenti

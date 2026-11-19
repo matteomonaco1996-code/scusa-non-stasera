@@ -94,6 +94,13 @@
   }
   const conta = (...eventi) => mandaConteggio(CONTA_URL, { p_eventi: eventi });
   // Quale quartiere o località viene scelto: un numero per giorno e per zona, niente su chi l'ha scelto
+  // Il sito è aperto dentro il browser interno di un'app (Instagram, Facebook, TikTok…)? Lì la posizione spesso
+  // non arriva. Serve solo ai contatori: quante aperture, e com'è andata la posizione. Non viene salvato quale app.
+  const IN_APP = (() => {
+    const ua = navigator.userAgent || "";
+    const daSchermo = navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;   // il sito messo sulla schermata Home non è «dentro un'app»
+    return !daSchermo && (/Instagram|FBAN|FBAV|FB_IAB|musical_ly|BytedanceWebview|TikTok|LinkedInApp|Snapchat|; wv\)/.test(ua) || (/iPhone|iPad|iPod/.test(ua) && !/Safari\//.test(ua)));
+  })();
   const contaZona = (nome) => { if (nome) mandaConteggio(CONTA_URL + "_livello", { p_livello: nome }); };
   // Una chiamata a una funzione del database aperta a tutti (le comitive). Restituisce il risultato, oppure lancia un
   // errore con un messaggio da mostrare: quello scritto nella funzione se l'ha rifiutata lei, altrimenti uno generico.
@@ -738,6 +745,11 @@
   function trovami() {
     return new Promise((fatto) => {
       if (!navigator.geolocation) return fatto("assente");
+      // Perché non arriva, per i contatori: «bloccata» se il browser dice no senza nemmeno chiedere (era già negata,
+      // oppure risponde in meno di un attimo: nessuno legge una richiesta così in fretta), «rifiutata» se la persona ha
+      // visto la richiesta e ha detto no, «persa» se il telefono non l'ha trovata.
+      const t0 = Date.now(); let permessoPrima = "";
+      permessoPosizione().then((s) => { if (!permessoPrima) permessoPrima = s; });
       const SVELTA = { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 };
       const PRECISA = { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 };
       const usa = (p) => {
@@ -749,11 +761,15 @@
         stato.livello = ""; stato.vicino = true;
         mappa.posizione(stato.pos);
         aggiorna();
-        conta("posizione_si");
+        conta("posizione_si", ...(IN_APP ? ["app_posizione_si"] : []));
         mappa.anticipa();
         fatto("");
       };
-      const no = (e) => { conta("posizione_no"); fatto(e && e.code === 1 ? "bloccata" : "errore"); };
+      const no = (e) => {
+        const negata = !!e && e.code === 1;
+        conta("posizione_no", !negata ? "posizione_persa" : permessoPrima === "denied" || Date.now() - t0 < 700 ? "posizione_bloccata" : "posizione_rifiutata", ...(IN_APP ? ["app_posizione_no"] : []));
+        fatto(negata ? "bloccata" : "errore");
+      };
       const precisa = () => navigator.geolocation.getCurrentPosition(usa, no, PRECISA);
       navigator.geolocation.getCurrentPosition(
         (p) => (p.coords.accuracy > 400 ? precisa() : usa(p)),          // più vaga di 400 metri: meglio aspettare il GPS
@@ -799,8 +815,8 @@
     const scelte = (si, no) => `<div class="get-acts in-colonna">${si ? `<button class="btn" type="button" data-pos="attiva">${si}</button>` : ""}<button class="btn alt" type="button" data-pos="no">${no}</button></div>`;
     // Il titolo dice che cosa sta succedendo: una scelta, la ricerca, oppure la posizione da riattivare
     $("#pos-t").textContent = fase === "chiedi" ? "DA DOVE PARTIAMO?" : fase === "cerco" ? "TI CERCO…" : "ATTIVA LA POSIZIONE";
-    if (fase === "chiedi") c.innerHTML = `<div class="get-scelte">
-        <button type="button" class="px primo" data-pos="attiva"><b>▶ Vicino a me</b><small>Uso la posizione: il ${cosa} ti chiede il permesso, scegli «Consenti». Vedi i posti a pochi minuti a piedi.</small></button>
+    if (fase === "chiedi") c.innerHTML = `<div class="get-scelte" role="group" aria-label="Da dove partiamo?" tabindex="-1">
+        <button type="button" class="px" data-pos="attiva"><b>Vicino a me</b><small>I posti a pochi minuti a piedi. Il ${cosa} ti chiede il permesso alla posizione: scegli «Consenti».</small></button>
         <button type="button" class="px" data-pos="no"><b>Scelgo la zona</b><small>Un quartiere di Roma, un’altra città o fuori porta. Senza usare la posizione.</small></button>
       </div>
       <small>La posizione resta sul tuo ${cosa}: la inviamo solo quando fai un check-in, e non la salviamo.</small>`;
@@ -811,7 +827,9 @@
       <p>${fase === "assente" ? "Puoi comunque scegliere tu il quartiere." : `Controlla che la posizione del ${cosa} sia accesa, poi riprova. Oppure scegli tu la zona.`}</p>
       ${scelte(fase === "assente" ? "" : "Riprova", "Scelgo io la zona")}`;
     if (!d.open) d.showModal();
-    const primo = c.querySelector("[data-pos]");   // il fuoco sul pulsante principale, non su "Chiudi"
+    // Il fuoco sul pulsante principale, non su "Chiudi". Nella scelta iniziale le due risposte pesano uguale:
+    // il fuoco va sul gruppo, così nessuna delle due sembra già scelta.
+    const primo = fase === "chiedi" ? c.querySelector(".get-scelte") : c.querySelector("[data-pos]");
     if (primo) primo.focus();
   }
   async function azionePosizione(cosa) {
@@ -831,6 +849,16 @@
     const permesso = await permessoPosizione();
     if (permesso === "granted" || stato.pos || document.querySelector("dialog[open]")) return;
     finestraPosizione("chiedi");
+  }
+  // «Anzi sì! Portami fuori.»: la domanda «Da dove partiamo?» si fa in un posto solo, i due tasti sotto il dialogo.
+  // La battuta ci porta lì e li fa notare, invece di aprire una finestra con le stesse due scelte.
+  let tChiama;
+  function versoPartenza() {
+    const s = $(".partenza"), r = s.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > innerHeight) s.scrollIntoView({ block: "center", behavior: ridotto() ? "auto" : "smooth" });
+    s.focus({ preventScroll: true });
+    s.classList.remove("chiama"); void s.offsetWidth; s.classList.add("chiama");
+    clearTimeout(tChiama); tChiama = setTimeout(() => s.classList.remove("chiama"), 1500);
   }
   let cerco = false;
   async function start() {
@@ -1410,7 +1438,7 @@
   document.addEventListener("click", (e) => { if (e.target.closest("[data-togli-filtri]")) togliFiltri(); });
   $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); percorso.segna(); }, 160); });
   $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); percorso.segna(); });
-  $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else finestraPosizione("chiedi"); });   // "Portami fuori" → da dove partiamo?
+  $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else versoPartenza(); });   // "Portami fuori" → da dove partiamo? I due tasti sono lì sotto
   document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => { const prima = stato.vista; impostaVista(b.dataset.view); if (prima !== stato.vista) percorso.avanza(); }));
   document.querySelectorAll("dialog [data-chiudi]").forEach((b) => b.addEventListener("click", () => b.closest("dialog").close()));
 
@@ -1449,5 +1477,5 @@
   if (!percorso.avvio()) accogli();   // se si riprende da dove si era, niente finestra in mezzo
   // Una visita = un'apertura del sito. Ricaricare la pagina o tornare indietro non conta di nuovo.
   const arrivo = ((performance.getEntriesByType && performance.getEntriesByType("navigation")[0]) || {}).type;
-  if (arrivo !== "reload" && arrivo !== "back_forward") conta("visita", "da_" + provenienza());
+  if (arrivo !== "reload" && arrivo !== "back_forward") conta("visita", "da_" + provenienza(), ...(IN_APP ? ["app_visita"] : []));
 })();

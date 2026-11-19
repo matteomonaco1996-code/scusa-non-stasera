@@ -94,6 +94,8 @@ semplice, un passo alla volta.
 
 Un numero per giorno e per tipo di azione, senza cookie e senza dati personali: visite e provenienza
 (`?da=instagram` e simili), termini accettati, START, gettone, scelta del livello, scelta del tipo di posto e
-apertura dei filtri (dal 19 novembre 2026), posizione concessa o negata,
+apertura dei filtri (dal 19 novembre 2026), posizione concessa o negata (dal 19 novembre anche il perché:
+`posizione_rifiutata`, `posizione_bloccata`, `posizione_persa`), aperture dal browser interno di un'app
+(`app_visita`, `app_posizione_si`, `app_posizione_no`),
 «Portami lì», indicazioni aperte, «Apri su Maps», monete, inviti («Proponilo» e risposte). L'elenco completo è in
 `eventi_ammessi()` dentro `supabase/statistiche.sql`. Chi ha acceso «non tracciare» nel browser non viene contato.

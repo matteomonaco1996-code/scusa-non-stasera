@@ -55,7 +55,7 @@ const CORSI = '3935991939893424995';
   };
   const vai = async (p, url) => { await p.goto(url); await p.waitForTimeout(900); };
   const com = (p) => p.evaluate(() => { const d = document.querySelector('#dlg-comitiva'), c = d.querySelector('#com-corpo'); return { aperta: d.open, titolo: d.querySelector('#com-t').textContent, schermo: c.dataset.schermo, eti: (c.querySelector('.eti') || {}).textContent || '', nome: (c.querySelector('.rullo') || {}).textContent || '', posti: [...c.querySelectorAll('.tavola .posto:not(.libero)')].map((x) => x.querySelector('span').textContent + (x.classList.contains('io') ? '*' : '')), righe: [...c.querySelectorAll('.righe li')].map((li) => li.querySelector('.nome').textContent + ' | ' + li.querySelector('.dove').textContent + ' | ' + [...li.querySelectorAll('.tasto')].map((t) => t.textContent.trim()).join(',') + ' | facce ' + li.querySelectorAll('.mini').length), err: (c.querySelector('#com-err') && !c.querySelector('#com-err').hidden && c.querySelector('#com-err').textContent) || '', testo: c.textContent.replace(/\s+/g, ' ').trim() }; });
-  const foto = (p, n) => p.screenshot({ path: `out/com-${n}.png` });
+  const foto = (p, n) => p.screenshot({ path: `${process.env.PROVE_FOTO || 'out'}/com-${n}.png` });   // nella cartella delle schermate del giro di prove, non nel repository
 
   // ---------- A crea la comitiva ----------
   console.log('Chi crea la comitiva');

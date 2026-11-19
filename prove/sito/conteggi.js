@@ -5,9 +5,14 @@ const check = (n, c, x) => (c ? ok : ko).push(n + (x !== undefined ? ' → ' + J
 const ROMA = { latitude: 41.8893, longitude: 12.4707 };
 (async () => {
   const b = await chromium.launch();
-  const nuovo = async ({ acceso = true, termini = true, permesso = true, ua, url = 'http://localhost:8765/index.html', gpc = false, referer } = {}) => {
+  // geo: { code, dopo } finge un telefono che risponde «no» con quel codice dopo tanti millisecondi (1 = negata, 2 = non trovata)
+  const nuovo = async ({ acceso = true, termini = true, permesso = true, ua, url = 'http://localhost:8765/index.html', gpc = false, referer, geo } = {}) => {
     const ctx = await b.newContext({ ...devices['iPhone 13'], reducedMotion: 'reduce', ...(ua ? { userAgent: ua } : {}), ...(permesso ? { geolocation: ROMA, permissions: ['geolocation'] } : {}) });
     await ctx.addInitScript(([termini, gpc]) => { try { if (termini) localStorage.setItem('sns-termini', '1.1'); localStorage.setItem('sns-posizione', 'no'); } catch (e) {} if (gpc) Object.defineProperty(Navigator.prototype, 'globalPrivacyControl', { get: () => true }); }, [termini, gpc]);
+    if (geo) await ctx.addInitScript((g) => {
+      Object.defineProperty(navigator, 'geolocation', { configurable: true, value: { getCurrentPosition: (si, no) => setTimeout(() => no({ code: g.code }), g.dopo) } });
+      navigator.permissions.query = async () => ({ state: 'prompt' });
+    }, geo);
     const visti = [], altre = [];
     await ctx.route(/google\.com|paypal\./, (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>esterno</title>' }));
     await ctx.route('https://finto.supabase.co/**', (r) => {
@@ -69,7 +74,7 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };
   const prima = conta(tutti(), 'visita');
   await p.reload(); await p.waitForTimeout(500);
   check('ricaricare la pagina non conta un’altra visita', conta(tutti(), 'visita') === prima, tutti().filter((x) => x === 'visita'));
-  const ammessi = new Set(['visita', 'termini_ok', 'da_diretto', 'start', 'posizione_si', 'posizione_no', 'livello', 'powerup', 'filtri', 'gettone', 'portami', 'vai', 'maps', 'dona_apri', 'dona_1', 'dona_2', 'dona_5', 'dona_altro']);
+  const ammessi = new Set(['visita', 'termini_ok', 'da_diretto', 'start', 'posizione_si', 'posizione_no', 'posizione_bloccata', 'posizione_rifiutata', 'posizione_persa', 'app_visita', 'app_posizione_si', 'app_posizione_no', 'livello', 'powerup', 'filtri', 'gettone', 'portami', 'vai', 'maps', 'dona_apri', 'dona_1', 'dona_2', 'dona_5', 'dona_altro']);
   check('solo nomi previsti, mai dati sul posto o sulla persona', tutti().every((x) => ammessi.has(x)) && visti.every((v) => Object.keys(JSON.parse(JSON.stringify({ p_eventi: v.ev }))).length === 1), [...new Set(tutti())]);
   check('nessun errore in pagina', err.length === 0, err);
   await ctx.close();
@@ -78,18 +83,44 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };
   ({ ctx, p, err, visti, altre, tutti } = await nuovo({ permesso: false }));
   await p.click('#m-start'); await p.waitForTimeout(900);
   check('posizione negata → posizione_no', conta(tutti(), 'posizione_no') === 1 && conta(tutti(), 'posizione_si') === 0, tutti());
+  check('…negata senza che compaia la richiesta → posizione_bloccata', conta(tutti(), 'posizione_bloccata') === 1 && conta(tutti(), 'posizione_rifiutata') === 0 && conta(tutti(), 'posizione_persa') === 0 && conta(tutti(), 'app_posizione_no') === 0, tutti());
+  await ctx.close();
+  // 3b) Il perché, quando la posizione non arriva
+  for (const [nome, geo, atteso] of [
+    ['la persona vede la richiesta e dice no (risposta dopo più di un secondo)', { code: 1, dopo: 1300 }, 'posizione_rifiutata'],
+    ['il telefono dice no in un attimo, senza chiedere', { code: 1, dopo: 20 }, 'posizione_bloccata'],
+    ['il telefono non trova la posizione', { code: 2, dopo: 50 }, 'posizione_persa'],
+  ]) {
+    ({ ctx, p, err, visti, altre, tutti } = await nuovo({ permesso: false, geo }));
+    await p.click('#m-start'); await p.waitForTimeout(2200);
+    const tre = ['posizione_rifiutata', 'posizione_bloccata', 'posizione_persa'];
+    check(nome + ' → posizione_no e ' + atteso, conta(tutti(), 'posizione_no') === 1 && conta(tutti(), atteso) === 1 && tre.filter((e) => e !== atteso).every((e) => conta(tutti(), e) === 0), tutti());
+    await ctx.close();
+  }
+  // 3c) Dentro il browser di un'app: si conta l'apertura e com'è andata la posizione
+  ({ ctx, p, err, visti, altre, tutti } = await nuovo({ ua: devices['iPhone 13'].userAgent.replace(/ Version\/\S+/, '').replace(/ Safari\/\S+/, '') + ' Instagram 300.0' }));
+  await p.click('#m-start'); await p.waitForTimeout(900);
+  check('dentro Instagram, posizione trovata → app_visita, posizione_si e app_posizione_si', conta(tutti(), 'app_visita') === 1 && conta(tutti(), 'posizione_si') === 1 && conta(tutti(), 'app_posizione_si') === 1 && conta(tutti(), 'app_posizione_no') === 0, tutti());
+  await ctx.close();
+  ({ ctx, p, err, visti, altre, tutti } = await nuovo({ permesso: false, ua: devices['iPhone 13'].userAgent + ' Instagram 300.0' }));
+  await p.click('#m-start'); await p.waitForTimeout(900);
+  check('dentro Instagram, posizione negata → posizione_no e app_posizione_no', conta(tutti(), 'posizione_no') === 1 && conta(tutti(), 'app_posizione_no') === 1 && conta(tutti(), 'app_posizione_si') === 0, tutti());
+  await ctx.close();
+  ({ ctx, p, err, visti, altre, tutti } = await nuovo({}));
+  await p.click('#m-start'); await p.waitForTimeout(900);
+  check('in Safari normale niente contatori «app»', tutti().every((e) => !/^app_/.test(e)) && conta(tutti(), 'posizione_si') === 1, tutti());
   await ctx.close();
 
   // 4) Provenienze
-  for (const [nome, opz, atteso] of [
+  for (const [nome, opz, atteso, inPiu] of [
     ['link con ?da=qr', { url: 'http://localhost:8765/index.html?da=qr' }, 'da_qr'],
     ['link con ?da=<script> (non ammesso)', { url: 'http://localhost:8765/index.html?da=%3Cscript%3E' }, 'da_diretto'],
-    ['dentro Instagram', { ua: devices['iPhone 13'].userAgent + ' Instagram 300.0' }, 'da_instagram'],
+    ['dentro Instagram', { ua: devices['iPhone 13'].userAgent + ' Instagram 300.0' }, 'da_instagram', 'app_visita'],
     ['da una ricerca Google', { referer: 'https://www.google.it/' }, 'da_google'],
     ['da un altro sito', { referer: 'https://esempio.org/pagina-segreta?utente=mario' }, 'da_altro'],
   ]) {
     ({ ctx, p, err, visti, altre, tutti } = await nuovo(opz));
-    check(nome + ' → ' + atteso, JSON.stringify(tutti()) === JSON.stringify(['visita', atteso]) && !JSON.stringify(visti).includes('pagina-segreta'), tutti());
+    check(nome + ' → ' + atteso, JSON.stringify(tutti()) === JSON.stringify(['visita', atteso, ...(inPiu ? [inPiu] : [])]) && !JSON.stringify(visti).includes('pagina-segreta'), tutti());
     await ctx.close();
   }
 

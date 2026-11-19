@@ -20,9 +20,15 @@
 
   const AZIONI = [
     ["visita", "Aperture del sito"], ["termini_ok", "Termini accettati"], ["start", "“Vicino a me” toccato"],
-    ["posizione_si", "Posizione trovata"], ["posizione_no", "Posizione non trovata"], ["livello", "Quartiere scelto"],
+    ["livello", "Quartiere scelto"],
     ["powerup", "Tipo di posto scelto"], ["filtri", "“Filtri” aperto"], ["gettone", "Gettoni inseriti"], ["portami", "“Portami lì” toccato"], ["vai", "Indicazioni aperte"], ["maps", "“Apri su Maps”"],
   ];
+  // La posizione, per chi ha scelto “Vicino a me”: com'è andata e, dal 19 novembre 2026, perché non è arrivata.
+  // «Bloccata» = il browser ha detto no senza far comparire la richiesta; «rifiutata» = la persona l'ha vista e ha detto no.
+  const POSIZIONE = [["posizione_si", "Trovata"], ["posizione_no", "Non arrivata"], ["posizione_rifiutata", "· rifiutata alla richiesta"],
+    ["posizione_bloccata", "· bloccata, senza richiesta"], ["posizione_persa", "· non trovata dal telefono"]];
+  // Aperture dal browser interno di un'app (Instagram, Facebook, TikTok…), dove la posizione spesso non funziona
+  const IN_APP = [["app_visita", "Aperture"], ["app_posizione_si", "Posizione trovata"], ["app_posizione_no", "Posizione non arrivata"]];
   // “Proponilo”: chi propone un posto e che cosa fa chi riceve il link
   const INVITI = [
     ["invito_apri", "“Proponilo” aperto"], ["invito_manda", "Invio toccato"], ["invito_arriva", "Inviti aperti da chi li riceve"],
@@ -65,10 +71,13 @@
       const g = piu(oggi, -i), d = data(g).getDay();
       const visite = Math.round((14 + (179 - i) * 0.22) * (d === 5 || d === 6 ? 1.7 : d === 0 ? 1.3 : 1) * (0.7 + caso() * 0.6));
       const parte = (q) => Math.round(visite * q * (0.6 + caso() * 0.8));
-      const r = { visita: visite, termini_ok: parte(0.55), start: parte(0.4), posizione_si: parte(0.27), posizione_no: parte(0.1), livello: parte(0.5), powerup: parte(0.3), filtri: parte(0.12),
+      const r = { visita: visite, termini_ok: parte(0.55), start: parte(0.4), posizione_si: parte(0.27), livello: parte(0.5), powerup: parte(0.3), filtri: parte(0.12),
         gettone: parte(0.45), portami: parte(0.3), vai: parte(0.27), maps: parte(0.12),
         invito_apri: parte(0.08), invito_manda: parte(0.05), invito_arriva: parte(0.04), invito_si: parte(0.02), invito_altro: parte(0.008), invito_no: parte(0.004), invito_risposta: parte(0.022),
         comitiva_crea: parte(0.006), comitiva_entra: parte(0.012), comitiva_invita: parte(0.01), comitiva_aggiungi: parte(0.03), comitiva_voto: parte(0.025), comitiva_fatto: parte(0.008), dona_apri: parte(0.02), dona_1: parte(0.012), dona_2: parte(0.008), dona_5: parte(0.004), dona_altro: parte(0.003) };
+      r.posizione_rifiutata = parte(0.04); r.posizione_bloccata = parte(0.05); r.posizione_persa = parte(0.01);
+      r.posizione_no = r.posizione_rifiutata + r.posizione_bloccata + r.posizione_persa;
+      r.app_visita = parte(0.3); r.app_posizione_si = Math.min(r.posizione_si, parte(0.04)); r.app_posizione_no = Math.min(r.posizione_no, parte(0.06));
       let resto = visite;
       for (const [f, q] of [["da_instagram", 0.34], ["da_qr", 0.12], ["da_google", 0.08], ["da_whatsapp", 0.07], ["da_altro", 0.03]]) { const n = Math.min(resto, parte(q)); r[f] = n; resto -= n; }
       r.da_diretto = resto;
@@ -275,6 +284,9 @@
     disegnaLinea(p);
     const visite = somma(["visita"], dal, al);
     disegnaBarre($("#b-azioni"), AZIONI.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "delle aperture" }, visite);
+    const tentativi = somma(["posizione_si", "posizione_no"], dal, al);
+    disegnaBarre($("#b-posizione"), POSIZIONE.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "dei tentativi", quotaInRiga: true }, tentativi);
+    disegnaBarre($("#b-app"), IN_APP.map(([e, nome]) => ({ nome, n: somma([e], dal, al) })), { fmt: (n) => fmtN.format(n), di: "delle aperture", quotaInRiga: true }, visite);
     const fonti = Object.keys(FONTI).map((e) => ({ nome: FONTI[e], n: somma([e], dal, al) })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n);
     disegnaBarre($("#b-fonti"), fonti, { fmt: (n) => fmtN.format(n), di: "delle visite", quotaInRiga: true }, fonti.reduce((s, r) => s + r.n, 0));
     // Quartieri e località: i più scelti del periodo, in ordine

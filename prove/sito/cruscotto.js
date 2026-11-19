@@ -36,6 +36,8 @@ const U = 'http://localhost:8765/statistiche.html';
     comitive: { visibile: !document.querySelector('#s-comitive').hidden, numeri: [...document.querySelectorAll('#c-totali dd')].map((x) => x.textContent), nomi: [...document.querySelectorAll('#c-elenco li b')].map((x) => x.textContent), barre: document.querySelectorAll('#b-comitive .mon-barra').length, cancella: document.querySelectorAll('#c-elenco button').length },
     inviti: [...document.querySelectorAll('#b-inviti .mon-barra')].map((r) => [r.querySelector('.nome').textContent, r.querySelector('.val').textContent]),
     azioni: [...document.querySelectorAll('#b-azioni .mon-barra')].map((r) => [r.querySelector('.nome').textContent, r.querySelector('.val').textContent, r.querySelector('.pieno').style.width]),
+    posizione: [...document.querySelectorAll('#b-posizione .mon-barra')].map((r) => [r.querySelector('.nome').textContent, r.querySelector('.val').textContent]),
+    app: [...document.querySelectorAll('#b-app .mon-barra')].map((r) => [r.querySelector('.nome').textContent, r.querySelector('.val').textContent]),
     fonti: [...document.querySelectorAll('#b-fonti .mon-barra')].map((r) => [r.querySelector('.nome').textContent, r.querySelector('.val').textContent]),
     monete: document.querySelectorAll('#b-monete .mon-barra').length, mesi: document.querySelectorAll('#b-mesi .mon-barra').length, elenco: document.querySelectorAll('#elenco li').length,
     eroe: { eti: document.querySelector('#e-eti').textContent, val: document.querySelector('#e-val').textContent, delta: document.querySelector('#e-delta').textContent, px: parseFloat(getComputedStyle(document.querySelector('#e-val')).fontSize), fam: getComputedStyle(document.querySelector('#e-val')).fontFamily },
@@ -47,7 +49,9 @@ const U = 'http://localhost:8765/statistiche.html';
   check('quattro totali: anno, in tutto, numero di donazioni, tocchi', s.totali.length === 4 && /Nel \d{4}/.test(s.totali[0]) && /In tutto/.test(s.totali[1]), s.totali);
   check('quattro numeri sulle visite con confronto', s.numeri.length === 4 && s.numeri.every((n) => n[1] && /▲|▼|=|Nessun/.test(n[2])), s.numeri);
   check('30 giorni: 30 righe in tabella, periodo scritto', s.righeTab === 30 && /^Dal .+ al .+/.test(s.periodo), [s.righeTab, s.periodo]);
-  check('azioni: 12 barre, la più lunga al 100%', s.azioni.length === 12 && s.azioni.every((a) => a[1] !== '0') && s.azioni.some((a) => a[2] === '100%'), s.azioni);
+  check('azioni: 10 barre, la più lunga al 100%', s.azioni.length === 10 && s.azioni.every((a) => a[1] !== '0') && s.azioni.some((a) => a[2] === '100%'), s.azioni);
+  check('posizione: trovata, non arrivata e i tre perché, con la quota sui tentativi', s.posizione.length === 5 && s.posizione[0][0] === 'Trovata' && s.posizione[1][0] === 'Non arrivata' && s.posizione.every((a) => /\d/.test(a[1]) && /%/.test(a[1])), s.posizione);
+  check('dentro un’app: aperture e com’è andata la posizione', s.app.length === 3 && s.app[0][0] === 'Aperture' && s.app.every((a) => /\d/.test(a[1])), s.app);
   check('comitive (esempio): 4 numeri, 6 barre, 3 nomi ognuno con «Cancella»', s.comitive.visibile && s.comitive.numeri.join() === '7,3,4,2' && s.comitive.barre === 6 && s.comitive.nomi.length === 3 && s.comitive.cancella === 3 && s.comitive.nomi[0] === 'I Supplì Volanti', s.comitive);
   check('inviti: 7 barre con i numeri (' + s.inviti.map((a) => a[0]).slice(0, 3).join(', ') + '…)', s.inviti.length === 7 && s.inviti[0][0] === '“Proponilo” aperto' && s.inviti.every((a) => /\d/.test(a[1])), s.inviti);
   check('fonti in ordine dal più grande, con la quota', s.fonti.length >= 3 && s.fonti.every((f) => /%/.test(f[1])), s.fonti);
