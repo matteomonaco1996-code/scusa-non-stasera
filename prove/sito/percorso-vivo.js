@@ -38,6 +38,8 @@ const VAI = 'a[href^="https://www.google.com/maps/dir/"]';
   // ===== 2) Finestre: Indietro le chiude =====
   await p.evaluate(() => scrollBy(0, 700)); await p.waitForTimeout(600);
   const yLista = (await st(p)).y;
+  // stessa scheda alla stessa altezza: un pixel di scarto è arrotondamento (la scheda sta a cavallo di mezzo pixel), non uno spostamento
+  const stessaRiga = (x, y) => { const [ix, px] = x.split('@'), [iy, py] = y.split('@'); return !!ix && ix === iy && Math.abs(px - py) <= 1; };
   const riga = () => p.evaluate(() => { const c = [...document.querySelectorAll('.card')].find((x) => x.getBoundingClientRect().top > 120); return c ? c.id + '@' + Math.round(c.getBoundingClientRect().top) : ''; });
   const rigaPrima = await riga();
   await p.click('#gettone'); await p.waitForTimeout(500);
@@ -45,10 +47,10 @@ const VAI = 'a[href^="https://www.google.com/maps/dir/"]';
   check('gettone aperto: è un passo in più', s.dlg.includes('dlg-gettone') && s.n === 2, s);
   await indietro(p);
   s = await st(p);
-  check('Indietro chiude il gettone e la lista resta dov’era', s.dlg.length === 0 && s.tit === 'Trastevere' && s.n === 1 && (await riga()) === rigaPrima, { s, rigaPrima, ora: await riga() });
+  check('Indietro chiude il gettone e la lista resta dov’era', s.dlg.length === 0 && s.tit === 'Trastevere' && s.n === 1 && stessaRiga(await riga(), rigaPrima), { s, rigaPrima, ora: await riga() });
   await p.click('#gettone'); await p.waitForTimeout(500); await p.click('#dlg-gettone [data-chiudi]'); await p.waitForTimeout(500);
   s = await st(p);
-  check('CHIUDI: stesso effetto, nessun passo rimasto appeso', s.dlg.length === 0 && s.n === 1 && (await riga()) === rigaPrima, { s, rigaPrima, ora: await riga() });
+  check('CHIUDI: stesso effetto, nessun passo rimasto appeso', s.dlg.length === 0 && s.n === 1 && stessaRiga(await riga(), rigaPrima), { s, rigaPrima, ora: await riga() });
 
   // ===== 3) Portami lì → Vai al posto → torno: sono dove ero =====
   const visibile = p.locator('.card ' + VAI).nth(3); await visibile.scrollIntoViewIfNeeded(); await p.waitForTimeout(500);
