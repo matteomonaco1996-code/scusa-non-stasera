@@ -32,7 +32,7 @@ let ok = 0, ko = 0; const dico = (m, c, x) => { c ? ok++ : ko++; console.log((c 
   dico('la regola di sicurezza delle pagine non ha dovuto bloccare nulla', csp.length === 0, csp);
   dico('nessun errore', err.length === 0, err);
   const lascia = await p.evaluate(async () => ({ chiavi: Object.keys(localStorage).sort(), sess: sessionStorage.length, cookie: document.cookie, db: (indexedDB.databases ? (await indexedDB.databases()).length : 0), cache: (window.caches ? (await caches.keys()).length : 0), sw: (navigator.serviceWorker ? (await navigator.serviceWorker.getRegistrations()).length : 0), stato: JSON.stringify(history.state) }));
-  dico('sul telefono restano solo due note (termini accettati, scelta sulla posizione): niente cookie, niente altro', lascia.chiavi.join() === 'sns-posizione,sns-termini' && lascia.sess === 0 && lascia.cookie === '' && lascia.db === 0 && lascia.cache === 0 && lascia.sw === 0, lascia);
+  dico('sul telefono resta una sola nota (i termini accettati): niente cookie, niente altro', lascia.chiavi.join() === 'sns-termini' && lascia.sess === 0 && lascia.cookie === '' && lascia.db === 0 && lascia.cache === 0 && lascia.sw === 0, lascia);
   dico('nella cronologia della scheda non ci sono coordinate', !/\d\d\.\d{3,}/.test(lascia.stato), lascia.stato);
   // ---------- quello che porta fuori lo fa solo se lo tocchi ----------
   await p.goto(BASE); await p.waitForTimeout(700); await p.evaluate(() => document.querySelector('button[data-livello="Trastevere"]').click()); await p.waitForTimeout(500);

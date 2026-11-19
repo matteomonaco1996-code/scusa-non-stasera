@@ -27,10 +27,10 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };
   check('titolo e dati caricati', /Scusa, non stasera/.test(s.titolo) && s.posti > 600 && Number(s.hi) === s.posti, s);
   check('prima visita: chiede di accettare i termini', s.termini, s);
   await p.click('#termini-ok'); await p.waitForTimeout(500);
-  check('poi propone la posizione', await p.evaluate(() => document.querySelector('#dlg-posizione').open));
-  await p.click('#pos-corpo [data-pos=attiva]'); await p.waitForTimeout(1500);
+  check('accettati i termini non si apre nessun’altra finestra: si vedono la scena e i due tasti', await p.evaluate(() => document.querySelectorAll('dialog[open]').length === 0 && document.querySelector('#m-start').getBoundingClientRect().top < innerHeight));
+  await p.click('#m-start'); await p.waitForTimeout(1500);
   s = await p.evaluate(() => ({ pos: document.querySelector('#dlg-posizione').open, tit: document.querySelector('#titolo-ris').textContent, lv: document.querySelector('#lv').textContent, schede: document.querySelectorAll('.card').length, dist: document.querySelector('.card .dist')?.textContent, primo: document.querySelector('.card h4')?.textContent }));
-  check('attiva la posizione: posti vicini con la distanza', !s.pos && s.tit === 'Vicino a te' && s.schede > 0 && /min|km|m\b/.test(s.dist || ''), s);
+  check('toccato «Vicino a me»: posti vicini con la distanza', !s.pos && s.tit === 'Vicino a te' && s.schede > 0 && /min|km|m\b/.test(s.dist || ''), s);
   await p.screenshot({ path: out + '/vivo-1-vicino.png' });
   // gettone vicino
   await p.click('#gettone'); await p.waitForSelector('#get-esito a.btn', { timeout: 5000 }); await p.waitForTimeout(200);

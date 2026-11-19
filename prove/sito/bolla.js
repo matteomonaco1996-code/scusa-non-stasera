@@ -85,15 +85,16 @@ const out = process.argv[2];
     await p.click('#m-livelli'); await p.waitForTimeout(900);
     dico('i due tasti si toccano subito: «Scelgo la zona» a entrata appena cominciata porta alla scelta del mondo', !durante.fRisto && Math.abs(await p.evaluate(() => document.querySelector('#sez-mondi').getBoundingClientRect().top)) < 80, durante);
     await ctx.close();
-    // con una finestra sopra l'entrata si rifà quando la finestra si chiude, e poi i tasti lampeggiano
+    // prima visita: con i termini sopra i tasti non lampeggiano; accettati i termini non si apre nient'altro,
+    // la scena entra da capo (stavolta la si vede) e poi i tasti lampeggiano
     ctx = await b.newContext({ ...devices['iPhone 13'] });
-    await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); } catch (e) {} });
     p = await ctx.newPage(); await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(3200);
     let s = await guarda(p);
-    dico('prima visita: con la finestra «Da dove partiamo?» sopra i tasti non lampeggiano', await p.evaluate(() => document.querySelector('#dlg-posizione').open) && !s.lampeggia, s);
-    await p.click('#dlg-posizione [data-chiudi]');
-    const dopo = await filma(p, 4200);
-    dico('prima visita: chiusa la finestra senza scegliere, la scena entra da capo e poi i tasti lampeggiano', dopo.some((x) => !x.fGaia) && dopo[dopo.length - 1].fRisto && primo(dopo, (x) => x.lampeggia) > primo(dopo, (x) => !x.fGaia) && dopo.some((x) => x.lampeggia), { senza: dopo.filter((x) => !x.fGaia).length, lamp: dopo.filter((x) => x.lampeggia).length });
+    dico('prima visita: con i termini sopra i tasti non lampeggiano', await p.evaluate(() => document.querySelector('#dlg-termini').open) && !s.lampeggia, s);
+    await p.click('#termini-ok');
+    const dopo = await filma(p, 4600);
+    dico('prima visita: accettati i termini non si apre nessun’altra finestra', await p.evaluate(() => document.querySelectorAll('dialog[open]').length === 0));
+    dico('prima visita: …la scena entra da capo e poi i tasti lampeggiano', dopo.some((x) => !x.fGaia) && dopo[dopo.length - 1].fRisto && primo(dopo, (x) => x.lampeggia) > primo(dopo, (x) => !x.fGaia) && dopo.some((x) => x.lampeggia), { senza: dopo.filter((x) => !x.fGaia).length, lamp: dopo.filter((x) => x.lampeggia).length });
     await ctx.close();
     // chi ha chiesto meno movimento: tutto già al suo posto, la cornice c'è ma non lampeggia
     ctx = await b.newContext({ ...devices['iPhone 13'], reducedMotion: 'reduce' });
@@ -103,26 +104,18 @@ const out = process.argv[2];
     dico('«riduci movimento»: personaggi e fumetti sono al loro posto dal primo istante, niente si muove, la cornice c’è', fermi.every((x) => x.gaia && x.fGaia && x.tu && x.fTu && x.fRisto && x.movimento === 0 && x.anim === 'none') && fermi[fermi.length - 1].cornice === ORO, fermi[0]);
     await ctx.close();
   }
-  // Chi arriva la prima volta: dopo i termini la finestra «Da dove partiamo?» c'è ancora, con le due scelte di pari peso
-  for (const scelta of ['attiva', 'no']) {
-    const ctx = await b.newContext({ ...devices['iPhone 13'], geolocation: { latitude: 41.8893, longitude: 12.4707 }, reducedMotion: 'reduce' });
+  // Chi arriva la prima volta (termini già accettati in un'altra occasione, nient'altro nel browser): nessuna finestra,
+  // la domanda «Da dove partiamo?» la fanno i due tasti della pagina
+  for (const scelta of ['m-start', 'm-livelli']) {
+    const ctx = await b.newContext({ ...devices['iPhone 13'], geolocation: { latitude: 41.8893, longitude: 12.4707 }, permissions: ['geolocation'], reducedMotion: 'reduce' });
     await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); } catch (e) {} });
     const p = await ctx.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
     await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(900);
-    let s = await p.evaluate(() => { const d = document.querySelector('#dlg-posizione'), r = d.getBoundingClientRect(), bb = [...document.querySelectorAll('#pos-corpo .get-scelte button')]; return { aperta: d.open, titolo: document.querySelector('#pos-t').textContent,
-      scelte: bb.map((x) => x.querySelector('b').textContent), testi: bb.map((x) => x.querySelector('small').textContent), fondi: bb.map((x) => getComputedStyle(x).backgroundColor), cornici: bb.map((x) => getComputedStyle(x).outlineStyle),
-      fuoco: document.activeElement.className, dentro: r.top >= 0 && r.bottom <= innerHeight + 1 }; });
-    if (scelta === 'attiva') {
-      dico('prima visita: si apre «Da dove partiamo?» con le due scelte', s.aperta && s.titolo === 'DA DOVE PARTIAMO?' && JSON.stringify(s.scelte) === JSON.stringify(['Vicino a me', 'Scelgo la zona']) && s.dentro, s);
-      dico('prima visita: le due scelte pesano uguale (stesso fondo, nessuna con la cornice del fuoco)', s.fondi[0] === s.fondi[1] && s.cornici.every((c) => c === 'none') && s.fuoco === 'get-scelte', s);
-      dico('prima visita: «Vicino a me» dice prima che cosa ottieni e poi che cosa ti viene chiesto', /^I posti a pochi minuti a piedi\. Il telefono ti chiede il permesso alla posizione: scegli «Consenti»\.$/.test(s.testi[0]) && /Senza usare la posizione\.$/.test(s.testi[1]), s.testi);
-      await p.screenshot({ path: `${out}/partenza-finestra.png` });
-      await ctx.grantPermissions(['geolocation']);
-    }
-    await p.click(`#pos-corpo [data-pos=${scelta}]`); await p.waitForTimeout(1300);
-    s = await p.evaluate(() => ({ aperta: document.querySelector('#dlg-posizione').open, tit: document.querySelector('#titolo-ris').textContent, top: Math.round(document.querySelector('#sez-mondi').getBoundingClientRect().top) }));
-    if (scelta === 'attiva') dico('prima visita: Vicino a me → posti vicini', !s.aperta && s.tit === 'Vicino a te', s);
-    else dico('prima visita: Scelgo la zona → porta alla scelta del mondo', !s.aperta && Math.abs(s.top) < 80, s);
+    if (scelta === 'm-start') dico('prima visita: nessuna finestra si apre da sola; i due tasti sono nella prima schermata', await p.evaluate(() => document.querySelectorAll('dialog[open]').length === 0 && ['#m-start', '#m-livelli'].every((q) => { const r = document.querySelector(q).getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; })));
+    await p.click('#' + scelta); await p.waitForTimeout(1300);
+    const s = await p.evaluate(() => ({ aperte: document.querySelectorAll('dialog[open]').length, tit: document.querySelector('#titolo-ris').textContent, top: Math.round(document.querySelector('#sez-mondi').getBoundingClientRect().top) }));
+    if (scelta === 'm-start') dico('prima visita: Vicino a me → posti vicini', !s.aperte && s.tit === 'Vicino a te', s);
+    else dico('prima visita: Scelgo la zona → porta alla scelta del mondo', !s.aperte && Math.abs(s.top) < 80, s);
     dico('prima visita (' + scelta + '): nessun errore', err.length === 0, err);
     await ctx.close();
   }

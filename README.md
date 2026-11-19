@@ -22,23 +22,26 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   ciò che sporge di lato (`overflow: clip`, cioè Safari prima del 16): lì la scena è ferma, come prima.
   I due personaggi sono in `img/gaia.svg` e `img/tu.svg` e si ridisegnano con `strumenti/personaggi.py`
   (capelli, barba, occhiali e colori sono due righe in cima al file).
-- **DA DOVE PARTIAMO?**: la prima scelta, subito sotto la vignetta e nella finestra che compare alla prima visita, è
+- **DA DOVE PARTIAMO?**: la prima scelta, subito sotto la vignetta, è
   tra due strade ben distinte: **VICINO A ME** (i posti a pochi minuti a piedi; chiede la posizione) e **SCELGO LA
   ZONA** (quartiere, città o fuori porta, senza posizione). Dal 19 novembre 2026 i due tasti hanno lo stesso peso
   (stesso fondo, nessuno evidenziato) e dicono prima che cosa ottieni e poi che cosa ti viene chiesto: nei primi
   due giorni di contatori metà dei tentativi di posizione non era arrivata, mentre la zona era la strada più usata.
   La battuta “Anzi sì! Portami fuori.” non apre più una finestra con le stesse due scelte: porta ai due tasti e
-  li fa lampeggiare. La finestra resta solo alla prima visita. I due tasti hanno una cornice d'oro, che li stacca
+  li fa lampeggiare. Anche la finestra che si apriva da sola alla prima visita è stata tolta (vedi sotto, ATTIVA
+  LA POSIZIONE): la domanda si fa in un posto solo. I due tasti hanno una cornice d'oro, che li stacca
   dai fumetti: quando la schermata d'apertura è libera (nessuna finestra sopra, niente ancora scelto) lampeggia per
   meno di cinque secondi, come «PREMI START», poi resta accesa; riparte dopo un RESTART. Dura poco apposta: un
   lampeggio continuo stanca chi legge e disturba chi è sensibile al movimento (con «riduci movimento» non parte).
 - **VICINO A ME**: usa il GPS del telefono (la posizione non esce dal browser) e
   mostra i posti in ordine di distanza, a fasce: *Sotto casa* (EASY, fino a 10
   minuti a piedi), *Due passi* (NORMAL, 10–25), *Vale il viaggio* (HARD).
-- **ATTIVA LA POSIZIONE**: all’apertura, se la posizione non è già consentita, una finestra spiega a cosa
-  serve e la chiede (dopo i termini, mai insieme). Se è bloccata o spenta il sito non può riaccenderla:
-  la finestra mostra i passi per iPhone, Android o computer, e la stessa guida compare da VICINO A ME e dal
-  gettone. Chi risponde “non ora” non se la ritrova alla visita dopo (`sns-posizione` nel browser).
+- **ATTIVA LA POSIZIONE**: la posizione si chiede solo quando tocchi VICINO A ME (o “Vicino a me” nel gettone),
+  mai all’apertura. Fino al 19 novembre 2026, dopo i termini si apriva da sola una finestra «Da dove partiamo?»
+  con le stesse due scelte dei tasti della pagina: è stata tolta perché copriva la scena d’apertura e veniva letta
+  come una richiesta di posizione appena arrivati (il sito cancella dal browser la vecchia nota `sns-posizione`).
+  La finestra resta per dopo il tocco: se la posizione è bloccata o spenta il sito non può riaccenderla, e
+  mostra i passi per iPhone, Android o computer; la stessa guida compare dal gettone.
   Nel gettone, toccando “Vicino a me”, prima che il telefono chieda il permesso compare un avviso
   (“Posso usare la tua posizione?”): a che cosa serve, che cosa sta per succedere, dove finisce il dato, con
   “Sì, usa la posizione” e “No, scelgo io dove”. Non compare se il permesso è già dato o già rifiutato.

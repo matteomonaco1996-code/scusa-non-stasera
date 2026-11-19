@@ -79,7 +79,7 @@ const CORSI = '3935991939893424995';
   dico('con un nome scritto a mano la comitiva nasce: «' + s.nome + '», ' + s.eti, s.schermo === 'tavola' && s.nome === 'I Mangioni di Via Po' && s.eti === '1 A TAVOLA · 7 POSTI LIBERI' && s.posti.join() === 'Matteo*', s);
   const mem = await p.evaluate(() => ({ chiavi: Object.keys(localStorage).sort().join(), segreto: localStorage.getItem('sns-comitiva') }));
   const riga = (await sql(`select k.chiave, k.nome, p.impronta, p.nome as mio from public.comitive k join public.comitiva_posti p on p.comitiva = k.id`))[0];
-  dico('sul telefono resta solo il segreto del posto; nel database c’è la sua impronta, non il segreto', mem.chiavi === 'sns-comitiva,sns-posizione,sns-termini' && /^[\w-]{22}$/.test(mem.segreto) && /^[0-9a-f]{64}$/.test(riga.impronta) && riga.impronta !== mem.segreto && riga.chiave !== mem.segreto && /^[\w-]{22}$/.test(riga.chiave), { mem, riga });
+  dico('sul telefono resta solo il segreto del posto; nel database c’è la sua impronta, non il segreto', mem.chiavi === 'sns-comitiva,sns-termini' && /^[\w-]{22}$/.test(mem.segreto) && /^[0-9a-f]{64}$/.test(riga.impronta) && riga.impronta !== mem.segreto && riga.chiave !== mem.segreto && /^[\w-]{22}$/.test(riga.chiave), { mem, riga });
   await p.click('#dlg-comitiva [data-chiudi]'); await p.waitForTimeout(400);
   // aggiungere posti: dalla scheda e dal gettone
   await p.evaluate(() => document.querySelector('button[data-livello="Pantheon"]').click()); await p.waitForTimeout(600);

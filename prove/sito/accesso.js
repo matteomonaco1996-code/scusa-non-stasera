@@ -41,7 +41,8 @@ const TAVOLA = { nome: 'I Mangioni di Via Po', chiave: 'chiave-di-prova-00000000
     for (const pag of ['privacy.html', 'termini.html', '404.html', 'statistiche.html?esempio']) { await p.goto(BASE + pag); await p.waitForTimeout(700); await esamina(p, nome + ': ' + pag.split('.')[0]); }
     await p.context().close();
     p = await nuovo(opz, false, false); await p.goto(BASE + 'index.html'); await p.waitForTimeout(700); await esamina(p, nome + ': termini');
-    await p.click('#termini-ok'); await p.waitForTimeout(600); await esamina(p, nome + ': posizione'); await chiudi(p);
+    await p.click('#termini-ok'); await p.waitForTimeout(600); await esamina(p, nome + ': dopo i termini');
+    await p.click('#m-start'); await p.waitForTimeout(900); await esamina(p, nome + ': posizione bloccata'); await chiudi(p);   // senza permesso: la finestra con le istruzioni
     await p.click('#m-comitiva'); await esamina(p, nome + ': crea comitiva');
     await p.goto(BASE + 'index.html?comitiva=chiave-di-prova-000000000'); await p.waitForTimeout(900); await esamina(p, nome + ': entra in comitiva');
     await p.context().close();

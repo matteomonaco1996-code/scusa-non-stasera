@@ -135,12 +135,12 @@ const VAI = 'a[href^="https://www.google.com/maps/dir/"]';
   check('nessun errore (vicino)', err.length === 0, err);
   await ctx.close();
 
-  // ===== 11) «Scelgo la zona» dalla finestra della prima visita: porta ai quartieri e ci resta =====
-  // (la finestra si apre da sola solo a chi non ha ancora scelto: «Portami fuori» ora porta ai due tasti della pagina)
+  // ===== 11) «Scelgo la zona» alla prima visita: nessuna finestra, il tasto della pagina porta ai quartieri e ci resta =====
   ctx = await b.newContext({ ...devices['iPhone 13'], reducedMotion: 'reduce' });
   await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); } catch (e) {} });
   p = await ctx.newPage(); await p.goto(U); await p.waitForTimeout(900);
-  await p.click('#pos-corpo [data-pos=no]'); await p.waitForTimeout(900);
+  check('prima visita (termini già accettati): nessuna finestra si apre da sola', (await st(p)).dlg.length === 0, (await st(p)).dlg);
+  await p.click('#m-livelli'); await p.waitForTimeout(900);
   s = await st(p);
   const top = await p.evaluate(() => Math.round(document.querySelector('#sez-mondi').getBoundingClientRect().top));
   check('Scelgo la zona: resto sui quartieri, nessun passo appeso', s.dlg.length === 0 && s.n === 0 && Math.abs(top) < 80, { s, top });
@@ -153,10 +153,7 @@ const VAI = 'a[href^="https://www.google.com/maps/dir/"]';
   check('termini aperti: non sono un passo', s.dlg.includes('dlg-termini') && s.n === 0 && !s.ind, s);
   await p2.click('#termini-ok'); await p2.waitForTimeout(500);
   s = await st(p2);
-  check('poi «Da dove partiamo?» (questa sì, si chiude con Indietro)', s.dlg.includes('dlg-posizione') && s.n === 1, s);
-  await p2.goBack({ waitUntil: 'commit' }).catch(() => {}); await p2.waitForTimeout(500);
-  s = await st(p2);
-  check('Indietro: chiude la finestra e resta sul sito', s.dlg.length === 0 && s.url.startsWith(U) && s.n === 0, s);
+  check('accettati i termini non si apre nient’altro e non c’è nessun passo in più', s.dlg.length === 0 && s.n === 0 && !s.ind && s.url.startsWith(U), s);
   await c2.close();
 
   // ===== 13) Computer =====

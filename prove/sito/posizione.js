@@ -1,4 +1,6 @@
-// La finestra "Attiva la posizione": quando compare, che cosa fa, che cosa ricorda. E le spiegazioni del gettone.
+// La posizione si chiede solo quando si tocca «Vicino a me»: all'arrivo non si apre nessuna finestra (fino al 19 novembre
+// 2026 dopo i termini compariva «Da dove partiamo?», tolta perché copriva la scena d'apertura). Qui: che cosa succede al
+// tocco, la finestra "Attiva la posizione" quando è bloccata, e le spiegazioni del gettone.
 const { chromium, devices } = require('playwright');
 const out = process.argv[2];
 const ok = [], ko = [];
@@ -13,57 +15,65 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };   // Trastevere
       try { if (termini) localStorage.setItem('sns-termini', '1.1'); if (ricordato) localStorage.setItem('sns-posizione', 'no'); } catch (e) {}
       // "prompt": il browser non ha ancora deciso (nel test il permesso c'è già, ma la pagina non lo sa)
       if (permesso === 'prompt') navigator.permissions.query = async () => ({ state: 'prompt' });
+      // quante volte la pagina chiede la posizione al telefono
+      window.__richieste = 0; const g = navigator.geolocation, vera = g.getCurrentPosition.bind(g);
+      g.getCurrentPosition = (...a) => { window.__richieste++; return vera(...a); };
     }, [termini, permesso, ricordato]);
     const p = await ctx.newPage(); const err = [];
     p.on('pageerror', (e) => err.push(String(e))); p.on('console', (m) => { if (m.type() === 'error') err.push(m.text()); });
     await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(600);
     return { ctx, p, err };
   };
-  const st = (p) => p.evaluate(() => ({ pos: document.querySelector('#dlg-posizione').open, ter: document.querySelector('#dlg-termini').open, testo: document.querySelector('#pos-corpo').innerText.replace(/\s+/g, ' ').slice(0, 400), passi: [...document.querySelectorAll('#pos-corpo .passi li')].map((l) => l.innerText), bottoni: [...document.querySelectorAll('#pos-corpo button')].map((x) => x.innerText.trim()), ricordo: localStorage.getItem('sns-posizione'), titolo: document.querySelector('#titolo-ris').textContent }));
+  const st = (p) => p.evaluate(() => ({ pos: document.querySelector('#dlg-posizione').open, ter: document.querySelector('#dlg-termini').open, testo: document.querySelector('#pos-corpo').innerText.replace(/\s+/g, ' ').slice(0, 400), passi: [...document.querySelectorAll('#pos-corpo .passi li')].map((l) => l.innerText), bottoni: [...document.querySelectorAll('#pos-corpo button')].map((x) => x.innerText.trim()), ricordo: localStorage.getItem('sns-posizione'), aperte: [...document.querySelectorAll('dialog[open]')].map((d) => d.id), richieste: window.__richieste, titolo: document.querySelector('#titolo-ris').textContent }));
 
-  // 1) Prima visita: prima i termini, poi la posizione (mai due finestre insieme)
+  // 1) Prima visita: i termini, e poi nessun'altra finestra. La posizione non viene chiesta finché non si tocca «Vicino a me»
   let { ctx, p, err } = await nuovo({ permesso: 'prompt', termini: false });
   let s = await st(p);
   check('prima visita: solo i termini', s.ter && !s.pos, s);
-  await p.click('#termini-ok'); await p.waitForTimeout(400);
+  await p.click('#termini-ok'); await p.waitForTimeout(1200);
   s = await st(p);
-  check('dopo i termini compare la posizione', !s.ter && s.pos && /Vicino a me/.test(s.testo) && /Scelgo la zona/.test(s.testo), s);
-  check('due scelte chiare', JSON.stringify(s.bottoni) === JSON.stringify(['▶ ATTIVA LA POSIZIONE', 'NON ORA: SCELGO IO LA ZONA']) || s.bottoni.length === 2, s.bottoni);
-  const r = await p.evaluate(() => { const d = document.querySelector('#dlg-posizione').getBoundingClientRect(); return { top: d.top, bottom: d.bottom, vh: innerHeight, fuoco: document.activeElement.textContent.trim() }; });
-  check('finestra dentro lo schermo', r.top >= 0 && r.bottom <= r.vh, r);
-  await p.screenshot({ path: out + '/pos-1-chiedi.png' });
-  // 2) Attiva: il permesso arriva, la finestra si chiude e si vedono i posti vicini
-  await p.click('#pos-corpo [data-pos=attiva]'); await p.waitForTimeout(900);
+  check('dopo i termini non si apre nessuna finestra: si vede la scena con i due tasti', !s.ter && !s.pos && s.aperte.length === 0 && await p.evaluate(() => { const r = document.querySelector('#m-start').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), s.aperte);
+  check('…e il sito non ha chiesto la posizione al telefono', s.richieste === 0, s.richieste);
+  await p.screenshot({ path: out + '/pos-1-dopo-termini.png' });
+  // 2) Toccato «Vicino a me»: solo adesso parte la richiesta; il permesso arriva e si vedono i posti vicini
+  await p.click('#m-start'); await p.waitForTimeout(1200);
   s = await st(p);
-  check('attiva: trovato, finestra chiusa, posti vicini', !s.pos && s.titolo === 'Vicino a te' && s.ricordo === null, s);
+  check('toccato «Vicino a me»: la richiesta parte adesso, posizione trovata, posti vicini', s.richieste >= 1 && !s.pos && s.titolo === 'Vicino a te' && s.ricordo === null, s);
   check('nessun errore (prima visita)', err.length === 0, err);
   await ctx.close();
 
-  // 3) Permesso già dato: nessuna finestra
+  // 3) Permesso già dato: nessuna finestra, e comunque nessuna richiesta finché non si tocca
   ({ ctx, p, err } = await nuovo({ permesso: 'granted' }));
-  check('permesso già dato: non chiede nulla', !(await st(p)).pos);
+  s = await st(p);
+  check('permesso già dato: nessuna finestra e nessuna richiesta da sola', !s.pos && s.aperte.length === 0 && s.richieste === 0, s);
   await ctx.close();
 
-  // 4) Posizione bloccata su iPhone: istruzioni per iPhone, poi "scelgo io" viene ricordato
+  // 3b) Chi aveva nel browser la vecchia nota «sns-posizione»: il sito non la usa più e la cancella
+  ({ ctx, p, err } = await nuovo({ permesso: 'denied', ricordato: true }));
+  // (la prova la riscrive a ogni caricamento, prima del sito: conta che dopo il caricamento non ci sia più)
+  check('la vecchia nota «sns-posizione» viene cancellata', (await st(p)).ricordo === null, (await st(p)).ricordo);
+  await ctx.close();
+
+  // 4) Posizione bloccata su iPhone: all'arrivo niente; toccato «Vicino a me», le istruzioni per iPhone
   ({ ctx, p, err } = await nuovo({ permesso: 'denied' }));
   s = await st(p);
-  check('bloccata: la finestra compare comunque una volta', s.pos, s);
-  await p.click('#pos-corpo [data-pos=attiva]'); await p.waitForTimeout(900);
+  check('bloccata: all’arrivo non compare nessuna finestra', !s.pos && s.aperte.length === 0, s.aperte);
+  await p.click('#m-start'); await p.waitForTimeout(900);
   s = await st(p);
-  check('bloccata su iPhone: tre passi per iPhone', s.pos && s.passi.length === 3 && /Impostazioni/.test(s.passi[0]) && /Safari/.test(s.passi[1]) && /Riprova/i.test(s.bottoni.join()), s);
+  check('bloccata su iPhone, toccato «Vicino a me»: tre passi per iPhone', s.pos && s.passi.length === 3 && /Impostazioni/.test(s.passi[0]) && /Safari/.test(s.passi[1]) && /Riprova/i.test(s.bottoni.join()), s);
   await p.screenshot({ path: out + '/pos-2-bloccata-iphone.png' });
   const rr = await p.evaluate(() => { const d = document.querySelector('#dlg-posizione').getBoundingClientRect(); return { top: d.top, bottom: d.bottom, vh: innerHeight }; });
   check('istruzioni dentro lo schermo', rr.top >= 0 && rr.bottom <= rr.vh, rr);
   await p.click('#pos-corpo [data-pos=no]'); await p.waitForTimeout(500);
   s = await st(p);
   const top = await p.evaluate(() => Math.round(document.querySelector('#sez-mondi').getBoundingClientRect().top));
-  check('scelgo io: chiusa, ricordato, porta ai quartieri', !s.pos && s.ricordo === 'no' && Math.abs(top) < 60, { s: s.ricordo, top });
+  check('«Scelgo io la zona»: chiusa, porta alla scelta del mondo, niente viene ricordato nel browser', !s.pos && s.ricordo === null && Math.abs(top) < 60, { s: s.ricordo, top });
   await p.reload(); await p.waitForTimeout(600);
-  check('alla visita dopo non la ripropone', !(await st(p)).pos);
-  // ma PREMI START la riapre con le istruzioni
+  check('alla visita dopo nessuna finestra', !(await st(p)).pos);
+  // «Vicino a me» la riapre con le istruzioni
   await p.click('#m-start'); await p.waitForTimeout(900);
   s = await st(p);
-  check('PREMI START con posizione bloccata: istruzioni', s.pos && s.passi.length === 3, s);
+  check('di nuovo «Vicino a me» con posizione bloccata: istruzioni', s.pos && s.passi.length === 3, s);
   await p.keyboard.press('Escape'); await p.waitForTimeout(200);
   check('Esc chiude', !(await st(p)).pos);
   check('nessun errore (bloccata)', err.length === 0, err);
@@ -71,7 +81,7 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };   // Trastevere
 
   // 5) Android: istruzioni per Android
   ({ ctx, p, err } = await nuovo({ device: 'Pixel 7', permesso: 'denied' }));
-  await p.click('#pos-corpo [data-pos=attiva]'); await p.waitForTimeout(900);
+  await p.click('#m-start'); await p.waitForTimeout(900);
   s = await st(p);
   check('bloccata su Android: passi per Android', s.passi.length === 3 && /menu rapido/.test(s.passi[0]) && /Autorizzazioni/.test(s.passi[1]), s.passi);
   await p.screenshot({ path: out + '/pos-3-bloccata-android.png' });
@@ -81,7 +91,8 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };   // Trastevere
   let cd = await b.newContext({ viewport: { width: 1366, height: 800 } });
   await cd.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); } catch (e) {} });
   let pd = await cd.newPage(); await pd.goto('http://localhost:8765/index.html'); await pd.waitForTimeout(600);
-  await pd.click('#pos-corpo [data-pos=attiva]'); await pd.waitForTimeout(900);
+  check('computer, prima visita con i termini già accettati: nessuna finestra', await pd.evaluate(() => document.querySelectorAll('dialog[open]').length === 0));
+  await pd.click('#m-start'); await pd.waitForTimeout(900);
   s = await st(pd);
   check('bloccata su computer: passi per computer', s.passi.length === 3 && /Clicca/.test(s.passi[0]), s.passi);
   await pd.screenshot({ path: out + '/pos-4-computer.png' });
@@ -89,7 +100,7 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };   // Trastevere
 
   // 7) Dentro Instagram: avviso di aprire nel browser
   ({ ctx, p, err } = await nuovo({ permesso: 'denied', ua: devices['iPhone 13'].userAgent + ' Instagram 300.0.0.0' }));
-  await p.click('#pos-corpo [data-pos=attiva]'); await p.waitForTimeout(900);
+  await p.click('#m-start'); await p.waitForTimeout(900);
   s = await st(p);
   check('dentro un’altra app: dice di aprire nel browser', /Apri nel browser/.test(s.testo), s.testo);
   await ctx.close();
@@ -130,7 +141,7 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };   // Trastevere
   const cs = await b.newContext({ viewport: { width: 360, height: 640 }, userAgent: devices['iPhone 13'].userAgent, isMobile: true, hasTouch: true });
   await cs.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); } catch (e) {} });
   const ps = await cs.newPage(); await ps.goto('http://localhost:8765/index.html'); await ps.waitForTimeout(600);
-  await ps.click('#pos-corpo [data-pos=attiva]'); await ps.waitForTimeout(900);
+  await ps.click('#m-start'); await ps.waitForTimeout(900);
   const q = await ps.evaluate(() => { const d = document.querySelector('#dlg-posizione'); const r = d.getBoundingClientRect(); const bt = document.querySelector('#pos-corpo [data-pos=no]').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, vh: innerHeight, scorre: d.scrollHeight > d.clientHeight + 1 || document.querySelector('#pos-corpo').scrollHeight > document.querySelector('#pos-corpo').clientHeight + 1, btBottom: bt.bottom }; });
   check('360x640: finestra dentro lo schermo (o scorrevole)', q.top >= 0 && q.bottom <= q.vh, q);
   await ps.screenshot({ path: out + '/pos-5-piccolo.png' });

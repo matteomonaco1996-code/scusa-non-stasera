@@ -79,6 +79,8 @@
     set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) { /* memoria non disponibile */ } },
   };
 
+  memoria.set("sns-posizione", null);   // una nota che il sito non usa più (ricordava la vecchia finestra d'apertura): se c'è, si cancella
+
   // ---------- Contatori anonimi ----------
   // Aggiungono uno al numero del giorno ("oggi 42 visite") e basta: niente cookie, niente identificativi,
   // niente nel browser, nessun legame con l'account. Sono attivi solo se in config.js c'è il database.
@@ -823,23 +825,18 @@
     const d = $("#dlg-posizione"), c = $("#pos-corpo");
     const cosa = apparecchio();
     const scelte = (si, no) => `<div class="get-acts in-colonna">${si ? `<button class="btn" type="button" data-pos="attiva">${si}</button>` : ""}<button class="btn alt" type="button" data-pos="no">${no}</button></div>`;
-    // Il titolo dice che cosa sta succedendo: una scelta, la ricerca, oppure la posizione da riattivare
-    $("#pos-t").textContent = fase === "chiedi" ? "DA DOVE PARTIAMO?" : fase === "cerco" ? "TI CERCO…" : "ATTIVA LA POSIZIONE";
-    if (fase === "chiedi") c.innerHTML = `<div class="get-scelte" role="group" aria-label="Da dove partiamo?" tabindex="-1">
-        <button type="button" class="px" data-pos="attiva"><b>Vicino a me</b><small>I posti a pochi minuti a piedi. Il ${cosa} ti chiede il permesso alla posizione: scegli «Consenti».</small></button>
-        <button type="button" class="px" data-pos="no"><b>Scelgo la zona</b><small>Un quartiere di Roma, un’altra città o fuori porta. Senza usare la posizione.</small></button>
-      </div>
-      <small>La posizione resta sul tuo ${cosa}: la inviamo solo quando fai un check-in, e non la salviamo.</small>`;
-    else if (fase === "cerco") c.innerHTML = `<p class="get-dom">Ti cerco…</p><p>Se il ${cosa} te lo chiede, scegli <b>Consenti</b>.</p>`;
+    // Questa finestra non si apre più da sola all'arrivo: la domanda «Da dove partiamo?» la fanno i due tasti della
+    // pagina, e una finestra con le stesse due scelte copriva proprio la scena d'apertura. Resta per quando si è
+    // toccato «Vicino a me»: mentre il telefono cerca, e se la posizione è bloccata o non arriva.
+    $("#pos-t").textContent = fase === "cerco" ? "TI CERCO…" : "ATTIVA LA POSIZIONE";
+    if (fase === "cerco") c.innerHTML = `<p class="get-dom">Ti cerco…</p><p>Se il ${cosa} te lo chiede, scegli <b>Consenti</b>.</p>`;
     else if (fase === "bloccata") c.innerHTML = `<p class="errore" role="alert">La posizione è bloccata per questo sito, oppure è spenta sul ${cosa}.</p>
       <p>Il sito non può riaccenderla da solo. Si fa così:</p>${guidaPosizione()}${scelte("Riprova", "Scelgo io la zona")}`;
     else c.innerHTML = `<p class="errore" role="alert">${POS_ERR[fase] || POS_ERR.errore}</p>
       <p>${fase === "assente" ? "Puoi comunque scegliere tu il quartiere." : `Controlla che la posizione del ${cosa} sia accesa, poi riprova. Oppure scegli tu la zona.`}</p>
       ${scelte(fase === "assente" ? "" : "Riprova", "Scelgo io la zona")}`;
     if (!d.open) d.showModal();
-    // Il fuoco sul pulsante principale, non su "Chiudi". Nella scelta iniziale le due risposte pesano uguale:
-    // il fuoco va sul gruppo, così nessuna delle due sembra già scelta.
-    const primo = fase === "chiedi" ? c.querySelector(".get-scelte") : c.querySelector("[data-pos]");
+    const primo = c.querySelector("[data-pos]");   // il fuoco sul pulsante principale, non su "Chiudi"
     if (primo) primo.focus();
   }
   async function azionePosizione(cosa) {
@@ -851,14 +848,6 @@
     if (err) return finestraPosizione(err);
     d.close();
     if ($("#dlg-gettone").open) gettone(); else { versoPosti(); percorso.avanza(); }
-  }
-  // All'apertura del sito: se la posizione non è già consentita, la finestra che la propone.
-  // Chi sceglie la zona (o chiude) non se la ritrova alla visita dopo: le due scelte restano in cima alla pagina.
-  async function proponiPosizione() {
-    if (!navigator.geolocation || stato.pos || memoria.get("sns-posizione") === "no") return;
-    const permesso = await permessoPosizione();
-    if (permesso === "granted" || stato.pos || document.querySelector("dialog[open]")) return;
-    finestraPosizione("chiedi");
   }
   // «Anzi sì! Portami fuori.»: la domanda «Da dove partiamo?» si fa in un posto solo, i due tasti sotto il dialogo.
   // La battuta ci porta lì e li fa notare, invece di aprire una finestra con le stesse due scelte.
@@ -1308,11 +1297,11 @@
       if (SNS.arrivoComitiva) SNS.arrivoComitiva(k); else SNS.comitivaInAttesa = k;
       return;
     }
-    if (!arrivato || arrivato.visto) return proponiPosizione();
+    if (!arrivato || arrivato.visto) return;   // niente finestre: la scena d'apertura e i due tasti fanno da sé
     arrivato.visto = true;
     // L'indirizzo torna pulito: ricaricando la pagina o tornando indietro l'invito non si riapre da solo
     try { const u = new URL(location.href); ["posto", "m", "r"].forEach((k) => u.searchParams.delete(k)); history.replaceState(history.state, "", u.pathname + u.search + u.hash); } catch (e) { /* non indispensabile */ }
-    if (!arrivato.x) { toast("Questo invito non vale più: quel posto non è nella lista."); return proponiPosizione(); }
+    if (!arrivato.x) return toast("Questo invito non vale più: quel posto non è nella lista.");
     inv.da = arrivato;
     conta("invito_arriva");
     schermoInvito();
@@ -1447,7 +1436,6 @@
   $("#pos-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-pos]"); if (b) azionePosizione(b.dataset.pos); });
   $("#inv-corpo").addEventListener("click", (e) => { const b = e.target.closest("[data-inv]"); if (b) azioneInvito(b.dataset.inv, b); });
   // Chiusa senza posizione (non ora, Chiudi, Esc): si ricorda, così alla prossima visita non viene riproposta
-  $("#dlg-posizione").addEventListener("close", () => { if (!stato.pos) memoria.set("sns-posizione", "no"); });
   $("#dlg-gettone").addEventListener("close", () => clearInterval(gt.timer));
   document.addEventListener("click", (e) => {
     if (e.target.closest("[data-restart]")) return restart();
