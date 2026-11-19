@@ -47,7 +47,7 @@ const U = 'http://localhost:8765/statistiche.html';
   check('quattro totali: anno, in tutto, numero di donazioni, tocchi', s.totali.length === 4 && /Nel \d{4}/.test(s.totali[0]) && /In tutto/.test(s.totali[1]), s.totali);
   check('quattro numeri sulle visite con confronto', s.numeri.length === 4 && s.numeri.every((n) => n[1] && /▲|▼|=|Nessun/.test(n[2])), s.numeri);
   check('30 giorni: 30 righe in tabella, periodo scritto', s.righeTab === 30 && /^Dal .+ al .+/.test(s.periodo), [s.righeTab, s.periodo]);
-  check('azioni: 10 barre, la più lunga al 100%', s.azioni.length === 10 && s.azioni.some((a) => a[2] === '100%'), s.azioni);
+  check('azioni: 12 barre, la più lunga al 100%', s.azioni.length === 12 && s.azioni.every((a) => a[1] !== '0') && s.azioni.some((a) => a[2] === '100%'), s.azioni);
   check('comitive (esempio): 4 numeri, 6 barre, 3 nomi ognuno con «Cancella»', s.comitive.visibile && s.comitive.numeri.join() === '7,3,4,2' && s.comitive.barre === 6 && s.comitive.nomi.length === 3 && s.comitive.cancella === 3 && s.comitive.nomi[0] === 'I Supplì Volanti', s.comitive);
   check('inviti: 7 barre con i numeri (' + s.inviti.map((a) => a[0]).slice(0, 3).join(', ') + '…)', s.inviti.length === 7 && s.inviti[0][0] === '“Proponilo” aperto' && s.inviti.every((a) => /\d/.test(a[1])), s.inviti);
   check('fonti in ordine dal più grande, con la quota', s.fonti.length >= 3 && s.fonti.every((f) => /%/.test(f[1])), s.fonti);

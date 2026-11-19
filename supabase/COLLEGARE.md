@@ -20,9 +20,10 @@ ramo `main`: ogni push pubblica il sito).
   alle impostazioni delle email). È stato eseguito anche `accesso_monitoraggio.sql`: finché l'elenco
   `amministratori` è vuoto, il primo che conferma la propria email diventa l'amministratore; poi può registrarsi
   solo chi è in elenco. I passi 3 e 4 qui sotto non servono più.
-- Da fare, da parte di Matteo: aprire `statistiche.html`, toccare «È la prima volta», usare l'email del suo account
-  Supabase, scegliere la password e toccare il link nell'email di conferma (la pagina che si apre dopo non si
-  carica perché il Site URL del progetto è quello predefinito: la conferma vale lo stesso).
+- Accesso di Matteo alla pagina di monitoraggio: **creato** (al 19 novembre 2026 in `amministratori` c'è una riga).
+  Si era fatto così: `statistiche.html`, «È la prima volta», email del suo account Supabase, password, link
+  nell'email di conferma (la pagina che si apre dopo non si carica perché il Site URL del progetto è quello
+  predefinito: la conferma vale lo stesso).
 - **Quartieri scelti** (dal 17 novembre 2026): nel database ci sono anche `livelli_ammessi` e `contatori_livelli`
   (in `statistiche.sql`) e l'elenco dei nomi di `livelli.sql`. Quando compare una località nuova fuori Roma:
   `python3 strumenti/livelli_sql.py`, poi eseguire `livelli.sql` sul database.
@@ -92,6 +93,7 @@ semplice, un passo alla volta.
 ## Che cosa viene contato
 
 Un numero per giorno e per tipo di azione, senza cookie e senza dati personali: visite e provenienza
-(`?da=instagram` e simili), termini accettati, START, gettone, scelta del livello, posizione concessa o negata,
+(`?da=instagram` e simili), termini accettati, START, gettone, scelta del livello, scelta del tipo di posto e
+apertura dei filtri (dal 19 novembre 2026), posizione concessa o negata,
 «Portami lì», indicazioni aperte, «Apri su Maps», monete, inviti («Proponilo» e risposte). L'elenco completo è in
 `eventi_ammessi()` dentro `supabase/statistiche.sql`. Chi ha acceso «non tracciare» nel browser non viene contato.

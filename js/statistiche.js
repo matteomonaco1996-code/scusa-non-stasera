@@ -21,7 +21,7 @@
   const AZIONI = [
     ["visita", "Aperture del sito"], ["termini_ok", "Termini accettati"], ["start", "“Vicino a me” toccato"],
     ["posizione_si", "Posizione trovata"], ["posizione_no", "Posizione non trovata"], ["livello", "Quartiere scelto"],
-    ["gettone", "Gettoni inseriti"], ["portami", "“Portami lì” toccato"], ["vai", "Indicazioni aperte"], ["maps", "“Apri su Maps”"],
+    ["powerup", "Tipo di posto scelto"], ["filtri", "“Filtri” aperto"], ["gettone", "Gettoni inseriti"], ["portami", "“Portami lì” toccato"], ["vai", "Indicazioni aperte"], ["maps", "“Apri su Maps”"],
   ];
   // “Proponilo”: chi propone un posto e che cosa fa chi riceve il link
   const INVITI = [
@@ -65,7 +65,7 @@
       const g = piu(oggi, -i), d = data(g).getDay();
       const visite = Math.round((14 + (179 - i) * 0.22) * (d === 5 || d === 6 ? 1.7 : d === 0 ? 1.3 : 1) * (0.7 + caso() * 0.6));
       const parte = (q) => Math.round(visite * q * (0.6 + caso() * 0.8));
-      const r = { visita: visite, termini_ok: parte(0.55), start: parte(0.4), posizione_si: parte(0.27), posizione_no: parte(0.1), livello: parte(0.5),
+      const r = { visita: visite, termini_ok: parte(0.55), start: parte(0.4), posizione_si: parte(0.27), posizione_no: parte(0.1), livello: parte(0.5), powerup: parte(0.3), filtri: parte(0.12),
         gettone: parte(0.45), portami: parte(0.3), vai: parte(0.27), maps: parte(0.12),
         invito_apri: parte(0.08), invito_manda: parte(0.05), invito_arriva: parte(0.04), invito_si: parte(0.02), invito_altro: parte(0.008), invito_no: parte(0.004), invito_risposta: parte(0.022),
         comitiva_crea: parte(0.006), comitiva_entra: parte(0.012), comitiva_invita: parte(0.01), comitiva_aggiungi: parte(0.03), comitiva_voto: parte(0.025), comitiva_fatto: parte(0.008), dona_apri: parte(0.02), dona_1: parte(0.012), dona_2: parte(0.008), dona_5: parte(0.004), dona_altro: parte(0.003) };

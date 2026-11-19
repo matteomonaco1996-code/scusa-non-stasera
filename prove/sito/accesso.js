@@ -29,6 +29,8 @@ const TAVOLA = { nome: 'I Mangioni di Via Po', chiave: 'chiave-di-prova-00000000
     await p.click('#m-comitiva'); await esamina(p, nome + ': comitiva');
     await p.click('[data-com=gettone]'); await esamina(p, nome + ': gettone di comitiva'); await chiudi(p);
     await p.evaluate(() => document.querySelector('button[data-livello="Trastevere"]').click()); await p.waitForTimeout(500); await esamina(p, nome + ': lista');
+    await p.click('#apri-filtri'); await esamina(p, nome + ': filtri'); await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(400); await esamina(p, nome + ': lista filtrata');
+    await p.click('#filtri-attivi [data-togli-filtri]'); await p.waitForTimeout(300);
     await p.click('#gettone'); await p.waitForTimeout(300); await esamina(p, nome + ': gettone');
     await p.click('[data-get=invita]'); await esamina(p, nome + ': proponilo'); await chiudi(p);
     await p.locator('.card a[href^="https://www.google.com/maps/dir/"]').first().click(); await esamina(p, nome + ': prima di andare'); await chiudi(p);

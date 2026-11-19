@@ -47,7 +47,7 @@ language sql immutable set search_path = '' as $$
     'visita', 'termini_ok',
     'da_diretto', 'da_google', 'da_instagram', 'da_facebook', 'da_whatsapp', 'da_tiktok', 'da_telegram',
     'da_qr', 'da_volantino', 'da_amici', 'da_altro',
-    'start', 'posizione_si', 'posizione_no', 'livello', 'gettone',
+    'start', 'posizione_si', 'posizione_no', 'livello', 'powerup', 'filtri', 'gettone',
     'portami', 'vai', 'maps',
     'dona_apri', 'dona_1', 'dona_2', 'dona_5', 'dona_altro',
     'invito_apri', 'invito_manda', 'invito_arriva', 'invito_si', 'invito_no', 'invito_altro', 'invito_risposta',

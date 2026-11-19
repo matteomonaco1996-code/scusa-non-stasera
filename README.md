@@ -43,6 +43,11 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   Centro, Sponda ovest, Nord, Est, Sud, più la Periferia). In fondo a ogni
   livello ci sono i 3 quartieri più vicini (*Prossimo livello*). Fuori porta i
   livelli sono le località con almeno 3 posti; le altre sono raggruppate per regione.
+- **FILTRI** (dal 19 novembre 2026): un pulsante nella barra sopra i posti, sempre in vista, apre una finestra con
+  gli stessi power-up (con i numeri) e il campo di ricerca. Serve a chi è già sui posti, soprattutto dopo
+  «Vicino a me», dove i power-up della pagina restano cinque schermate più su. Scelto un tipo la finestra si
+  chiude e la lista riparte dall'inizio, senza passare dalla scelta del livello; il pulsante diventa «FILTRI · 1»
+  e in cima ai posti compare «Vedi solo … · Togli». INDIETRO toglie il filtro. Prova: `prove/sito/filtri.js`.
 - **POWER-UP**: Come a casa · A tavola · Pizza, ovvio · Un calice · Due drink ·
   Dolce & caffè · Giro del mondo · Al volo · Sapore di mare · Brace & carne ·
   Spesa golosa · Da scoprire.

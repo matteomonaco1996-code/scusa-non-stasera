@@ -69,7 +69,7 @@ const ROMA = { latitude: 41.8893, longitude: 12.4707 };
   const prima = conta(tutti(), 'visita');
   await p.reload(); await p.waitForTimeout(500);
   check('ricaricare la pagina non conta un’altra visita', conta(tutti(), 'visita') === prima, tutti().filter((x) => x === 'visita'));
-  const ammessi = new Set(['visita', 'termini_ok', 'da_diretto', 'start', 'posizione_si', 'posizione_no', 'livello', 'gettone', 'portami', 'vai', 'maps', 'dona_apri', 'dona_1', 'dona_2', 'dona_5', 'dona_altro']);
+  const ammessi = new Set(['visita', 'termini_ok', 'da_diretto', 'start', 'posizione_si', 'posizione_no', 'livello', 'powerup', 'filtri', 'gettone', 'portami', 'vai', 'maps', 'dona_apri', 'dona_1', 'dona_2', 'dona_5', 'dona_altro']);
   check('solo nomi previsti, mai dati sul posto o sulla persona', tutti().every((x) => ammessi.has(x)) && visti.every((v) => Object.keys(JSON.parse(JSON.stringify({ p_eventi: v.ev }))).length === 1), [...new Set(tutti())]);
   check('nessun errore in pagina', err.length === 0, err);
   await ctx.close();

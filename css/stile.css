@@ -230,6 +230,24 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .bar-actions { display: flex; gap: 10px; align-items: center; flex: none; }
 .bar .indietro { flex: none; gap: 8px; }
 .bar .indietro[hidden] { display: none; }
+.bar .restart { flex: none; }
+/* FILTRI: il pulsante nella barra sopra i posti. Acceso (c'è un filtro) ha la cornice dell'accento. */
+.btn.filtri.attivo { box-shadow: inset 0 0 0 4px var(--ocra); }
+/* In cima ai posti: che cosa si sta vedendo, e come toglierlo */
+.filtri-attivi { margin: 0 0 14px; padding: 10px 12px; background: var(--panel-2); color: var(--ink); font-size: 16px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.filtri-attivi b { color: var(--ocra); font-weight: 600; }
+.filtri-attivi .link { margin-left: auto; font-size: 16px; }
+/* La finestra dei filtri: gli stessi power-up su due colonne, il campo di ricerca, il pulsante per tornare ai posti */
+#dlg-filtri .corpo { gap: 12px; padding-bottom: 0; }
+#dlg-filtri .powerups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 0; }
+#dlg-filtri .pw { background: var(--panel-2); min-height: 44px; padding: 7px 10px; gap: 6px; font-size: 18px; text-align: left; }
+#dlg-filtri .pw[aria-pressed="true"] { background: var(--ocra); }
+#dlg-filtri .pw .et { flex: 1 1 auto; min-width: 0; line-height: 1.1; }
+#dlg-filtri .pw[data-voglia=""] { grid-column: 1 / -1; }
+#dlg-filtri .campo { flex: none; max-width: none; }
+/* Il pulsante per tornare ai posti resta in vista anche quando la finestra è più alta dello schermo */
+#dlg-filtri .piede { position: sticky; bottom: 0; display: grid; padding: 10px 0 16px; margin-top: -4px; background: var(--panel); }
+.bar-actions .btn { white-space: nowrap; }
 .seg { display: none; }
 .seg button { cursor: pointer; border: 0; padding: 9px 12px; background: var(--panel); color: var(--ink); font: 400 18px/1.2 var(--f-title); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--scuro); }
@@ -294,6 +312,7 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .empty strong { display: block; color: var(--ink); font: 400 25px/1.4 var(--f-title); margin-bottom: 6px; }
 
 .empty div { margin-top: 14px; }
+.empty .azioni { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .next-lv { display: grid; gap: 10px; margin-top: 8px; }
 .next-lv h3 { margin: 0; font: 400 25px/1.3 var(--f-title); color: var(--ocra); }
 
@@ -384,17 +403,21 @@ footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 400 19px/1.4 v
 @media (max-width: 720px) {
   .bar { padding-block: 8px; }
   .bar .wrap { flex-wrap: wrap; gap: 6px 10px; }
-  .dove-sei { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; }
+  .dove-sei { flex: 1 1 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; }   /* titolo e RESTART sulla stessa riga, i comandi sotto */
   .dove-sei .lv { flex: 1 1 100%; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .dove-sei b { font-size: 22px; min-width: 0; }
-  .bar-actions { flex: 1 1 100%; align-items: stretch; }
-  .bar-actions #gettone { flex: 1 1 auto; }
-  .bar-actions .restart span { display: none; }
+  .bar-actions { flex: 1 1 100%; align-items: stretch; gap: 8px; }
+  .bar-actions #gettone, .bar-actions .filtri { flex: 1 1 auto; padding-inline: 10px; }
+  .bar .restart { align-self: center; padding: 9px 12px; }
+  .bar .restart span { display: none; }
   .bar .indietro { align-self: center; padding: 9px 12px; }
   .bar .indietro span { display: none; }
-  .bar .indietro:not([hidden]) + .dove-sei { flex: 1 1 0; }   /* ◀ e titolo sulla stessa riga, i pulsanti sotto */
   #mappa { height: calc(100dvh - 150px); }
 }
+/* Tre comandi su una riga: sui telefoni stretti l'imbuto e poi la moneta lasciano il posto alle parole */
+@media (max-width: 400px) { .bar-actions .filtri .pxi { display: none; } }
+@media (max-width: 360px) { .bar-actions .seg button { padding-inline: 10px; } }
+@media (max-width: 340px) { .bar-actions { gap: 6px; } .bar-actions #gettone .pxi { display: none; } .bar-actions .seg button { padding-inline: 8px; } }
 @media (max-width: 520px) {
   /* Power-up sul telefono: due colonne uguali, «Tutto» in cima a tutta larghezza. Così si vedono tutti insieme. */
   .powerups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -532,7 +555,7 @@ dialog.gettone { width: min(480px, calc(100vw - 24px)); margin-top: max(12px, 7v
 .get-cosa b { color: var(--ink); }
 .suggerimento { margin: 0 0 14px; padding: 10px 12px; background: var(--panel-2); color: var(--dim); font-size: 15px; }
 .suggerimento b { font: 400 20px/1 var(--f-title); letter-spacing: .03em; color: var(--ocra); }
-.suggerimento[hidden] { display: none; }
+.suggerimento[hidden], .main.vuota .suggerimento { display: none; }
 .passi { margin: 0; padding-left: 24px; display: grid; gap: 10px; }
 .passi b { color: var(--ocra); font-weight: 600; }
 /* L'avviso prima di chiedere la posizione: tre righe, ognuna con la sua domanda in grassetto */

@@ -49,7 +49,7 @@ const check = (n, c, x) => (c ? ok : ko).push(n + (x !== undefined ? ' → ' + J
   check('Portami lì → «portami» (non ancora «vai»)', eventi().includes('portami') && !eventi().includes('vai'), eventi());
   const [mp] = await Promise.all([ctx.waitForEvent('page'), p.click('#vai-ora')]); await mp.close(); await p.bringToFront(); await p.waitForTimeout(700);
   check('Vai al posto → «vai»', eventi().filter((e) => e === 'vai').length === 1, eventi());
-  const ammessi = ['visita','termini_ok','da_diretto','da_google','da_instagram','da_facebook','da_whatsapp','da_tiktok','da_telegram','da_qr','da_volantino','da_amici','da_altro','start','posizione_si','posizione_no','livello','gettone','portami','vai','maps','dona_apri','dona_1','dona_2','dona_5','dona_altro','invito_apri','invito_manda','invito_arriva','invito_si','invito_no','invito_altro','invito_risposta'];
+  const ammessi = ['visita','termini_ok','da_diretto','da_google','da_instagram','da_facebook','da_whatsapp','da_tiktok','da_telegram','da_qr','da_volantino','da_amici','da_altro','start','posizione_si','posizione_no','livello','powerup','filtri','gettone','portami','vai','maps','dona_apri','dona_1','dona_2','dona_5','dona_altro','invito_apri','invito_manda','invito_arriva','invito_si','invito_no','invito_altro','invito_risposta'];
   check('ogni evento mandato è tra quelli che il database accetta', eventi().every((e) => ammessi.includes(e)), eventi().filter((e) => !ammessi.includes(e)));
   check('in tutto il giro nessuna chiamata diversa dai due contatori', chiamate.every((c) => /\/rest\/v1\/rpc\/conta(_livello)?$/.test(c.url)), chiamate.map((c) => c.url).filter((u) => !/rpc\/conta(_livello)?$/.test(u)));
   // «Tutta Roma», una città con un livello solo, una località fuori porta

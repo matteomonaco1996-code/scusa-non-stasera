@@ -3,7 +3,7 @@
 //   npm install --no-save @electric-sql/pglite@0.5.16
 //   node strumenti/test_comitive.mjs supabase/schema.sql supabase/statistiche.sql supabase/comitive.sql
 
-import { PGlite } from "@electric-sql/pglite";
+import { PGlite } from "./_pglite.mjs";
 import fs from "node:fs";
 const db = new PGlite();
 const ok = (m) => console.log("  ✓", m), ko = (m) => { console.log("  ✗", m); process.exitCode = 1; };

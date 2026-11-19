@@ -1,6 +1,6 @@
 // Chi può crearsi un accesso alla pagina di monitoraggio (supabase/accesso_monitoraggio.sql), su un database di prova.
 //   node test_accesso.mjs <statistiche.sql> <accesso_monitoraggio.sql>
-import { PGlite } from "@electric-sql/pglite";
+import { PGlite } from "./_pglite.mjs";
 import fs from "node:fs";
 const db = new PGlite();
 let falliti = 0;

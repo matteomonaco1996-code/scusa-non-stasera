@@ -32,6 +32,7 @@
     carne:   [".....##.", "....####", "...#####", "..####..", ".####...", "###.....", "##......", "#......."],
     borsa:   ["..####..", "..#..#..", "########", "########", "########", "########", "########", "########"],
     mistero: ["..####..", ".##..##.", ".....##.", "....##..", "...##...", "...##...", "........", "...##..."],
+    filtro:  ["########", ".######.", "..####..", "...##...", "...##...", "...##...", "...##...", "........"],
     stella:  ["...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"],
     moneta:  ["..####..", ".#....#.", "#..##..#", "#..#...#", "#..#...#", "#..##..#", ".#....#.", "..####.."],
     restart: ["..###.##", ".#...###", "#....###", "#.......", "#.......", "#......#", ".#....#.", "..####.."],
@@ -448,8 +449,21 @@
     const base = DATA.filter((x) => passa(x, "voglia"));
     const c = base.reduce((m, x) => (m[x.t] = (m[x.t] || 0) + 1, m), {});
     const ordine = Object.keys(PW).filter((k) => k !== "altro").sort((a, b) => (c[b] || 0) - (c[a] || 0)).concat("altro");
-    $("#powerups").innerHTML = `<button type="button" class="pw px" data-voglia="" aria-pressed="${!stato.voglia}">${svg("stella")}<span class="et">Tutto</span> <span class="n">${base.length}</span></button>` +
+    const html = `<button type="button" class="pw px" data-voglia="" aria-pressed="${!stato.voglia}">${svg("stella")}<span class="et">Tutto</span> <span class="n">${base.length}</span></button>` +
       ordine.map((k) => `<button type="button" class="pw px" data-voglia="${k}" aria-pressed="${stato.voglia === k}" ${!c[k] && stato.voglia !== k ? "disabled" : ""}>${svg(PW[k][1])}<span class="et">${esc(PW[k][0])}</span> <span class="n">${c[k] || 0}</span></button>`).join("");
+    $("#powerups").innerHTML = html;
+    $("#filtri-pw").innerHTML = html;   // gli stessi pulsanti nella finestra FILTRI, che si apre dalla barra sopra i posti
+    disegnaFiltri();
+  }
+  // Che cosa è filtrato adesso: il pulsante FILTRI si accende, e in cima ai posti c'è scritto che cosa si sta vedendo
+  function disegnaFiltri() {
+    const quanti = (stato.voglia ? 1 : 0) + (stato.q ? 1 : 0), b = $("#apri-filtri");
+    b.classList.toggle("attivo", quanti > 0);
+    b.querySelector("span").textContent = quanti ? "FILTRI · " + quanti : "FILTRI";
+    b.setAttribute("aria-label", quanti ? "Filtri · " + quanti + ": " + [stato.voglia && PW[stato.voglia][0], stato.q && "ricerca «" + stato.q + "»"].filter(Boolean).join(", ") : "Filtri: scegli che cosa cerchi");
+    const riga = $("#filtri-attivi");
+    riga.hidden = !quanti;
+    riga.innerHTML = quanti ? `Vedi solo ${[stato.voglia ? `<b>${esc(PW[stato.voglia][0])}</b>` : "", stato.q ? `chi ha <b>«${esc($("#q").value.trim())}»</b>` : ""].filter(Boolean).join(" · ")} <button class="link" type="button" data-togli-filtri>Togli</button>` : "";
   }
 
   // ---------- Disegno: risultati ----------
@@ -501,8 +515,10 @@
         h += scheda(x);
       }
     } else h = vis.map(scheda).join("");
-    $("#cards").innerHTML = n ? h : `<div class="empty"><strong>Nessun posto</strong>Cambia power-up o livello, oppure ricomincia da capo.<button class="btn" type="button" data-restart>${svg("restart")}RESTART</button></div>`;
+    $("#cards").innerHTML = n ? h : `<div class="empty"><strong>Nessun posto</strong>${stato.voglia || stato.q ? "Con questi filtri qui non c’è niente." : "Cambia power-up o livello, oppure ricomincia da capo."}<div class="azioni">${stato.voglia || stato.q ? `<button class="btn" type="button" data-togli-filtri>TOGLI I FILTRI</button>` : ""}<button class="btn${stato.voglia || stato.q ? " alt" : ""}" type="button" data-restart>${svg("restart")}RESTART</button></div></div>`;
     intestazione(n, conta);
+    $("main.main").classList.toggle("vuota", !n);   // niente posti: il suggerimento del gettone («pesco tra questi») non ha senso
+    $("#filtri-ok").textContent = n ? `MOSTRA ${n === 1 ? "IL POSTO" : "I " + n + " POSTI"}` : "NESSUN POSTO: CHIUDI";
     const resto = n - vis.length;
     $("#more").hidden = resto <= 0;
     $("#more").textContent = `Carica altri ${Math.min(PAGINA, resto)} ▼`;
@@ -855,13 +871,41 @@
   }
   // Ritoccare il power-up acceso lo spegne: lì si resta fermi, per sceglierne un altro. Ogni altra scelta
   // (anche «Tutto») porta avanti: al livello se c'è da sceglierlo, altrimenti ai posti.
-  function scegliVoglia(v) {
+  // Dalla finestra FILTRI (daiPosti) si resta sempre sui posti: chi sta guardando una lista vuole restringerla, non ripartire.
+  function scegliVoglia(v, daiPosti) {
     const spento = !!v && stato.voglia === v;
     stato.voglia = spento ? "" : v;
+    if (!spento && v) conta("powerup");
     aggiorna();
-    if (spento) return percorso.segna();
-    if (livelloDaScegliere()) versoLivelli(); else versoPosti();
+    if (spento && !daiPosti) return percorso.segna();
+    if (!daiPosti && livelloDaScegliere()) versoLivelli(); else versoPosti();
     percorso.avanza();
+  }
+  function togliFiltri() {
+    if (!stato.voglia && !stato.q) return;
+    stato.voglia = ""; stato.q = ""; $("#q").value = ""; $("#q-f").value = "";
+    aggiorna(); versoPosti(); percorso.avanza();
+  }
+  let qPrimaDeiFiltri = "";
+  function apriFiltri() {
+    const d = $("#dlg-filtri"); if (d.open) return;
+    conta("filtri");
+    $("#q-f").value = $("#q").value; qPrimaDeiFiltri = stato.q;
+    d.showModal();
+  }
+  // Quello che è scritto nel campo della finestra vale subito, senza aspettare la pausa della battitura
+  function cercaDaiFiltri() { clearTimeout(tCerca); $("#q").value = $("#q-f").value; stato.q = norm($("#q-f").value.trim()); }
+  // Chiude la finestra e riporta all'inizio dei posti. Se la ricerca è cambiata è un passo nuovo (INDIETRO la toglie);
+  // se non è cambiato niente la finestra si chiude e basta.
+  function chiudiFiltri(voglia) {
+    const d = $("#dlg-filtri"); if (!d.open) return;
+    const mostrata = stato.q;
+    cercaDaiFiltri();
+    d.close();
+    if (voglia !== undefined) return scegliVoglia(voglia, true);
+    if (stato.q !== mostrata) aggiorna();
+    if (stato.q !== qPrimaDeiFiltri) percorso.avanza();
+    versoPosti();
   }
   function scegliLivello(lv) {
     if (lv && lv !== stato.livello && !perLivello[lv]) return toast("Qui non ce n’è: scegli un altro livello o cambia power-up.");
@@ -1355,6 +1399,15 @@
     if (b) mostraSuMappa(+b.dataset.mappa);
   });
   $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (b) scegliVoglia(b.dataset.voglia); });
+  // FILTRI: la finestra che si apre dalla barra sopra i posti. Scelto il tipo si chiude e la lista riparte dall'inizio.
+  $("#apri-filtri").addEventListener("click", apriFiltri);
+  $("#filtri-pw").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (b) chiudiFiltri(b.dataset.voglia); });
+  $("#filtri-ok").addEventListener("click", () => chiudiFiltri());
+  $("#filtri-chiudi").addEventListener("click", () => chiudiFiltri());
+  $("#dlg-filtri").addEventListener("cancel", (e) => { e.preventDefault(); chiudiFiltri(); });   // tasto Esc
+  $("#q-f").addEventListener("input", (e) => { $("#q").value = e.target.value; clearTimeout(tCerca); tCerca = setTimeout(() => { if (!$("#dlg-filtri").open) return; stato.q = norm(e.target.value.trim()); aggiorna(); percorso.segna(); }, 160); });
+  $("#q-f").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("#filtri-ok").click(); } });
+  document.addEventListener("click", (e) => { if (e.target.closest("[data-togli-filtri]")) togliFiltri(); });
   $("#q").addEventListener("input", (e) => { clearTimeout(tCerca); tCerca = setTimeout(() => { stato.q = norm(e.target.value.trim()); aggiorna(); percorso.segna(); }, 160); });
   $("#more").addEventListener("click", () => { stato.mostrati += PAGINA; disegnaLista(); percorso.segna(); });
   $("#bolla").addEventListener("click", (e) => { const i = e.currentTarget.dataset.i; if (i) mostraScheda(+i); else finestraPosizione("chiedi"); });   // "Portami fuori" → da dove partiamo?

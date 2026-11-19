@@ -24,7 +24,7 @@ const check = (n, c, x) => (c ? ok : ko).push(n + (x !== undefined ? ' → ' + J
       primoNome: (document.querySelector('#cards .card h4') || {}).textContent, indietro: !document.querySelector('#indietro').hidden };
   });
   // la prima scheda è subito sotto la barra, e la barra è in cima allo schermo
-  const daCapo = (v) => v.barra && v.prima && v.barra.top >= 0 && v.barra.top <= 60 && v.prima.top >= v.barra.bottom - 2 && v.prima.top <= v.barra.bottom + 160;   // tra la barra e la prima scheda può esserci il suggerimento del gettone
+  const daCapo = (v) => v.barra && v.prima && v.barra.top >= 0 && v.barra.top <= 60 && v.prima.top >= v.barra.bottom - 2 && v.prima.top <= v.barra.bottom + 240;   // tra la barra e la prima scheda possono esserci la riga dei filtri («Vedi solo … · Togli») e il suggerimento del gettone
   const inFondo = async (p) => { await p.evaluate(() => document.querySelector('#next-lv').scrollIntoView({ block: 'center' })); await p.waitForTimeout(400); };
 
   for (const [nome, opz, attesa] of [['telefono', {}, 600], ['telefono con le animazioni', { fermo: false }, 2200], ['computer', { dispositivo: { viewport: { width: 1366, height: 800 } } }, 600]]) {

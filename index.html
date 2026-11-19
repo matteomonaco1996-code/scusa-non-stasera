@@ -115,8 +115,9 @@
   <div class="wrap">
     <button class="btn alt indietro" type="button" id="indietro" title="Torna al passo prima" aria-label="Indietro: torna al passo prima" hidden>◀<span>INDIETRO</span></button>
     <div class="dove-sei"><span class="lv" id="lv">MONDO 1</span><b id="titolo-ris">Tutta Roma</b><span id="conteggio"></span></div>
+    <button class="btn alt restart" type="button" data-restart title="Ricomincia da capo" aria-label="Restart: ricomincia da capo" hidden><svg class="pxi" data-ico="restart" aria-hidden="true"></svg><span>RESTART</span></button>
     <div class="bar-actions">
-      <button class="btn alt restart" type="button" data-restart title="Ricomincia da capo" aria-label="Restart: ricomincia da capo" hidden><svg class="pxi" data-ico="restart" aria-hidden="true"></svg><span>RESTART</span></button>
+      <button class="btn alt filtri" type="button" id="apri-filtri" aria-haspopup="dialog" title="Filtri: scegli che cosa cerchi" aria-label="Filtri: scegli che cosa cerchi"><svg class="pxi" data-ico="filtro" aria-hidden="true"></svg><span>FILTRI</span></button>
       <button class="btn" type="button" id="gettone" title="Gettone: ti pesco un posto a caso tra questi. È gratis" aria-label="Gettone: ti pesco un posto a caso tra questi. È gratis"><svg class="pxi" data-ico="moneta" aria-hidden="true"></svg><span>GETTONE</span></button>
       <div class="seg" role="group" aria-label="Vista">
         <button type="button" data-view="lista" aria-pressed="true">LISTA</button>
@@ -129,6 +130,7 @@
 <main class="main" data-view="lista">
   <div class="wrap">
     <div class="list-col">
+      <p class="filtri-attivi" id="filtri-attivi" hidden></p>
       <p class="suggerimento" id="hint-gettone">Indeciso? Tocca <b>GETTONE</b> qui sopra: pesco io un posto a caso tra questi. È gratis.</p>
       <div class="cards" id="cards"></div>
       <button class="btn alt more" type="button" id="more" hidden></button>
@@ -172,6 +174,15 @@
 <dialog class="finestra gettone" id="dlg-gettone" aria-labelledby="get-t">
   <div class="testa"><h2 id="get-t">GETTONE</h2><button class="btn alt mini" type="button" data-chiudi>CHIUDI</button></div>
   <div class="corpo" id="get-corpo"></div>
+</dialog>
+
+<dialog class="finestra" id="dlg-filtri" aria-labelledby="fil-t">
+  <div class="testa"><h2 id="fil-t">CHE VOGLIA HAI?</h2><button class="btn alt mini" type="button" id="filtri-chiudi">CHIUDI</button></div>
+  <div class="corpo">
+    <div class="powerups" id="filtri-pw" role="group" aria-label="Tipo di posto"></div>
+    <label class="campo"><span class="sr">Cerca</span><input id="q-f" type="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
+    <div class="piede"><button class="btn" type="button" id="filtri-ok">MOSTRA I POSTI</button></div>
+  </div>
 </dialog>
 
 <dialog class="finestra gettone" id="dlg-invito" aria-labelledby="inv-t">

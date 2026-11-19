@@ -34,6 +34,7 @@ const PROVE = [
   { nome: 'passi', foto: true, url: 'dopo', cosa: 'mondo → power-up → livello → posti' },
   { nome: 'prossimo', foto: true, url: 'dopo', cosa: '«Prossimo livello» riparte dall’inizio dell’elenco' },
   { nome: 'pw-righe', foto: true, url: 'dopo', cosa: 'power-up su più righe' },
+  { nome: 'filtri', foto: true, url: 'dopo', cosa: 'FILTRI nella barra sopra i posti: tipo e ricerca senza risalire la pagina' },
   { nome: 'percorso', foto: true, cosa: 'INDIETRO, ricarica, finestre' },
   { nome: 'posizione', foto: true, cosa: 'la finestra della posizione' },
   { nome: 'avviso-posizione', foto: true, url: 'dopo', cosa: 'l’avviso prima di «Vicino a me» nel gettone' },
