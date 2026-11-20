@@ -9,7 +9,7 @@ const U = process.argv[2] || 'http://localhost:8765/index.html';
   const p = await ctx.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e))); p.on('console', (m) => { if (m.type() === 'error') err.push(m.text()); });
   await p.goto(U); await p.waitForTimeout(800);
   const t = await p.evaluate(() => [...document.querySelectorAll('#mondi .tab')].map((x) => x.querySelector('.w').textContent + ' ' + x.querySelector('.nm').textContent + ' ' + x.querySelector('.ct').textContent.trim()));
-  dico('ordine dei mondi: ' + t.map((x) => x.replace(/ × .*/, '')).join(' · '), t.length === 6 && /^MONDO 1 Roma/.test(t[0]) && /^MONDO 2 Fuori porta/.test(t[1]) && /^MONDO 3 Firenze/.test(t[2]) && /^MONDO 4 Venezia/.test(t[3]) && /^MONDO 5 Milano/.test(t[4]) && /^MONDO 6 Bologna/.test(t[5]), t);
+  dico('ordine dei mondi: ' + t.map((x) => x.replace(/ × .*/, '')).join(' · '), t.length === 7 && /^MONDO 1 Roma/.test(t[0]) && /^MONDO 2 Fuori porta/.test(t[1]) && /^MONDO 3 Firenze/.test(t[2]) && /^MONDO 4 Venezia/.test(t[3]) && /^MONDO 5 Milano/.test(t[4]) && /^MONDO 6 Bologna/.test(t[5]) && /^MONDO 7 Siena/.test(t[6]), t);
   await p.evaluate(() => document.querySelector('#sez-mondi').scrollIntoView()); await p.waitForTimeout(200);
   const vis = await p.evaluate(() => { const r = document.querySelector('[data-mondo="fuori"]').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth + 1; });
   dico('sul telefono «Fuori porta» si vede subito accanto a Roma, senza scorrere', vis);
@@ -34,6 +34,15 @@ const U = process.argv[2] || 'http://localhost:8765/index.html';
   await p.evaluate(() => document.querySelector('[data-mondo="firenze"]').click()); await p.waitForTimeout(500);
   const fi = await p.evaluate(() => ({ lv: document.querySelector('#lv').textContent, titolo: document.querySelector('#titolo-ris').textContent, schede: document.querySelectorAll('.card').length }));
   dico('Firenze ora è «' + fi.lv + '» e funziona (' + fi.schede + ' schede)', fi.lv === 'MONDO 3' && fi.titolo === 'Firenze' && fi.schede > 5, fi);
+  // Siena: mondo nuovo (20 novembre 2026). Solo i posti del comune; quelli della provincia restano in Fuori porta
+  await p.evaluate(() => document.querySelector('[data-mondo="siena"]').click()); await p.waitForTimeout(600);
+  const si = await p.evaluate(() => ({ lv: document.querySelector('#lv').textContent, titolo: document.querySelector('#titolo-ris').textContent, sopra: document.querySelector('#t-livelli').textContent, tutto: document.querySelector('#livelli [data-livello=""] .nm').textContent,
+    schede: document.querySelectorAll('.card').length, quart: [...new Set([...document.querySelectorAll('.card .quart')].map((x) => x.textContent))], attesi: window.RISTOMAT.filter((x) => x.c === 'Siena').length,
+    provincia: window.RISTOMAT.filter((x) => x.p === 'SI' && x.c !== 'Siena').map((x) => x.c) }));
+  dico('Siena è «' + si.lv + '»: ' + si.schede + ' posti, tutti del comune', si.lv === 'MONDO 7' && si.titolo === 'Siena' && si.sopra === 'SCEGLI LA ZONA' && si.tutto === 'Tutta Siena' && si.schede === si.attesi && si.schede >= 5 && si.quart.join() === 'Siena', si);
+  await p.evaluate(() => document.querySelector('[data-mondo="fuori"]').click()); await p.waitForTimeout(600);
+  const fp = await p.evaluate(() => ({ siena: !!document.querySelector('#livelli [data-livello="Siena"]'), nomi: [...document.querySelectorAll('#livelli .level .nm')].map((x) => x.textContent) }));
+  dico('…e Siena non è più tra le località di Fuori porta (la provincia sì: ' + si.provincia.join(', ') + ')', !fp.siena && si.provincia.length > 0, fp.nomi.slice(0, 12));
   dico('nessun errore', err.length === 0, err);
   await b.close(); console.log(`\n${ok} ok · ${ko} KO`); process.exitCode = ko ? 1 : 0;
 })();

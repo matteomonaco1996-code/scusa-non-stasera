@@ -45,7 +45,11 @@ Matteo. Chi si registra fa punti con check-in e recensioni.
   Nel gettone, toccando “Vicino a me”, prima che il telefono chieda il permesso compare un avviso
   (“Posso usare la tua posizione?”): a che cosa serve, che cosa sta per succedere, dove finisce il dato, con
   “Sì, usa la posizione” e “No, scelgo io dove”. Non compare se il permesso è già dato o già rifiutato.
-- **SELEZIONA IL MONDO**: Roma, Firenze, Venezia, Milano, Bologna, Fuori porta.
+- **SELEZIONA IL MONDO**: Roma, Fuori porta, Firenze, Venezia, Milano, Bologna, Siena (dal 20 novembre 2026).
+  Una città diventa un mondo aggiungendola all'elenco `CITTA` in `js/app.js` **e** in `strumenti/livelli_sql.py`
+  (in fondo, così i numeri degli altri mondi non cambiano); poi `python3 strumenti/livelli_sql.py` e il file
+  `supabase/livelli.sql` va eseguito sul database, altrimenti «Tutta <città>» finisce tra gli «Altri» nel
+  monitoraggio. Vale solo per il comune: i posti della provincia restano in Fuori porta.
 - **I TRE PASSI**: la pagina è in quest’ordine, e a ogni scelta scende da sola al passo dopo:
   **mondo → power-up → livello → posti**. Toccato un mondo si arriva al power-up; scelto il power-up (anche
   «Tutto») si arriva all’elenco dei livelli, oppure dritti ai posti se il mondo ha un livello solo o il livello

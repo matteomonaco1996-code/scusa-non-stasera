@@ -14,9 +14,9 @@ const ids = new Map(); L.forEach((x) => ids.set(x.id, (ids.get(x.id) || 0) + 1))
 dico('nessun numero di posto ripetuto', [...ids.values()].every((n) => n === 1), [...ids].filter(([, n]) => n > 1));
 dico('ogni posto ha nome, coordinate, città e tipo validi', L.every((x) => x.n && x.n.trim() && typeof x.la === 'number' && typeof x.lo === 'number' && x.c && TIPI.includes(x.t) && /^(\d+|h[0-9a-f]{15})$/.test(x.id)), L.filter((x) => !(x.n && x.c && TIPI.includes(x.t))).map((x) => x.n));
 dico('tutte le coordinate cadono in Italia', L.every((x) => x.la > 35 && x.la < 47.6 && x.lo > 6 && x.lo < 19), L.filter((x) => !(x.la > 35 && x.la < 47.6 && x.lo > 6 && x.lo < 19)).map((x) => [x.n, x.la, x.lo]));
-const CENTRI = { Roma: { la: 41.8933, lo: 12.4829, r: 25 }, Firenze: { la: 43.7696, lo: 11.2558, r: 12 }, Venezia: { la: 45.4371, lo: 12.3326, r: 15 }, Milano: { la: 45.4642, lo: 9.19, r: 15 }, Bologna: { la: 44.4949, lo: 11.3426, r: 12 } };
+const CENTRI = { Roma: { la: 41.8933, lo: 12.4829, r: 25 }, Firenze: { la: 43.7696, lo: 11.2558, r: 12 }, Venezia: { la: 45.4371, lo: 12.3326, r: 15 }, Milano: { la: 45.4642, lo: 9.19, r: 15 }, Bologna: { la: 44.4949, lo: 11.3426, r: 12 }, Siena: { la: 43.3188, lo: 11.3308, r: 10 } };
 const lontani = L.filter((x) => CENTRI[x.c] && km(x, CENTRI[x.c]) > CENTRI[x.c].r).map((x) => `${x.n} (${x.c}, ${Math.round(km(x, CENTRI[x.c]))} km dal centro)`);
-dico('i posti di Roma, Firenze, Venezia, Milano e Bologna stanno davvero in quelle città', lontani.length === 0, lontani);
+dico('i posti di Roma, Firenze, Venezia, Milano, Bologna e Siena stanno davvero in quelle città', lontani.length === 0, lontani);
 const quart = new Set(M.quartieri.map((q) => q.n)), PER = 'Periferia';
 dico('ogni posto di Roma ha un quartiere dell’elenco oppure «Periferia»; fuori Roma nessun quartiere', L.every((x) => x.c !== 'Roma' ? !x.q : (x.q === PER || quart.has(x.q))), L.filter((x) => (x.c !== 'Roma' && x.q) || (x.c === 'Roma' && x.q !== PER && !quart.has(x.q))).map((x) => [x.n, x.c, x.q]));
 const periferia = L.filter((x) => x.q === PER);

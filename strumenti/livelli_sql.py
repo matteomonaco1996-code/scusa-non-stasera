@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from quartieri import QUARTIERI  # noqa: E402
 
-CITTA = ["Firenze", "Venezia", "Milano", "Bologna"]   # come in js/app.js: le città che sono un mondo a sé
+CITTA = ["Firenze", "Venezia", "Milano", "Bologna", "Siena"]   # come in js/app.js: le città che sono un mondo a sé
 
 
 def main():

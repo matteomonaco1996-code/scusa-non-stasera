@@ -141,7 +141,7 @@
   }
 
   // ---------- Mondi e livelli ----------
-  const CITTA = ["Firenze", "Venezia", "Milano", "Bologna"];
+  const CITTA = ["Firenze", "Venezia", "Milano", "Bologna", "Siena"];   // le città che sono un mondo a sé (l'elenco è anche in strumenti/livelli_sql.py). Le nuove in fondo: così i numeri dei mondi non cambiano
   const mondoDi = (x) => x.c === "Roma" ? "roma" : CITTA.includes(x.c) ? x.c.toLowerCase() : "fuori";
   const perCitta = DATA.reduce((m, x) => (m[x.c] = (m[x.c] || 0) + 1, m), {});
   const perId = new Map();
