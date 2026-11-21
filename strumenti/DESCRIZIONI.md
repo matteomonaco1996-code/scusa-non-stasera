@@ -66,7 +66,23 @@ che c’è.
 - Solo fatti che compaiono in almeno una fonte affidabile (sito del locale, guide, giornali, più recensioni concordi).
 - Se non si trova abbastanza, o non è certo che sia quel locale: `"breve": ""`.
 
+**La voce (dal 21 novembre 2026).** Matteo ha voluto tutte le descrizioni in una voce più viva e asciutta, «un po’
+cinica»: quel giorno sono state riscritte tutte. La regola per quelle nuove:
+- l’ironia sta **nel modo di dirlo**: sul nome del posto, sul genere, su chi legge («vegetariani avvisati», «il mare
+  non è compreso», «il nome mente a metà»);
+- **mai in un giudizio sul locale**: per questi posti non c’è un’opinione di Matteo, ci sono solo fatti trovati in rete.
+  Una frecciata che afferma un difetto (caro, lento, turistico) sarebbe un giudizio inventato: non si scrive, a meno che
+  non sia un fatto già documentato («spesso c’è fila», «conto importante»);
+- la battuta è una, in fondo, e corta. Se non viene, la descrizione resta asciutta: meglio niente che una forzata;
+- non ripetere sempre la stessa mossa (su 629 descrizioni, «Il nome…» c’è già una ventina di volte).
+
 Esempi di stile:
+- “Il nome dice già tutto: in via Tuscolana si viene per la carne. Tanti tagli, provenienze diverse, vegetariani avvisati.”
+- “Via del Boschetto, sotto la vecchia insegna Peroni. Fuori Monti è cambiata, qui dentro no.”
+- “All’Esquilino, famosa per due cose: la carbonara e la cacio e pepe mantecata nella forma di pecorino. Il resto del menu è lì per educazione.”
+- “Spagna in Corso di Francia, con un’aria da Ibiza: paella, pimientos del piquillo e carni alla griglia. Il mare non è compreso.”
+
+Esempi della voce di prima (ancora validi come fatti e come gancio):
 - “Si mangia sotto un glicine secolare, accanto al tempio di Vesta e davanti alle cascate. In attività dal Settecento.”
 - “In un palazzo medievale con la scala a chiocciola: la cucina dei pastori riletta oggi, tra ravioli di ricotta di pecora e agnello.”
 - “Un calice nel centro storico: lunga carta dei vini, cocktail, taglieri di formaggi e focaccia.”
