@@ -146,6 +146,7 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | `img/` | Il logo disegnato da Matteo: `logo.svg` e `logo-chiaro.svg` (1200×630), `gettone.svg`, `icona.svg`, i PNG per schede del browser e schermata Home, `anteprima.png` per i link condivisi, `logo.png` e `logo-chiaro.png` da usare altrove |
 | `strumenti/logo.py` | Ridisegna gli SVG del logo con le misure del progetto di Matteo (gettone a pixel con segnaposto + scritte in Press Start 2P convertite in tracciati). I PNG sono esportazioni di quegli SVG |
 | `manifest.webmanifest` | Nome e icone per "Aggiungi a schermata Home" |
+| `robots.txt`, `sitemap.xml` | Per i motori di ricerca: si può leggere tutto, e l’unica pagina da far comparire nei risultati è quella principale. Privacy, termini, monitoraggio e pagina d’errore chiedono di restarne fuori con `noindex` (non vanno bloccate in `robots.txt`, altrimenti quell’indicazione non verrebbe letta). L’indirizzo ufficiale è `https://ristomat.click/` (`rel="canonical"` in `index.html`) |
 
 Dopo aver aggiunto posti su Google Maps o modificato un file `.json`:
 

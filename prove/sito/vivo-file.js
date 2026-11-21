@@ -43,6 +43,12 @@ const prendi = async (u) => pagina.evaluate(async (u) => { for (let k = 0; k < 8
   const i = visti.get('index.html'), sec = visti.get('.well-known/security.txt'), man = visti.get('manifest.webmanifest');
   dico('la pagina dei contatti per la sicurezza (security.txt) c’è e non è scaduta', sec && sec.stato === 200 && /Contact:/.test(sec.testo) && (() => { const m = sec.testo.match(/Expires:\s*(\S+)/); return m && new Date(m[1]) > new Date(); })(), sec && sec.testo.slice(0, 200));
   dico('il file per «Aggiungi a schermata Home» è valido', (() => { try { const m = JSON.parse(man.testo); return m.name && m.icons.length >= 2 && m.start_url !== undefined; } catch (e) { return false; } })(), man && man.testo.slice(0, 150));
+  // Motori di ricerca: la pagina principale si fa trovare, le altre no
+  const robots = await prendi(SITO + 'robots.txt'), mappa = await prendi(SITO + 'sitemap.xml');
+  dico('robots.txt c’è, non blocca niente e indica la mappa del sito', robots.stato === 200 && /User-agent: \*/.test(robots.testo) && !/^Disallow: \/\S/m.test(robots.testo) && /Sitemap: https:\/\/ristomat\.click\/sitemap\.xml/.test(robots.testo), robots.stato);
+  dico('sitemap.xml elenca la pagina principale e nessuna pagina da tenere fuori', mappa.stato === 200 && /<loc>https:\/\/ristomat\.click\/<\/loc>/.test(mappa.testo) && !/privacy|termini|statistiche/.test(mappa.testo), mappa.stato);
+  dico('la pagina principale ha l’indirizzo ufficiale, un titolo che dice che cos’è e nessun «noindex»', /<link rel="canonical" href="https:\/\/ristomat\.click\/">/.test(i.testo) && /<title>[^<]*Roma[^<]*<\/title>/.test(i.testo) && !/name="robots"/.test(i.testo), '');
+  dico('privacy e termini chiedono di non comparire nei risultati', ['privacy.html', 'termini.html'].every((f) => /name="robots" content="noindex"/.test(visti.get(f).testo)), '');
   const st = visti.get('statistiche.html');
   dico('la pagina di monitoraggio chiede ai motori di ricerca di non comparire', /name="robots" content="noindex, nofollow"/.test(st.testo), '');
   dico('l’anteprima per i link condivisi punta a un’immagine che esiste', /property="og:image" content="https:\/\/ristomat\.click\/img\/anteprima\.png"/.test(i.testo) && (visti.get('img/anteprima.png') || {}).stato === 200, '');

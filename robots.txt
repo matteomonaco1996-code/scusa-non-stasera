@@ -1,0 +1,7 @@
+# Scusa, non stasera · Ristomat — https://ristomat.click
+# Tutto il sito si può leggere. Le pagine che non devono comparire nei risultati (monitoraggio, privacy, termini)
+# lo dicono da sé con "noindex": qui non vanno bloccate, altrimenti i motori non potrebbero leggere quell'indicazione.
+User-agent: *
+Allow: /
+
+Sitemap: https://ristomat.click/sitemap.xml
