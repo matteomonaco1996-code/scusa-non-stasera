@@ -4,7 +4,8 @@
     "t": "vino"
   },
   "La Colombina": {
-    "t": "vino"
+    "t": "vino",
+    "nt": "La Michelin lo segnala, tu vai dritto ai cicchetti: mare e terra, tutti e due."
   },
   "MASTO a Testaccio": {
     "c": "Roma",
@@ -99,5 +100,35 @@
   },
   "Trattoria La Rosetta - Ristorante di Pesce": {
     "nt": "Pesce in pieno centro, e il conto lo sa: i primi partono da 30 €. Vacci sapendolo, o quando paga un altro."
+  },
+  "Osteria Iotto": {
+    "nt": "Osteria fuori porta per chi beve naturale: la gita ha già la sua scusa."
+  },
+  "Casa Manfredi Teatro": {
+    "nt": "Forno pazzesco. Non c’è altro da aggiungere, c’è solo da andarci."
+  },
+  "Mostro": {
+    "nt": "È un chiosco, e gli basta: aperitivo in mano e tramezzini pazzeschi."
+  },
+  "Comodo Mercato Trevi": {
+    "nt": "Stile mercato centrale: giri, scegli, mangi. Per la pausa pranzo è quello che serve."
+  },
+  "Osteria Qui Se Magna!": {
+    "nt": "Romano doc, senza sottotitoli: primi abbondanti, coda alla vaccinara da ordinare a occhi chiusi, e i secondi tengono il passo."
+  },
+  "Pico's Pigneto": {
+    "nt": "Messicano al Pigneto, piccolo ma con carattere: i posti sono pochi, quindi prenota prima di innamorarti dell’idea."
+  },
+  "Soffio": {
+    "nt": "Chiosco a Fregene con il pedigree: sono gli stessi di Fischio. E si sente."
+  },
+  "LibrOsteria": {
+    "nt": "A Milano non si salta: comincia dall’aperitivo, il resto viene da sé."
+  },
+  "Ristorante Da Adolfo Di Bella Sergio": {
+    "nt": "Si viene per il pesto con i friarielli. E si prenota molto prima: non sei l’unico ad averlo saputo."
+  },
+  "LA GABELLETTA DIMORA E RISTORO DAL ‘700": {
+    "nt": "Quando c’è qualcosa da festeggiare: compleanni ed eventi sono il suo mestiere."
   }
 }
