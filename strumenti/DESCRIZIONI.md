@@ -73,7 +73,16 @@ Esempi di stile:
 - Da evitare: “Ristorante di Tivoli con prodotti del territorio.” (vero, ma non dice perché andarci).
 
 Quando Matteo detta lui una riga su un posto (“la numero 1 per la pizza romana”), quella **non** è un IN BREVE: è una
-sua nota, firmata MATTEO, e va in `correzioni.json` nel campo `nt`. I giudizi sono suoi e solo suoi.
+sua nota e va in `correzioni.json` nel campo `nt`. I giudizi sono suoi e solo suoi.
+
+### Le note di Matteo: «LA DRITTA» (regole dal 21 novembre 2026)
+- **Senza firma**: sul sito compaiono con l’etichetta LA DRITTA, non più MATTEO.
+- **Voce alternativa, ironica, parlata**, sul modello della nota del Goccetto: una battuta su chi ci trovi o
+  sull’aria che tira, come si usa davvero il posto, il trucco che non ti dice nessuno. Corta: intorno ai 140 caratteri.
+- **Sempre in positivo**: sono posti scelti, quindi niente stroncature. L’ironia è affettuosa.
+- **La sostanza la dà Matteo** (anche cinque parole buttate lì); chi lo aiuta può dare la forma, non inventare
+  giudizi né fatti. Una battuta aggiunta va fatta approvare.
+- Niente frecciate a persone (titolari, camerieri); un fatto negativo si scrive solo se è vero e l’ha visto lui.
 
 ### `chiuso`
 - `"si"` solo con una prova chiara e recente di **chiusura definitiva** (scheda che dice “chiuso definitivamente”,

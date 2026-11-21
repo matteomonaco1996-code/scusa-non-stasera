@@ -98,7 +98,7 @@ const CORSI = '3935991939893424995';
   await p.click('#termini-ok'); await p.waitForTimeout(600);
   f = await finestra(p);
   const url = await p.evaluate(() => location.search);
-  dico('accettati i termini compare l’invito: «' + f.titolo + '» · ' + f.nome, f.aperta && f.titolo === 'STASERA QUI?' && f.eti === 'TI HANNO PROPOSTO UN POSTO' && f.nome === 'Enoteca Corsi' && /MATTEO\s*Il mio indirizzo in centro/.test(f.corpo) && /Via del Gesù, 87\/88/.test(f.corpo) && /Ci sto!/.test(f.corpo) && /Scusa, non stasera…/.test(f.corpo), f);
+  dico('accettati i termini compare l’invito: «' + f.titolo + '» · ' + f.nome, f.aperta && f.titolo === 'STASERA QUI?' && f.eti === 'TI HANNO PROPOSTO UN POSTO' && f.nome === 'Enoteca Corsi' && /LA DRITTA\s*Il mio indirizzo in centro/.test(f.corpo) && /Via del Gesù, 87\/88/.test(f.corpo) && /Ci sto!/.test(f.corpo) && /Scusa, non stasera…/.test(f.corpo), f);
   dico('l’indirizzo della pagina torna pulito (resta solo «da amici»)', url === '?da=amici', url);
   dico('non compare la domanda sulla posizione sopra l’invito', await p.evaluate(() => !document.querySelector('#dlg-posizione').open));
   // Ci sto!

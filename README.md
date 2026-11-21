@@ -137,7 +137,7 @@ database, non dal browser, e non danno premi. Test del database: `strumenti/test
 | `mappa/quartieri.js` | Le strade principali disegnate sotto la mappa dei quartieri: una versione leggera di `roma.js`, generata da `strumenti/strade_quartieri.py` (da rilanciare solo se cambiano `roma.js` o i quartieri) |
 | `locali.js` | Dati **generati**: non modificarli a mano |
 | `tipi.json` | Tipo di locale per i posti il cui nome non lo dice |
-| `in_breve.json` | Descrizioni brevi (etichetta IN BREVE) per i posti senza una nota di Matteo: bozze da rileggere |
+| `in_breve.json` | Descrizioni brevi (etichetta IN BREVE) per i posti senza una nota di Matteo (etichetta LA DRITTA, senza firma dal 21 novembre 2026): bozze da rileggere |
 | `correzioni.json` | Correzioni manuali (tipo `t`, quartiere `q`, città `c`, nota `nt`): vincono su tutto |
 | `prove/` | Prove automatiche del sito: `node prove/tutte.js` le lancia tutte (vedi `prove/LEGGIMI.md`). Non vengono pubblicate |
 | `supabase/accesso_monitoraggio.sql`, `supabase/livelli.sql` | Chi può crearsi l'accesso alla pagina di monitoraggio; quartieri e località che si possono contare |

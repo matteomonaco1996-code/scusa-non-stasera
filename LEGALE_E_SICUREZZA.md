@@ -37,7 +37,8 @@
   vuoi dare sconti, omaggi o buoni, serve prima una verifica con un consulente.
 - Licenze: dati © OpenStreetMap (ODbL) citati; licenze dei componenti in `vendor/LICENZE.md`.
 - Trasparenza sui contenuti: le descrizioni “IN BREVE” sono dichiarate nel sito come scritte con l’aiuto
-  dell’intelligenza artificiale e sono distinte dalle note personali (MATTEO) e dalle recensioni degli utenti.
+  dell’intelligenza artificiale e sono distinte dalle note personali (etichetta LA DRITTA; fino al 21 novembre 2026 erano firmate MATTEO) e
+  dalle recensioni degli utenti. Togliere la firma non cambia chi risponde di ciò che c’è scritto: chi pubblica il sito.
   Rileggile in `in_breve.json`: di un’informazione sbagliata su un locale risponde chi pubblica il sito.
 
 ## 2. Da fare prima di andare online (obbligatorio)

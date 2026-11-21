@@ -483,7 +483,8 @@
 
   // ---------- Disegno: risultati ----------
   // La nota di Matteo, se c'è; altrimenti la descrizione breve del sito
-  const nota = (x) => x.nt ? `<div class="say"><b>MATTEO</b>${esc(x.nt)}</div>`
+  // La nota di chi cura la lista: senza firma, con l'etichetta «LA DRITTA» (fino al 21 novembre 2026 era firmata MATTEO)
+  const nota = (x) => x.nt ? `<div class="say"><b>LA DRITTA</b>${esc(x.nt)}</div>`
     : x.dr ? `<div class="say breve"><b>IN BREVE</b>${esc(x.dr)}</div>` : "";
   function scheda(x) {
     const extra = SNS.extraScheda ? SNS.extraScheda(x) : "";
