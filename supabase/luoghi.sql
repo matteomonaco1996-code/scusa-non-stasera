@@ -1,5 +1,6 @@
 -- Generato da strumenti/aggiorna_lista.py: posti della lista, per verificare i check-in.
 insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
+('16213175485624977072', 'Batu baretto', 41.945664, 12.535199, 'Montesacro · Talenti', 'Roma', 'bar'),
 ('8779838341907985973', 'Compagnia dei Vinattieri', 43.320262, 11.330086, null, 'Siena', 'ristorante'),
 ('7315816737760116368', 'Taverna di San Giuseppe', 43.315363, 11.331722, null, 'Siena', 'trattoria'),
 ('3441682764594487177', 'Osteria La Sosta di Violante - La corte di San Giorgio', 43.317448, 11.336345, null, 'Siena', 'trattoria'),
