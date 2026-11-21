@@ -79,7 +79,10 @@ sua nota e va in `correzioni.json` nel campo `nt`. I giudizi sono suoi e solo su
 - **Senza firma**: sul sito compaiono con l’etichetta LA DRITTA, non più MATTEO.
 - **Voce alternativa, ironica, parlata**, sul modello della nota del Goccetto: una battuta su chi ci trovi o
   sull’aria che tira, come si usa davvero il posto, il trucco che non ti dice nessuno. Corta: intorno ai 140 caratteri.
-- **Sempre in positivo**: sono posti scelti, quindi niente stroncature. L’ironia è affettuosa.
+- **Pungente quanto serve.** Il 21 novembre 2026 Matteo aveva chiesto «sempre in positivo», poi ci ha ripensato
+  il giorno stesso: le note gli piacciono come quelle del Grottino, della Rosetta e di LORE, con la frecciata e
+  l’avviso detti chiari («il conto lo sa», «mettiti l’anima in pace»). Sono posti scelti, quindi la nota dice
+  comunque perché andarci; ma non deve per forza addolcire. Quelle tre sono il modello, insieme al Goccetto.
 - **La sostanza la dà Matteo** (anche cinque parole buttate lì); chi lo aiuta può dare la forma, non inventare
   giudizi né fatti. Una battuta aggiunta va fatta approvare.
 - Niente frecciate a persone (titolari, camerieri); un fatto negativo si scrive solo se è vero e l’ha visto lui.
