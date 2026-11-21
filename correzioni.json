@@ -24,7 +24,8 @@
     "t": "ristorante"
   },
   "LORE": {
-    "t": "bar"
+    "t": "bar",
+    "nt": "Di giorno ci lavori col portatile, la sera ci resti per il dopocena. D’inverno, il mercoledì, stand up: il pubblico sei tu."
   },
   "I Casali del Pino": {
     "t": "ristorante"
@@ -92,5 +93,11 @@
   },
   "Kisaki Ramen & Sushi": {
     "a": "Via Marianna Dionigi, 54, 00193 Roma RM"
+  },
+  "Il Grottino a Testaccio": {
+    "nt": "Non prenotano, quindi fila: mettiti l’anima in pace. Poi arriva una delle migliori pizze romane e hai già perdonato tutto."
+  },
+  "Trattoria La Rosetta - Ristorante di Pesce": {
+    "nt": "Pesce in pieno centro, e il conto lo sa: i primi partono da 30 €. Vacci sapendolo, o quando paga un altro."
   }
 }

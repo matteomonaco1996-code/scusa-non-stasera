@@ -343,7 +343,7 @@ insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
 ('1027668478102891813', 'Osteria Qui Se Magna!', 41.885996, 12.537926, 'Pigneto', 'Roma', 'trattoria'),
 ('2450872560023536188', 'Pico''s Pigneto', 41.886479, 12.535757, 'Pigneto', 'Roma', 'mondo'),
 ('14624075665236409094', 'Ristorante Greco Egeo a Roma', 41.884225, 12.537678, 'Torpignattara', 'Roma', 'mondo'),
-('7385634956514092323', 'Trattoria La Rosetta - Ristorante di Pesce', 41.899727, 12.476489, 'Pantheon', 'Roma', 'pesce'),
+('7385634956514092323', 'Trattoria La Rosetta - Ristorante di Pesce', 41.899706, 12.47649, 'Pantheon', 'Roma', 'pesce'),
 ('14450025622914622489', 'Bistrot del Mare', 41.899509, 12.467521, 'Navona · Campo de'' Fiori', 'Roma', 'pesce'),
 ('18216911498501969716', 'Sponda Montesacro', 41.935286, 12.532279, 'Montesacro · Talenti', 'Roma', 'altro'),
 ('3904684641017615456', 'Caldo brace e cucina', 41.946169, 12.560057, 'Montesacro · Talenti', 'Roma', 'carne'),
