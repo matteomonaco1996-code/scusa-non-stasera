@@ -31,6 +31,7 @@ const PROVE = [
   { nome: 'primo', url: 'pagina', cosa: 'Tivoli primo livello di Fuori porta' },
   { nome: 'tivoli', url: 'pagina', cosa: 'le schede di Tivoli' },
   { nome: 'corsi', url: 'primo', cosa: 'Enoteca Corsi consigliata in centro' },
+  { nome: 'canzone', url: 'primo', cosa: 'LA CANZONE: la riga sotto la dritta, con e senza link' },
   { nome: 'passi', foto: true, url: 'dopo', cosa: 'mondo → power-up → livello → posti' },
   { nome: 'prossimo', foto: true, url: 'dopo', cosa: '«Prossimo livello» riparte dall’inizio dell’elenco' },
   { nome: 'pw-righe', foto: true, url: 'dopo', cosa: 'power-up su più righe' },

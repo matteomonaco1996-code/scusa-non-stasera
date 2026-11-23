@@ -324,6 +324,16 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .say { background: var(--pozzo); padding: 8px 10px; font-size: 16px; line-height: 1.35; white-space: pre-line; }   /* le note possono andare a capo: una riga per idea */
 .say b { font: 400 15px/1.4 var(--f-title); color: var(--pompei-txt); margin-right: 8px; letter-spacing: .03em; }
 .say.breve b { color: var(--ocra); }
+/* La canzone associata al posto: stessa forma della dritta, etichetta di un altro colore. Con il link è tutta da toccare */
+.say.canzone { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; column-gap: 10px; white-space: normal; color: inherit; text-decoration: none; }
+.say.canzone b, .say.canzone .ascolta { font: 400 15px/1.4 var(--f-title); letter-spacing: .03em; color: var(--cielo); margin-right: 0; white-space: nowrap; }
+.say.canzone .brano { min-width: 0; overflow-wrap: anywhere; }
+.say.canzone .titolo, .say.canzone .artista { display: block; }
+.say.canzone .artista { font-size: 15px; color: var(--dim); }
+.say.canzone .ascolta { align-self: center; }
+a.say.canzone { min-height: 44px; cursor: pointer; }
+a.say.canzone:hover .ascolta { text-decoration: underline; }
+a.say.canzone:focus-visible { outline: 3px solid var(--ocra); outline-offset: 2px; }
 .stelle { color: var(--ocra); font: 400 19px/1.2 var(--f-title); }
 .stelle span { color: var(--dim); font: 400 14px/1.2 var(--f-text); }
 .acts { margin-top: auto; padding-top: 8px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; border-top: 2px dashed var(--riga, var(--panel-2)); }

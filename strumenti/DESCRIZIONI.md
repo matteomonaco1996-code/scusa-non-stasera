@@ -103,6 +103,22 @@ sua nota e va in `correzioni.json` nel campo `nt`. I giudizi sono suoi e solo su
   giudizi né fatti. Una battuta aggiunta va fatta approvare.
 - Niente frecciate a persone (titolari, camerieri); un fatto negativo si scrive solo se è vero e l’ha visto lui.
 
+### «LA CANZONE» (in prova dal 23 novembre 2026)
+Matteo vuole associare una canzone ad alcuni posti: serve a rendere Ristomat **riconoscibile, come la dritta**, non ad
+aiutare a scegliere. Sul sito è una riga con la sua etichetta, subito sotto LA DRITTA (o sotto IN BREVE), ovunque
+compaia la nota: scheda, fumetto sulla mappa, gettone, invito.
+- **La canzone la sceglie Matteo**, come i giudizi delle note: chi lo aiuta può proporre, non decidere.
+- Si scrive in `correzioni.json`, sotto il nome del posto: `"mu": "Titolo · Artista"` (al massimo 80 caratteri; il sito
+  mette il titolo sulla prima riga e l’artista sotto, dividendo all’ultimo « · »).
+- Facoltativo: `"ml": "https://…"`, il link per ascoltarla. Vale solo per Spotify, Apple Music e YouTube
+  (`open.spotify.com`, `music.apple.com`, `music.youtube.com`, `www.youtube.com`, `youtu.be`): con il link la riga si
+  tocca e mostra «▶ ASCOLTA», senza link si legge soltanto.
+- **Niente player dentro la pagina**: il sito non carica nulla da servizi esterni (regola di sicurezza in `index.html`
+  e impegno scritto nella privacy: nessun cookie di terze parti, quindi nessun banner).
+- **Prima di pubblicare la prima canzone con un link**: aggiungere alla privacy una riga sui link ai servizi musicali,
+  come quella che c’è già per Google Maps.
+- I tocchi su «ASCOLTA» per ora non si contano.
+
 ### `chiuso`
 - `"si"` solo con una prova chiara e recente di **chiusura definitiva** (scheda che dice “chiuso definitivamente”,
   articolo che la annuncia, sito ufficiale). In `prova_chiusura` che cosa e quando; l’indirizzo della fonte in `fonti`.

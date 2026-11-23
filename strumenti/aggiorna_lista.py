@@ -35,6 +35,9 @@ API = ("https://www.google.com/maps/preview/entitylist/getlist?authuser=0&hl=it&
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "locali.js"
 SQL_LUOGHI = ROOT / "supabase" / "luoghi.sql"
+# La canzone associata a un posto (campi «mu» e «ml» di correzioni.json): il link, se c'è, può portare solo a questi servizi
+CANZONE_MAX = 80
+CANZONE_LINK = re.compile(r"^https://(open\.spotify\.com|music\.apple\.com|music\.youtube\.com|www\.youtube\.com|youtu\.be)/[^\s\"'<>]+$")
 CORREZIONI = ROOT / "correzioni.json"
 TIPI_EXTRA = ROOT / "tipi.json"
 IN_BREVE = ROOT / "in_breve.json"
@@ -259,6 +262,16 @@ def main():
         if x["c"] == "Roma":
             x["q"] = quartiere(x["la"], x["lo"])
         x.update({k: v for k, v in fix.items() if k in ("t", "q", "nt")})
+        mu = str(fix.get("mu") or "").strip()  # la canzone che Matteo associa al posto: «Titolo · Artista»
+        if mu:
+            if len(mu) > CANZONE_MAX:
+                sys.exit(f"correzioni.json: la canzone di «{x['n']}» è più lunga di {CANZONE_MAX} caratteri")
+            x["mu"] = mu
+            ml = str(fix.get("ml") or "").strip()  # dove ascoltarla (facoltativo)
+            if ml and not CANZONE_LINK.match(ml):
+                sys.exit(f"correzioni.json: il link della canzone di «{x['n']}» non è di un servizio previsto: {ml}")
+            if ml:
+                x["ml"] = ml
         breve = in_breve.get(x["id"]) or in_breve.get(x["n"])
         if not x["nt"] and breve:
             x["dr"] = breve  # descrizione breve, mostrata solo se Matteo non ha scritto una nota

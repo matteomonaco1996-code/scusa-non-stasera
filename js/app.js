@@ -484,8 +484,17 @@
   // ---------- Disegno: risultati ----------
   // La nota di Matteo, se c'è; altrimenti la descrizione breve del sito
   // La nota di chi cura la lista: senza firma, con l'etichetta «LA DRITTA» (fino al 21 novembre 2026 era firmata MATTEO)
-  const nota = (x) => x.nt ? `<div class="say"><b>LA DRITTA</b>${esc(x.nt)}</div>`
-    : x.dr ? `<div class="say breve"><b>IN BREVE</b>${esc(x.dr)}</div>` : "";
+  // La canzone che chi cura la lista associa al posto (campo «mu»): una riga con la sua etichetta, riconoscibile come la
+  // dritta. Se c'è il link («ml») la riga si tocca e apre il brano fuori dal sito: da qui non si carica nulla di quei servizi.
+  const CANZONE_LINK = /^https:\/\/(open\.spotify\.com|music\.apple\.com|music\.youtube\.com|www\.youtube\.com|youtu\.be)\//;
+  // «Titolo · Artista»: il titolo sulla prima riga, l'artista sotto, più tenue (si divide all'ultimo « · »)
+  const brano = (mu) => { const i = mu.lastIndexOf(" · "), t = i < 0 ? mu : mu.slice(0, i), a = i < 0 ? "" : mu.slice(i + 3);
+    return `<span class="brano"><span class="titolo">${esc(t)}</span>${a ? `<span class="sr">, </span><span class="artista">${esc(a)}</span>` : ""}</span>`; };
+  const canzone = (x) => !x.mu ? "" : x.ml && CANZONE_LINK.test(x.ml)
+    ? `<a class="say canzone" href="${esc(x.ml)}" ${EXT}><b>LA CANZONE</b>${brano(x.mu)}<span class="ascolta">▶ ASCOLTA<span class="sr"> (apre un altro sito)</span></span></a>`
+    : `<div class="say canzone"><b>LA CANZONE</b>${brano(x.mu)}</div>`;
+  const nota = (x) => (x.nt ? `<div class="say"><b>LA DRITTA</b>${esc(x.nt)}</div>`
+    : x.dr ? `<div class="say breve"><b>IN BREVE</b>${esc(x.dr)}</div>` : "") + canzone(x);
   function scheda(x) {
     const extra = SNS.extraScheda ? SNS.extraScheda(x) : "";
     return `<article class="card px" id="p${x.i}">

@@ -54,7 +54,9 @@ const nomi = new Set(L.map((x) => x.n)), chiusi = J('chiusi.json'), corr = J('co
 const chiave = (k) => k.startsWith('_') || ids.has(k) || nomi.has(k);
 const morteCorr = Object.keys(corr).filter((k) => !chiave(k));
 if (morteCorr.length) avviso(morteCorr.length + ' correzioni che non trovano più il loro posto (nome cambiato o posto tolto dalla lista)', morteCorr);
-const cattive = Object.entries(corr).filter(([k, v]) => !k.startsWith('_') && (Object.keys(v).some((c) => !['t', 'q', 'c', 'nt', 'la', 'lo', 'r', 'a'].includes(c)) || (v.t && !TIPI.includes(v.t)) || (v.q && !quart.has(v.q))));
+const cattive = Object.entries(corr).filter(([k, v]) => !k.startsWith('_') && (Object.keys(v).some((c) => !['t', 'q', 'c', 'nt', 'la', 'lo', 'r', 'a', 'mu', 'ml'].includes(c)) || (v.t && !TIPI.includes(v.t)) || (v.q && !quart.has(v.q))
+  || ('mu' in v && !(typeof v.mu === 'string' && v.mu.trim().length >= 3 && v.mu.length <= 80))   // la canzone: «Titolo · Artista»
+  || ('ml' in v && !(v.mu && /^https:\/\/(open\.spotify\.com|music\.apple\.com|music\.youtube\.com|www\.youtube\.com|youtu\.be)\/[^\s"'<>]+$/.test(v.ml)))));
 dico('le correzioni usano solo campi e valori che il sito conosce', cattive.length === 0, cattive);
 const orfTipi = Object.keys(tipi).filter((k) => !chiave(k)), tipiNo = Object.entries(tipi).filter(([k, v]) => !k.startsWith('_') && !TIPI.includes(v));
 dico('tutti i tipi scritti a mano sono tipi che esistono', tipiNo.length === 0, tipiNo);
