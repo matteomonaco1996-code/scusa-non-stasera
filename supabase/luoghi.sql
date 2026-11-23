@@ -1,7 +1,7 @@
 -- Generato da strumenti/aggiorna_lista.py: posti della lista, per verificare i check-in.
 insert into public.luoghi (id, nome, lat, lon, quartiere, citta, tipo) values
 ('14791718160586650623', 'Tartarughe Bar e Bottega', 41.893736, 12.477534, 'Ghetto', 'Roma', 'bar'),
-('3401211278250952940', 'Enzo''s Bar', 41.893804, 12.478124, 'Ghetto', 'Roma', 'bar'),
+('3401211278250952940', 'Enzo''s Bar', 41.893804, 12.478124, 'Ghetto', 'Roma', 'dolce'),
 ('10252500685373557444', 'Boccione', 41.893195, 12.476981, 'Ghetto', 'Roma', 'dolce'),
 ('16213175485624977072', 'Batu baretto', 41.945664, 12.535199, 'Montesacro · Talenti', 'Roma', 'bar'),
 ('8779838341907985973', 'Compagnia dei Vinattieri', 43.320262, 11.330086, null, 'Siena', 'ristorante'),
