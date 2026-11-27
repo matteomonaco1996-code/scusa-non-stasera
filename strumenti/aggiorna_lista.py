@@ -246,6 +246,17 @@ def main():
         if not x["c"] and d < 3:
             x["c"], x["cap"] = vicino["c"], x["cap"] or vicino["cap"]
 
+    # Lo stesso posto salvato due volte nella lista di Google: sul sito compare una volta sola
+    # (se una delle due copie ha la nota, vince quella)
+    unici = {}
+    for x in locali:
+        if x["id"] not in unici or (x["nt"] and not unici[x["id"]]["nt"]):
+            unici[x["id"]] = x
+    if len(unici) < len(locali):
+        doppi = sorted({x["n"] for x in locali if sum(y["id"] == x["id"] for y in locali) > 1})
+        print(f"Attenzione: {len(locali) - len(unici)} posti sono due volte nella lista di Google Maps, tenuti una volta sola: {', '.join(doppi)}")
+        locali = [x for x in locali if unici.get(x["id"]) is x]
+
     # Posti che hanno chiuso: restano nella lista di Google ma non vanno mostrati
     tolti = [x for x in locali if x["id"] in chiusi or x["n"] in chiusi]
     locali = [x for x in locali if x not in tolti]
