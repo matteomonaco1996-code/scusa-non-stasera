@@ -6,15 +6,19 @@ const FOTO = process.env.PROVE_FOTO || require('os').tmpdir();   // dove finisco
 const BASE = process.argv[2] || 'http://localhost:8765/';
 let ok = 0, ko = 0; const dico = (m, c, x) => { c ? ok++ : ko++; console.log((c ? '  ✓ ' : '  ✗ ') + m + (c ? '' : ' → ' + JSON.stringify(x))); };
 
-const FINTE = `
-;(function () {
-  var d = window.RISTOMAT, liberi = d.filter(function (x) { return x.q === 'Pantheon' && !x.nt && x.dr; });
-  var a = d.find(function (x) { return x.n === 'Enoteca Corsi'; });
-  a.mu = 'Roma capoccia · Antonello Venditti'; a.ml = 'https://open.spotify.com/track/esempio';
-  liberi[0].mu = 'Una canzone dal titolo abbastanza lungo da dover andare a capo · Un artista dal nome lungo';
-  liberi[1].mu = 'Titolo · Artista'; liberi[1].ml = 'javascript:alert(1)';
-  window.__prova = { senzaLink: liberi[0].n, linkCattivo: liberi[1].n };
-})();`;
+// Le tre canzoni finte entrano nella lista nel momento in cui locali.js la scrive (window.RISTOMAT = [...]):
+// così la prova funziona anche sul sito pubblicato, senza scaricare e riscrivere il file.
+function FINTE() {
+  let lista;
+  Object.defineProperty(window, 'RISTOMAT', { configurable: true, get: () => lista, set: (d) => {
+    lista = d; if (!Array.isArray(d)) return;
+    const liberi = d.filter((x) => x.q === 'Pantheon' && !x.nt && x.dr), a = d.find((x) => x.n === 'Enoteca Corsi');
+    a.mu = 'Roma capoccia · Antonello Venditti'; a.ml = 'https://open.spotify.com/track/esempio';
+    liberi[0].mu = 'Una canzone dal titolo abbastanza lungo da dover andare a capo · Un artista dal nome lungo';
+    liberi[1].mu = 'Titolo · Artista'; liberi[1].ml = 'javascript:alert(1)';
+    window.__prova = { senzaLink: liberi[0].n, linkCattivo: liberi[1].n };
+  } });
+}
 
 const lum = (c) => { const [r, g, b] = c.match(/[\d.]+/g).slice(0, 3).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
 const contrasto = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
@@ -24,7 +28,7 @@ const contrasto = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q -
   const apri = async (opz, finte) => {
     const ctx = await b.newContext({ ...opz, reducedMotion: 'reduce' });
     await ctx.addInitScript(() => { try { localStorage.setItem('sns-termini', '1.1'); localStorage.setItem('sns-posizione', 'no'); } catch (e) {} });
-    if (finte) await ctx.route('**/locali.js', async (r) => { const v = await r.fetch(); await r.fulfill({ response: v, body: (await v.text()) + FINTE }); });
+    if (finte) await ctx.addInitScript(FINTE);
     const p = await ctx.newPage(); p.on('pageerror', (e) => err.push(String(e).slice(0, 120))); p.on('console', (m) => { if (m.type() === 'error') err.push(m.text().slice(0, 120)); });
     await p.goto(BASE); await p.waitForTimeout(900);
     return p;
