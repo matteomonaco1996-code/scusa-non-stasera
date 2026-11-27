@@ -38,6 +38,10 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
   const pwFinestra = (p) => p.evaluate(() => [...document.querySelectorAll('#filtri-pw .pw')].map((e) => e.dataset.voglia + ':' + e.querySelector('.n').textContent + ':' + e.disabled).join(' '));
   const numero = (p, voglia) => p.evaluate((v) => +document.querySelector(`#filtri-pw [data-voglia="${v}"] .n`).textContent, voglia);
   const apri = async (p) => { await p.click('#apri-filtri'); await p.waitForTimeout(350); };
+  // Nella finestra un tocco accende o spegne un tipo e la finestra resta aperta: si chiude con «Mostra i posti»
+  const tocca = async (p, v) => { await p.click(`#filtri-pw [data-voglia="${v}"]`); await p.waitForTimeout(450); };
+  const scegli = async (p, v) => { await tocca(p, v); await p.click('#filtri-ok'); await p.waitForTimeout(550); };
+  const accesiFinestra = (p) => p.evaluate(() => [...document.querySelectorAll('#filtri-pw [aria-pressed="true"]')].map((e) => e.dataset.voglia).sort().join(','));
 
   // ---------- 1. Vicino a me, sul telefono ----------
   {
@@ -58,9 +62,12 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
     check('il pulsante in fondo dice quanti posti si vedranno', v.ok === `MOSTRA I ${tutti} POSTI`, v.ok);
     await p.screenshot({ path: out + '/filtri-2-finestra.png' });
     const pizze = await numero(p, 'pizza');
-    await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(600);
+    await tocca(p, 'pizza');
     v = await vedi(p);
-    check('scelta la pizza: la finestra si chiude e restano solo le pizzerie, sempre vicino a te', !v.aperta && v.titolo === 'Vicino a te' && totale(v) === pizze && pizze > 0 && pizze < tutti && v.tipi.length === 1 && /Pizza/.test(v.tipi[0]), { conteggio: v.conteggio, pizze, tipi: v.tipi });
+    check('toccata la pizza: la finestra resta aperta, la pizza è accesa e il pulsante dice quanti posti escono', v.aperta && (await accesiFinestra(p)) === 'pizza' && v.ok === `MOSTRA I ${pizze} POSTI` && await p.evaluate(() => document.activeElement.dataset.voglia === 'pizza'), { aperta: v.aperta, ok: v.ok, accesi: await accesiFinestra(p) });
+    await p.click('#filtri-ok'); await p.waitForTimeout(600);
+    v = await vedi(p);
+    check('«Mostra i posti»: la finestra si chiude e restano solo le pizzerie, sempre vicino a te', !v.aperta && v.titolo === 'Vicino a te' && totale(v) === pizze && pizze > 0 && pizze < tutti && v.tipi.length === 1 && /Pizza/.test(v.tipi[0]), { conteggio: v.conteggio, pizze, tipi: v.tipi });
     check('…la lista riparte dall’inizio', daCapo(v), { y: v.y, barra: v.barra, prima: v.prima });
     check('…il pulsante dice che c’è un filtro e in cima ai posti c’è scritto quale', v.bottone === 'FILTRI · 1' && v.acceso && /Vedi solo Pizza/.test(v.riga || '') && /Togli/.test(v.riga || ''), { bottone: v.bottone, riga: v.riga });
     check('…anche nella pagina il power-up acceso è la pizza', await p.evaluate(() => document.querySelector('#powerups [aria-pressed="true"]').dataset.voglia === 'pizza'));
@@ -71,20 +78,40 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
     v = await vedi(p);
     check('INDIETRO: torna la lista intera di prima, la finestra non si riapre', !v.aperta && v.titolo === 'Vicino a te' && totale(v) === tutti && !v.acceso && v.riga === null && v.bottone === 'FILTRI', { conteggio: v.conteggio, bottone: v.bottone, aperta: v.aperta });
     // «Togli» in cima alla lista
-    await apri(p); await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(500);
+    await apri(p); await scegli(p, 'pizza');
     await p.click('#filtri-attivi [data-togli-filtri]'); await p.waitForTimeout(500);
     v = await vedi(p);
     check('«Togli» in cima ai posti: torna tutto, dall’inizio', totale(v) === tutti && !v.acceso && v.riga === null && daCapo(v), { conteggio: v.conteggio, y: v.y });
     // riaprire e toccare il filtro già acceso lo spegne
-    await apri(p); await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(500);
+    await apri(p); await scegli(p, 'pizza');
     await apri(p);
-    check('riaperta la finestra, la pizza risulta accesa', await p.evaluate(() => document.querySelector('#filtri-pw [aria-pressed="true"]').dataset.voglia === 'pizza'));
-    await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(500);
+    check('riaperta la finestra, la pizza risulta accesa', (await accesiFinestra(p)) === 'pizza', await accesiFinestra(p));
+    await tocca(p, 'pizza');
     v = await vedi(p);
-    check('toccata di nuovo, si spegne e la finestra si chiude', !v.aperta && totale(v) === tutti && !v.acceso, { conteggio: v.conteggio });
+    check('toccata di nuovo, si spegne e la finestra resta aperta', v.aperta && (await accesiFinestra(p)) === '' && v.ok === `MOSTRA I ${tutti} POSTI`, { aperta: v.aperta, ok: v.ok });
+    await p.click('#filtri-ok'); await p.waitForTimeout(500);
+    v = await vedi(p);
+    check('…e chiusa la finestra si vedono di nuovo tutti', !v.aperta && totale(v) === tutti && !v.acceso, { conteggio: v.conteggio });
+    // Più tipi insieme: pizza e trattoria
+    const trattorie = (await apri(p), await numero(p, 'trattoria'));
+    const primaDiDue = eventi.filter((e) => e === 'powerup').length;
+    await tocca(p, 'pizza'); await tocca(p, 'trattoria');
+    v = await vedi(p);
+    check('due tipi insieme: restano accesi tutti e due e il pulsante somma i posti', v.aperta && (await accesiFinestra(p)) === 'pizza,trattoria' && v.ok === `MOSTRA I ${pizze + trattorie} POSTI`, { accesi: await accesiFinestra(p), ok: v.ok, pizze, trattorie });
+    await p.click('#filtri-ok'); await p.waitForTimeout(600);
+    v = await vedi(p);
+    check('…nella lista ci sono le pizzerie e le trattorie, e nient’altro', !v.aperta && totale(v) === pizze + trattorie && v.tipi.length === 2 && v.tipi.some((t) => /Pizza/.test(t)) && v.tipi.some((t) => /Come a casa/.test(t)) && daCapo(v), { conteggio: v.conteggio, tipi: v.tipi });
+    check('…il pulsante dice «FILTRI · 2» e la riga in cima li nomina tutti e due', v.bottone === 'FILTRI · 2' && /^Vedi solo Come a casa e Pizza, ovvio Togli$/.test(v.riga || ''), { bottone: v.bottone, riga: v.riga });
+    check('…nella pagina sono accesi gli stessi due power-up', await p.evaluate(() => [...document.querySelectorAll('#powerups [aria-pressed="true"]')].map((e) => e.dataset.voglia).sort().join(',') === 'pizza,trattoria'));
+    check('…il contatore «powerup» scatta una volta per ogni tipo acceso', eventi.filter((e) => e === 'powerup').length === primaDiDue + 2, eventi);
+    await p.click('#indietro'); await p.waitForTimeout(900);
+    v = await vedi(p);
+    check('INDIETRO toglie i due tipi in un passo solo', !v.aperta && totale(v) === tutti && !v.acceso && v.riga === null, { conteggio: v.conteggio, riga: v.riga });
     // «Tutto»
-    await apri(p); await p.click('#filtri-pw [data-voglia="trattoria"]'); await p.waitForTimeout(500);
-    await apri(p); await p.click('#filtri-pw [data-voglia=""]'); await p.waitForTimeout(500);
+    await apri(p); await scegli(p, 'trattoria');
+    await apri(p); await tocca(p, 'pizza'); await tocca(p, '');
+    check('«Tutto» nella finestra spegne tutti i tipi accesi, e la finestra resta aperta', (await vedi(p)).aperta && (await accesiFinestra(p)) === '', await accesiFinestra(p));
+    await p.click('#filtri-ok'); await p.waitForTimeout(500);
     v = await vedi(p);
     check('«Tutto» nella finestra toglie il tipo', !v.aperta && totale(v) === tutti && !v.acceso && daCapo(v), { conteggio: v.conteggio });
 
@@ -126,13 +153,13 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
     v = await vedi(p);
     check('con la finestra aperta, il tasto Indietro del telefono la chiude e basta', !v.aperta && v.titolo === 'Vicino a te' && totale(v) === tutti, { aperta: v.aperta, titolo: v.titolo });
     // filtro acceso, poi ricarico la pagina: resta
-    await apri(p); await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(500);
+    await apri(p); await scegli(p, 'pizza');
     await p.reload(); await p.waitForTimeout(1800);
     v = await vedi(p);
     check('ricaricata la pagina il filtro c’è ancora, e il pulsante lo dice', v.titolo === 'Vicino a te' && totale(v) === pizze && v.acceso && v.bottone === 'FILTRI · 1' && !v.aperta, { titolo: v.titolo, conteggio: v.conteggio, bottone: v.bottone });
     // sulla mappa
     await p.click('[data-view="mappa"]'); await p.waitForTimeout(1500);
-    await apri(p); await p.click('#filtri-pw [data-voglia=""]'); await p.waitForTimeout(800);
+    await apri(p); await scegli(p, ''); await p.waitForTimeout(250);
     v = await vedi(p);
     check('dalla MAPPA: FILTRI funziona allo stesso modo e si resta sulla mappa', !v.aperta && totale(v) === tutti && await p.evaluate(() => document.querySelector('main.main').dataset.view === 'mappa'), { conteggio: v.conteggio });
     check('vicino a me: nessun errore', err.length === 0, err);
@@ -148,7 +175,7 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
     await apri(p);
     const pizze = await numero(p, 'pizza');
     check('in un livello i numeri della finestra sono quelli del livello', (await pwFinestra(p)) === (await pwPagina(p)) && pizze > 0 && pizze < aTrastevere && await numero(p, '') === aTrastevere, { pizze, aTrastevere });
-    await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(600);
+    await scegli(p, 'pizza');
     v = await vedi(p);
     check('da un livello: scelta la pizza si resta in quel livello, sui posti', !v.aperta && v.titolo === 'Trastevere' && totale(v) === pizze && daCapo(v) && v.acceso, { titolo: v.titolo, conteggio: v.conteggio, y: v.y });
     await p.click('#indietro'); await p.waitForTimeout(900);
@@ -159,13 +186,13 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
     // «Tutta Roma», arrivando ai posti scorrendo: il filtro NON riporta su alla scelta del livello
     const s = await nuovo({ posizione: false });
     await s.p.evaluate(() => document.querySelector('main.main').scrollIntoView()); await s.p.waitForTimeout(400);
-    await apri(s.p); await s.p.click('#filtri-pw [data-voglia="pizza"]'); await s.p.waitForTimeout(600);
+    await apri(s.p); await scegli(s.p, 'pizza');
     v = await vedi(s.p);
     check('da «Tutta Roma» (nessun livello scelto): il filtro lascia sui posti, non riporta alla scelta del livello', !v.aperta && v.titolo === 'Tutta Roma' && daCapo(v) && v.acceso && v.tipi.length === 1, { titolo: v.titolo, y: v.y, barra: v.barra });
     // il power-up della pagina, invece, continua a portare al passo dopo (il livello)
     await s.p.evaluate(() => { document.querySelector('#sez-pw').scrollIntoView(); document.querySelector('#powerups [data-voglia="trattoria"]').click(); }); await s.p.waitForTimeout(600);
-    const dopo = await s.p.evaluate(() => { const r = document.querySelector('#livelli').getBoundingClientRect(); return { livelli: Math.round(r.top), vh: innerHeight, premuto: document.querySelector('#filtri-pw [aria-pressed="true"]').dataset.voglia }; });
-    check('il power-up scelto nella pagina porta ancora alla scelta del livello, e la finestra lo sa', dopo.livelli >= 0 && dopo.livelli < dopo.vh * 0.6 && dopo.premuto === 'trattoria', dopo);
+    const dopo = await s.p.evaluate(() => { const r = document.querySelector('#livelli').getBoundingClientRect(); return { livelli: Math.round(r.top), vh: innerHeight, premuti: [...document.querySelectorAll('#filtri-pw [aria-pressed="true"]')].map((e) => e.dataset.voglia).sort().join(',') }; });
+    check('il power-up toccato nella pagina si aggiunge a quello acceso, porta ancora alla scelta del livello, e la finestra lo sa', dopo.livelli >= 0 && dopo.livelli < dopo.vh * 0.6 && dopo.premuti === 'pizza,trattoria', dopo);
     check('livello e mondo: nessun errore', err.length === 0 && s.err.length === 0, [...err, ...s.err]);
     await s.ctx.close();
   }
@@ -179,7 +206,7 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
       return { sx: Math.round(d.left), dx: Math.round(d.right), vw: innerWidth, vh: innerHeight, okSotto: Math.round(k.bottom), okSopra: Math.round(k.top), piccoli: [...document.querySelectorAll('#filtri-pw .pw')].filter((e) => e.getBoundingClientRect().height < 44).length,
         fuori: [...document.querySelectorAll('#filtri-pw .pw')].filter((e) => e.scrollWidth > e.clientWidth + 1).length }; });
     check(larg + ' px: la finestra sta nello schermo, i tasti sono alti almeno 44 px e «Mostra i posti» è in vista', fin.sx >= 0 && fin.dx <= fin.vw && fin.piccoli === 0 && fin.fuori === 0 && fin.okSopra > 0 && fin.okSotto <= fin.vh, fin);
-    await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(600);
+    await scegli(p, 'pizza');
     const v = await vedi(p);
     check(larg + ' px: con il filtro acceso («FILTRI · 1») la riga dei comandi non esce dallo schermo', v.largo <= v.vw && v.filtri.left >= 0 && v.filtri.right <= v.gettone.left && v.gettone.right <= v.vista.left && v.vista.right <= v.vw && v.filtri.bottom - v.filtri.top >= 40, { largo: v.largo, vw: v.vw, filtri: v.filtri, gettone: v.gettone, vista: v.vista });
     if (larg === 320) await p.screenshot({ path: out + '/filtri-5-stretto.png' });
@@ -201,9 +228,9 @@ const TRASTEVERE = { latitude: 41.8893, longitude: 12.4707 };
     v = await vedi(p);
     check('computer: Esc dopo aver scritto: finestra chiusa, e lista, campo e pulsante dicono la stessa cosa', !v.aperta && ((v.q === '' && totale(v) === tutti && !v.acceso && v.riga === null) || (v.q === 'carbonara' && totale(v) < tutti && v.acceso)), { q: v.q, conteggio: v.conteggio, acceso: v.acceso });
     if (v.acceso) { await p.click('#filtri-attivi [data-togli-filtri]'); await p.waitForTimeout(400); }
-    await apri(p); await p.click('#filtri-pw [data-voglia="pizza"]'); await p.waitForTimeout(600);
+    await apri(p); await scegli(p, 'pizza');
     v = await vedi(p);
-    check('computer: scelta la pizza la finestra si chiude e la lista è filtrata', !v.aperta && v.acceso && v.tipi.length === 1, { tipi: v.tipi });
+    check('computer: scelta la pizza e «Mostra i posti», la finestra si chiude e la lista è filtrata', !v.aperta && v.acceso && v.tipi.length === 1, { tipi: v.tipi });
     await p.screenshot({ path: out + '/filtri-6-computer.png' });
     check('computer: nessun errore', err.length === 0, err);
     await ctx.close();

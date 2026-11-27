@@ -267,6 +267,7 @@ h2 { margin: 0; font: 400 clamp(28px, 3vw, 34px)/1.1 var(--f-title); color: var(
 .filtri-attivi .link { margin-left: auto; font-size: 16px; }
 /* La finestra dei filtri: gli stessi power-up su due colonne, il campo di ricerca, il pulsante per tornare ai posti */
 #dlg-filtri .corpo { gap: 12px; padding-bottom: 0; }
+#dlg-filtri .fil-nota { margin: 0 0 -4px; font-size: 15px; color: var(--dim); }
 #dlg-filtri .powerups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 0; }
 #dlg-filtri .pw { background: var(--panel-2); min-height: 44px; padding: 7px 10px; gap: 6px; font-size: 18px; text-align: left; }
 #dlg-filtri .pw[aria-pressed="true"] { background: var(--ocra); }

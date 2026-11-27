@@ -309,10 +309,23 @@
   }
 
   // ---------- Filtri ----------
+  // I tipi di posto accesi (power-up): più d'uno insieme, per esempio «Un calice» e «Due drink». In stato.voglia
+  // stanno in fila separati da virgole e sempre nello stesso ordine ("vino,bar" e "bar,vino" sono la stessa scelta),
+  // così la cronologia del browser li salva e li confronta come una parola sola.
+  let vogliaLetta = null, tipiAccesi = new Set();
+  const accesi = () => {
+    if (stato.voglia !== vogliaLetta) { vogliaLetta = stato.voglia; tipiAccesi = new Set((stato.voglia || "").split(",").filter((k) => PW[k])); }
+    return tipiAccesi;
+  };
+  const voglie = () => Object.keys(PW).filter((k) => accesi().has(k));
+  const elenco = (a) => (a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " e " + a[a.length - 1]);
+  const nomiVoglie = (f = (n) => n) => elenco(voglie().map((k) => f(PW[k][0])));
+  // Accende il tipo spento, spegne quello acceso; "" (Tutto) li spegne tutti
+  const cambiaVoglia = (v) => (!v ? "" : Object.keys(PW).filter((k) => (k === v ? !accesi().has(k) : accesi().has(k))).join(","));
   function passa(x, salta) {
     if (!stato.vicino && x.m !== stato.mondo) return false;
     if (salta !== "livello" && stato.livello && x.l !== stato.livello) return false;
-    if (salta !== "voglia" && stato.voglia && x.t !== stato.voglia) return false;
+    if (salta !== "voglia" && stato.voglia && !accesi().has(x.t)) return false;
     if (stato.q) for (const p of stato.q.split(/\s+/)) if (p && !x.h.includes(p)) return false;
     return true;
   }
@@ -335,7 +348,7 @@
   }
   function disegnaMondi() {
     contaLivelli();
-    const filtro = [stato.voglia ? `«${PW[stato.voglia][0]}»` : "", stato.q ? "la tua ricerca" : ""].filter(Boolean).join(" e ");
+    const filtro = elenco([...voglie().map((k) => `«${PW[k][0]}»`), ...(stato.q ? ["la tua ricerca"] : [])]);
     $("#mondi").innerHTML = MONDI.map((m) => `<button type="button" class="tab px" data-mondo="${m.id}" aria-pressed="${!stato.vicino && stato.mondo === m.id}">
       <span class="w">MONDO ${m.w}</span><span class="nm">${esc(m.nome)}</span><span class="ct">× ${m.n} posti</span></button>`).join("");
     const tutti = `<div class="area"><div class="levels"><button type="button" class="level px" data-livello="" aria-pressed="${!stato.vicino && !stato.livello}">
@@ -464,21 +477,23 @@
     const base = DATA.filter((x) => passa(x, "voglia"));
     const c = base.reduce((m, x) => (m[x.t] = (m[x.t] || 0) + 1, m), {});
     const ordine = Object.keys(PW).filter((k) => k !== "altro").sort((a, b) => (c[b] || 0) - (c[a] || 0)).concat("altro");
-    const html = `<button type="button" class="pw px" data-voglia="" aria-pressed="${!stato.voglia}">${svg("stella")}<span class="et">Tutto</span> <span class="n">${base.length}</span></button>` +
-      ordine.map((k) => `<button type="button" class="pw px" data-voglia="${k}" aria-pressed="${stato.voglia === k}" ${!c[k] && stato.voglia !== k ? "disabled" : ""}>${svg(PW[k][1])}<span class="et">${esc(PW[k][0])}</span> <span class="n">${c[k] || 0}</span></button>`).join("");
+    const on = accesi();
+    const html = `<button type="button" class="pw px" data-voglia="" aria-pressed="${!on.size}">${svg("stella")}<span class="et">Tutto</span> <span class="n">${base.length}</span></button>` +
+      ordine.map((k) => `<button type="button" class="pw px" data-voglia="${k}" aria-pressed="${on.has(k)}" ${!c[k] && !on.has(k) ? "disabled" : ""}>${svg(PW[k][1])}<span class="et">${esc(PW[k][0])}</span> <span class="n">${c[k] || 0}</span></button>`).join("");
     $("#powerups").innerHTML = html;
     $("#filtri-pw").innerHTML = html;   // gli stessi pulsanti nella finestra FILTRI, che si apre dalla barra sopra i posti
     disegnaFiltri();
   }
   // Che cosa è filtrato adesso: il pulsante FILTRI si accende, e in cima ai posti c'è scritto che cosa si sta vedendo
   function disegnaFiltri() {
-    const quanti = (stato.voglia ? 1 : 0) + (stato.q ? 1 : 0), b = $("#apri-filtri");
+    const tipi = voglie().length, quanti = tipi + (stato.q ? 1 : 0), b = $("#apri-filtri");
     b.classList.toggle("attivo", quanti > 0);
     b.querySelector("span").textContent = quanti ? "FILTRI · " + quanti : "FILTRI";
-    b.setAttribute("aria-label", quanti ? "Filtri · " + quanti + ": " + [stato.voglia && PW[stato.voglia][0], stato.q && "ricerca «" + stato.q + "»"].filter(Boolean).join(", ") : "Filtri: scegli che cosa cerchi");
+    b.setAttribute("aria-label", quanti ? "Filtri · " + quanti + ": " + [tipi && nomiVoglie(), stato.q && "ricerca «" + stato.q + "»"].filter(Boolean).join(", ") : "Filtri: scegli che cosa cerchi");
     const riga = $("#filtri-attivi");
     riga.hidden = !quanti;
-    riga.innerHTML = quanti ? `Vedi solo ${[stato.voglia ? `<b>${esc(PW[stato.voglia][0])}</b>` : "", stato.q ? `chi ha <b>«${esc($("#q").value.trim())}»</b>` : ""].filter(Boolean).join(" · ")} <button class="link" type="button" data-togli-filtri>Togli</button>` : "";
+    // il testo in un pezzo solo: la riga è flessibile, e ogni parola sciolta prenderebbe lo spazio di una colonna
+    riga.innerHTML = quanti ? `<span>Vedi solo ${[tipi ? nomiVoglie((n) => `<b>${esc(n)}</b>`) : "", stato.q ? `chi ha <b>«${esc($("#q").value.trim())}»</b>` : ""].filter(Boolean).join(" · ")}</span> <button class="link" type="button" data-togli-filtri>Togli</button>` : "";
   }
 
   // ---------- Disegno: risultati ----------
@@ -929,42 +944,52 @@
     scorri($("#sez-pw"));
     percorso.avanza();
   }
-  // Ritoccare il power-up acceso lo spegne: lì si resta fermi, per sceglierne un altro. Ogni altra scelta
-  // (anche «Tutto») porta avanti: al livello se c'è da sceglierlo, altrimenti ai posti.
-  // Dalla finestra FILTRI (daiPosti) si resta sempre sui posti: chi sta guardando una lista vuole restringerla, non ripartire.
-  function scegliVoglia(v, daiPosti) {
-    const spento = !!v && stato.voglia === v;
-    stato.voglia = spento ? "" : v;
+  // Nella pagina: toccare un power-up lo accende e porta avanti (al livello se c'è da sceglierlo, altrimenti ai posti),
+  // anche se un altro è già acceso: restano accesi tutti e due. Ritoccare un power-up acceso lo spegne e si resta
+  // fermi. «Tutto» li spegne tutti e porta avanti.
+  function scegliVoglia(v) {
+    const spento = !!v && accesi().has(v);
+    stato.voglia = cambiaVoglia(v);
     if (!spento && v) conta("powerup");
     aggiorna();
-    if (spento && !daiPosti) return percorso.segna();
-    if (!daiPosti && livelloDaScegliere()) versoLivelli(); else versoPosti();
+    if (spento) return percorso.segna();
+    if (livelloDaScegliere()) versoLivelli(); else versoPosti();
     percorso.avanza();
+  }
+  // Nella finestra FILTRI ogni tocco accende o spegne un tipo e la finestra resta aperta, così se ne possono
+  // accendere più d'uno; il pulsante in fondo dice quanti posti escono. Come per la ricerca, il passo nuovo nella
+  // cronologia si scrive alla chiusura.
+  function vogliaNeiFiltri(v) {
+    const accende = !!v && !accesi().has(v);
+    stato.voglia = cambiaVoglia(v);
+    if (accende) conta("powerup");
+    aggiorna(); percorso.segna();
+    const b = document.querySelector(`#filtri-pw [data-voglia="${v}"]`);
+    if (b) b.focus({ preventScroll: true });   // i pulsanti sono stati ridisegnati: il fuoco resta su quello toccato
   }
   function togliFiltri() {
     if (!stato.voglia && !stato.q) return;
     stato.voglia = ""; stato.q = ""; $("#q").value = ""; $("#q-f").value = "";
     aggiorna(); versoPosti(); percorso.avanza();
   }
-  let qPrimaDeiFiltri = "";
+  let qPrimaDeiFiltri = "", vogliaPrimaDeiFiltri = "";
   function apriFiltri() {
     const d = $("#dlg-filtri"); if (d.open) return;
     conta("filtri");
-    $("#q-f").value = $("#q").value; qPrimaDeiFiltri = stato.q;
+    $("#q-f").value = $("#q").value; qPrimaDeiFiltri = stato.q; vogliaPrimaDeiFiltri = stato.voglia;
     d.showModal();
   }
   // Quello che è scritto nel campo della finestra vale subito, senza aspettare la pausa della battitura
   function cercaDaiFiltri() { clearTimeout(tCerca); $("#q").value = $("#q-f").value; stato.q = norm($("#q-f").value.trim()); }
-  // Chiude la finestra e riporta all'inizio dei posti. Se la ricerca è cambiata è un passo nuovo (INDIETRO la toglie);
-  // se non è cambiato niente la finestra si chiude e basta.
-  function chiudiFiltri(voglia) {
+  // Chiude la finestra e riporta all'inizio dei posti. Se i tipi o la ricerca sono cambiati è un passo nuovo
+  // (INDIETRO lo toglie); se non è cambiato niente la finestra si chiude e basta.
+  function chiudiFiltri() {
     const d = $("#dlg-filtri"); if (!d.open) return;
     const mostrata = stato.q;
     cercaDaiFiltri();
     d.close();
-    if (voglia !== undefined) return scegliVoglia(voglia, true);
     if (stato.q !== mostrata) aggiorna();
-    if (stato.q !== qPrimaDeiFiltri) percorso.avanza();
+    if (stato.q !== qPrimaDeiFiltri || stato.voglia !== vogliaPrimaDeiFiltri) percorso.avanza();
     versoPosti();
   }
   function scegliLivello(lv) {
@@ -1104,7 +1129,7 @@
     const rullo = $("#rullo");
     const fine = () => {
       rullo.classList.remove("gira"); rullo.removeAttribute("aria-hidden"); rullo.textContent = x.n;
-      const filtro = stato.voglia ? ` · solo «${esc(PW[stato.voglia][0])}»` : g.ora ? ` · adatti all’ora (${esc(g.mom.nome)})` : g.nessuno ? ` · di ogni tipo, perché qui non ne ho di adatti all’ora (${esc(g.mom.nome)})` : !gt.ora ? " · di ogni tipo" : "";
+      const filtro = stato.voglia ? ` · solo ${nomiVoglie((t) => `«${esc(t)}»`)}` : g.ora ? ` · adatti all’ora (${esc(g.mom.nome)})` : g.nessuno ? ` · di ogni tipo, perché qui non ne ho di adatti all’ora (${esc(g.mom.nome)})` : !gt.ora ? " · di ogni tipo" : "";
       const cambia = stato.voglia ? "" : g.ora ? `<button class="link" type="button" data-get="ora">Vanno bene tutti i tipi</button>`
         : !gt.ora ? `<button class="link" type="button" data-get="ora">Solo quelli adatti all’ora</button>` : "";
       $("#get-esito").innerHTML = `<span class="sr">È uscito ${esc(x.n)}.</span>
@@ -1459,9 +1484,10 @@
     if (b) mostraSuMappa(+b.dataset.mappa);
   });
   $("#powerups").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (b) scegliVoglia(b.dataset.voglia); });
-  // FILTRI: la finestra che si apre dalla barra sopra i posti. Scelto il tipo si chiude e la lista riparte dall'inizio.
+  // FILTRI: la finestra che si apre dalla barra sopra i posti. I tipi si accendono e spengono restando nella finestra;
+  // chiudendola la lista riparte dall'inizio.
   $("#apri-filtri").addEventListener("click", apriFiltri);
-  $("#filtri-pw").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (b) chiudiFiltri(b.dataset.voglia); });
+  $("#filtri-pw").addEventListener("click", (e) => { const b = e.target.closest("[data-voglia]"); if (b) vogliaNeiFiltri(b.dataset.voglia); });
   $("#filtri-ok").addEventListener("click", () => chiudiFiltri());
   $("#filtri-chiudi").addEventListener("click", () => chiudiFiltri());
   $("#dlg-filtri").addEventListener("cancel", (e) => { e.preventDefault(); chiudiFiltri(); });   // tasto Esc

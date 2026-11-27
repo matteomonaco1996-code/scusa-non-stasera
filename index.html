@@ -96,7 +96,7 @@
 
 <section class="zona" id="sez-pw" aria-labelledby="t-pw">
   <div class="wrap">
-    <div class="zona-head"><h2 id="t-pw">SCEGLI IL POWER-UP</h2><p>Che voglia hai? Uno solo, o tutti.</p></div>
+    <div class="zona-head"><h2 id="t-pw">SCEGLI IL POWER-UP</h2><p>Che voglia hai? Uno, o tutti. Altri tipi li aggiungi quando vuoi, anche da FILTRI.</p></div>
     <div class="powerups" id="powerups" role="group" aria-label="Tipo di posto"></div>
     <div class="extra">
       <label class="campo"><span class="sr">Cerca</span><input id="q" type="search" enterkeyhint="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
@@ -184,7 +184,8 @@
 <dialog class="finestra" id="dlg-filtri" aria-labelledby="fil-t">
   <div class="testa"><h2 id="fil-t">CHE VOGLIA HAI?</h2><button class="btn alt mini" type="button" id="filtri-chiudi">CHIUDI</button></div>
   <div class="corpo">
-    <div class="powerups" id="filtri-pw" role="group" aria-label="Tipo di posto"></div>
+    <p class="fil-nota" id="fil-nota">Puoi accenderne più di uno: tocca di nuovo per spegnerlo.</p>
+    <div class="powerups" id="filtri-pw" role="group" aria-label="Tipo di posto" aria-describedby="fil-nota"></div>
     <label class="campo"><span class="sr">Cerca</span><input id="q-f" type="search" enterkeyhint="search" placeholder="Cerca: carbonara, enoteca, Pigneto…" autocomplete="off" maxlength="60"></label>
     <div class="piede"><button class="btn" type="button" id="filtri-ok">MOSTRA I POSTI</button></div>
   </div>
